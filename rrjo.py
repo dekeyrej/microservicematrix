@@ -15,13 +15,13 @@ from datasourcelib import Database          # wrapper for postgres/cockroach/sql
 from securedict    import DecryptDicts      # decrypt the secretsecrets
 from secretsecrets import encsecrets        # encrypted configuration values
 
-# from github        import GithubServer
-# from jenkins       import JenkinsServer
+from github        import GithubServer
+from jenkins       import JenkinsServer
 from calserver     import CalendarServer
 from nextserver    import NextEvent
-# from weatherserver import OWMServer
-# from moonserver    import MoonServer
-# from mlbserver     import MLBServer
+from weatherserver import OWMServer
+from moonserver    import MoonServer
+from mlbserver     import MLBServer
 from garmin        import GarminServer
 
 try:
@@ -85,20 +85,20 @@ config['dba'].write(data)
 
 if MSSERVERTYPE == 'Garmin':
     msserver = GarminServer(config, 601)
-# elif MSSERVERTYPE == 'Github':
-    # msserver = GithubServer(config, 599)
-# elif MSSERVERTYPE == 'Jenkins':
-    # msserver = JenkinsServer(config, 881)
+elif MSSERVERTYPE == 'Github':
+    msserver = GithubServer(config, 599)
+elif MSSERVERTYPE == 'Jenkins':
+    msserver = JenkinsServer(config, 881)
 elif MSSERVERTYPE == 'Calendar':
     msserver = CalendarServer(config, 877)
 elif MSSERVERTYPE == 'Events':
     msserver = NextEvent(config, 3593)
-# elif MSSERVERTYPE == 'Weather':
-    # msserver = OWMServer(config, 907)
-# elif MSSERVERTYPE == 'Moon':
-    # msserver = MoonServer(config, 911)
-# elif MSSERVERTYPE == 'MLB':
-    # msserver = MLBServer(config, 29)
+elif MSSERVERTYPE == 'Weather':
+    msserver = OWMServer(config, 907)
+elif MSSERVERTYPE == 'Moon':
+    msserver = MoonServer(config, 911)
+elif MSSERVERTYPE == 'MLB':
+    msserver = MLBServer(config, 29)
 else:
     print(f'Undefined server type "{MSSERVERTYPE}".  Exiting')
     sys.exit()

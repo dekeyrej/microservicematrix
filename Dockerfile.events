@@ -9,17 +9,14 @@ RUN pip install -r requirements.txt && \
 
 #Operational stage
 FROM python:slim
-WORKDIR /code
 COPY --from=builder /opt/venv /opt/venv
 ENV PATH="/opt/venv/bin:$PATH" \
     PROD=1 \
-    PYTHONUNBUFFERED=1 \
-    MSSERVERTYPE='Events'
-# change per server type
-COPY nextserver.py .
-COPY events.txt .
-COPY secretsecrets.py .
-COPY serverpage.py .
-COPY rrjo.py .
+    PYTHONUNBUFFERED=1
+WORKDIR /code
+COPY *.py /code/
 EXPOSE 10255
+# change per server type
+COPY events.txt .
+ENV MSSERVERTYPE='Events'
 CMD ["python", "rrjo.py"]

@@ -9,14 +9,13 @@ RUN pip install -r requirements.txt && \
 
 #Operational stage
 FROM python:slim
+COPY --from=builder /opt/venv /opt/venv
 ENV PATH="/opt/venv/bin:$PATH" \
     PROD=1 \
-    PYTHONUNBUFFERED=1 
-COPY --from=builder /opt/venv /opt/venv
+    PYTHONUNBUFFERED=1
 WORKDIR /code
-COPY secretsecrets.py .
-COPY serverpage.py .
+COPY *.py /code/
 EXPOSE 10255
 # change per server type
-COPY garmin.py .
-CMD ["python", "garmin.py"]
+ENV MSSERVERTYPE='Garmin'
+CMD ["python", "rrjo.py"]
