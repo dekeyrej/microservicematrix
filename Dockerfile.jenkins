@@ -1,0 +1,21 @@
+#Builder stage
+FROM python:slim AS builder
+RUN python -m venv /opt/venv
+ENV PATH="/opt/venv/bin:$PATH"
+COPY requirements.txt .
+COPY wheels/*.whl .
+RUN pip install -r requirements.txt && \
+    pip install *.whl
+
+#Operational stage
+FROM python:slim
+COPY --from=builder /opt/venv /opt/venv
+ENV PATH="/opt/venv/bin:$PATH" \
+    PROD=1 \
+    PYTHONUNBUFFERED=1
+WORKDIR /code
+COPY *.py /code/
+EXPOSE 10255
+# change per server type
+ENV MSSERVERTYPE='Jenkins'
+CMD ["python", "rrjo.py"]

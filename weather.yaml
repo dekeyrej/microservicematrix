@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: weather
+  namespace: default
+  labels:
+    k8s-app: weather
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      k8s-app: weather
+  template:
+    metadata:
+      name: weather
+      labels:
+        k8s-app: weather
+    spec:
+      containers:
+        - name: weather
+          image: localhost:32000/weather:registry
+          imagePullPolicy: Always
+          ports:
+          - containerPort: 10255
+          livenessProbe:
+            tcpSocket:
+              port: 10255
+            initialDelaySeconds: 15
+            periodSeconds: 30
+          securityContext:
+            privileged: false
+      imagePullSecrets:
+        - name: regcred

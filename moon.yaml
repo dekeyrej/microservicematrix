@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: moon
+  namespace: default
+  labels:
+    k8s-app: moon
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      k8s-app: moon
+  template:
+    metadata:
+      name: moon
+      labels:
+        k8s-app: moon
+    spec:
+      containers:
+        - name: moon
+          image: localhost:32000/moon:registry
+          imagePullPolicy: Always
+          ports:
+          - containerPort: 10255
+          livenessProbe:
+            tcpSocket:
+              port: 10255
+            initialDelaySeconds: 15
+            periodSeconds: 30
+          securityContext:
+            privileged: false
+      imagePullSecrets:
+        - name: regcred
