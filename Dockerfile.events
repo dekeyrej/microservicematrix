@@ -14,9 +14,10 @@ COPY --from=builder /opt/venv /opt/venv
 ENV PATH="/opt/venv/bin:$PATH" \
     PROD=1 \
     PYTHONUNBUFFERED=1 \
-    MSSERVERTYPE='Calendar'
+    MSSERVERTYPE='Events'
 # change per server type
-COPY calserver.py .
+COPY nextserver.py .
+COPY events.txt .
 COPY secretsecrets.py .
 COPY serverpage.py .
 COPY rrjo.py .

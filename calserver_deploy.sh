@@ -4,4 +4,4 @@ docker push 192.168.86.49:32000/calendar:registry
 kubectl rollout restart -n default deployment calendar
 
 
-# kubectl scale -n default deployment garmin --replicas=1
+# kubectl scale -n default deployment calendar --replicas=1

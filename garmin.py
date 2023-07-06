@@ -1,18 +1,5 @@
 """ ... """
-####
-import os                                   # access local environment (os.environ["key"])
-# import sys                                  # to politely exit (sys.exit())
-import time                                 # time.sleep()
-import socketserver                         # for liveness probe (MyTCPHandler(), TCPServer)
-import requests                             # to create a shared session and process liveness
-import arrow                                # date/time handlling
-
-from datasourcelib import Database          # wrapper for postgres/cockroach/sqlite/mongodb
-from securedict    import DecryptDicts      # decrypt the secretsecrets
-from secretsecrets import encsecrets        # encrypted configuration values
-####
-
-# import arrow
+import arrow
 import xmltodict
 # import json
 
@@ -88,70 +75,3 @@ class GarminServer(ServerPage):
         else:
             timestr = arrow.now()
         return timestr
-    
-
-# Run this server
-MSSERVERTYPE = 'Garmin'   # UPDATE THIS ONE
-
-try:
-    ENVIRONMENT = os.environ["PROD"]
-except KeyError:
-    ENVIRONMENT = 'NF'
-
-# Values for TCP liveness probe
-HOST = '0.0.0.0'
-PORT = 10255
-
-class MyTCPHandler(socketserver.BaseRequestHandler):
-    """ Socket handler for liveness probe """
-    def handle(self):
-        self.data = self.request.recv(1024).strip()
-        print('Health Check...')
-        self.request.sendall(self.data.upper())
-
-config = {}
-config['sess'] = requests.session()
-dd = DecryptDicts()
-
-print(ENVIRONMENT)
-if ENVIRONMENT == '1':  # Production
-    print('Running in Production')
-    dd.read_in_cluster_key()
-    config['secrets'] = dd.decrypt_dict(encsecrets)
-    DBHOST = 'mypostgres.default'
-    DBPORT = 5432
-    TBLNAME = 'feed'
-else:  # Development
-    print('Running in Development')
-    dd.read_key_from_file('Do_Not_Copy/refKey.txt')
-    config['secrets'] = dd.decrypt_dict(encsecrets)
-    DBHOST = 'rocket2'
-    DBPORT = 5432
-    TBLNAME = 'feed'
-
-db_params = {"user": config['secrets']['dbuser'],
-             "pass": config['secrets']['dbpass'], \
-             "host": DBHOST, "port":  DBPORT, \
-             "db_name": 'matrix', "tbl_name": TBLNAME}
-
-config['dba'] = Database('postgres', db_params)
-
-# Write Startup record to database
-tnow = arrow.now()
-data = {}
-data['type']   = f'{MSSERVERTYPE}-Server'
-data['updated'] = tnow.to('US/Eastern').format('MM/DD/YYYY h:mm A ZZZ')
-data['valid']   = tnow.to('US/Eastern').format('MM/DD/YYYY h:mm:ss A ZZZ')
-data['values'] = {}
-# print(json.dumps(data,indent=2))
-config['dba'].write(data)
-
-msserver = GarminServer(config, 601)  # UPDATE THIS ONE
-
-with socketserver.TCPServer((HOST, PORT), MyTCPHandler) as server:
-    server.timeout = 0.1
-    while True:
-        now = time.monotonic()
-        msserver.check(now)
-        server.handle_request()
-        time.sleep(0.9)
