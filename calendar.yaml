@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: calendar
+  namespace: default
+  labels:
+    k8s-app: calendar
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      k8s-app: calendar
+  template:
+    metadata:
+      name: calendar
+      labels:
+        k8s-app: calendar
+    spec:
+      containers:
+        - name: calendar
+          image: localhost:32000/calendar:registry
+          imagePullPolicy: Always
+          ports:
+          - containerPort: 10255
+          livenessProbe:
+            tcpSocket:
+              port: 10255
+            initialDelaySeconds: 15
+            periodSeconds: 30
+          securityContext:
+            privileged: false
+      imagePullSecrets:
+        - name: regcred

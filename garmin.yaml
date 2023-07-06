@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: garmin
+  namespace: default
+  labels:
+    k8s-app: garmin
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      k8s-app: garmin
+  template:
+    metadata:
+      name: garmin
+      labels:
+        k8s-app: garmin
+    spec:
+      containers:
+        - name: garmin
+          image: localhost:32000/garmin:registry
+          imagePullPolicy: Always
+          ports:
+          - containerPort: 10255
+          livenessProbe:
+            tcpSocket:
+              port: 10255
+            initialDelaySeconds: 15
+            periodSeconds: 30
+          securityContext:
+            privileged: false
+      imagePullSecrets:
+        - name: regcred
