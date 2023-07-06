@@ -29,7 +29,7 @@ class MLBServer(ServerPage):
 
             next_start_time = tnow.replace(hour=23,minute=59,second=59)
             for gam in games:
-                game, start_time = self.load_game(gam, tnow)
+                game, start_time = self.load_game(gam) #, tnow)
                 # if start_time < next_start_time and start_time >= tnow:
                 if tnow <= start_time < next_start_time:
                     next_start_time = start_time
@@ -64,7 +64,7 @@ class MLBServer(ServerPage):
             print(f'{type(self).__name__} updated.')
             self.dba.write(data)
 
-    def load_game(self, game, tnow):
+    def load_game(self, game): #, tnow):
         """ ... """
         values = {}
         # next_start_time = tnow.replace(hour=23,minute=59,second=59)
@@ -119,7 +119,7 @@ class MLBServer(ServerPage):
                 values['lastPlay']     = competition['situation']['lastPlay']['text']
             except KeyError:
                 values['lastPlay'] = ''
-            
+
         return values
 
     def situation(self, competition):

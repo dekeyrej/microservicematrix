@@ -1,21 +1,41 @@
+''' Encryted and base64 encoded secrets dict '''
 encsecrets = {
-  "timezone": "gAAAAABkbCDxKj3sPJ0fwvyoYtSBiTzverTRQ79MVpbM6tNjKUhuz3GOE1s5TRQiNhDWqqiaUesu-L5f8M5IxK393dvgTtFbguXBDt9HK1q5JHT5pBLmVjs=",
-  "owmkey": "gAAAAABkbCDxSstzVgxLbwqU35T_vaB7TjM8a3gnnEKS0Y5DPqO41PjfU4Y5z5sPYwjo_dTKJfikr5-I0OoIe4WbONGCIrJXtYW6mydQVEOpnWVLPC4399OFtUT1gk5CTCWw6lNPDclX",
-  "city": "gAAAAABkbCDxkWyZEYacvq1z4drtBY207Lku_nWTmYaD1xsJkYrvdsRiGB2AL8AZ7rtGiAtl49t7v7ARkf8NK_0UEiVh8ACQvA==",
-  "state": "gAAAAABkbCDx98zr95Tnp60XFOJOV-GdFA68Cc1U_yQghuCrqvUH-ltpEzGGUBhHUqH672mo7w9Gfk_pKNxq-ftPEFstlz0aig==",
-  "country": "gAAAAABkbCDxogI72Nz1cRS8DYc4HONbIwmnK8GLbWdubPaeBA6PpOnIu23D8Wdt0dzvwlnqFpVqtcXhUuyb0UDeBGVDCukBKg==",
-  "google_calendar": "gAAAAABkbCDxBjnx2G6xMqX7aBK00vXf_fIjvjsxhRRnAZLq3cv3l2xmz9iElJzWVnUTlOy8iJpdN34kEZ8k-baZ6roNoRFrx2mhYHXNK_4smVYYbsOwpE6wv-uWEPlVllXkU0ur5oXmG5f7jLsX9Go6Gm69uvg7ow==",
-  "google_api_key": "gAAAAABkbCDxff2F991vxBxR205CYKo-33WJBr1f0BlLjnYir-hPut_rzM6ZxSzuFGoVPZkfGKy9EDrb87O8HJhMZLNrDFF6rFSkjV-XpowQxNtBLw28DL2Z1qbPAG2cS3e5NebJ-sMx",
-  "google_map_key": "gAAAAABkbCDxrfoURrUYrSCBNBHHEagyd_IvAngb6oRI4kV6Mk_GsGOvfy66OEpTI8ZAXdgakEfqzjX0EiunRe0afpCTqKxY7nZnUR7wzw5e1FNr9CMvOwkcYumrxVxPsKifZ7zjB56a",
-  "latitude": "gAAAAABkbCDxmNn7wgDWJXIEA_PFzOWM81XfSR6EL0oEq7CpTfMe78PAnrqcbJoSAFusF5my36Bwv8BhawuSBRZMmNxWIfo1Fw==",
-  "longitude": "gAAAAABkbCDxgUFKToRKKZ9HYqFN_yqwir_S14svR-X5Vdl3ved4LWX9kjKTj3cVI_e-P9O8m7uLsLejQ51tCJQbzxUEJ_NiQQ==",
-  "mongoClusterUsernamePassword": "gAAAAABkbCDxpEONBwgbwuNAgGRvaNYoE6Uc9NRt-9zamkYTRK-RNe-1N35J_6ZZQqjKedYCa3fGRY_r_zkJsDjRElpe1-6fSO8HOjSAD1x2SSQdx-FFJ20=",
-  "cockroachClusterUsernamePassword": "gAAAAABkbCDxcA2TAWymfI77XldSWFvmn-bzUdrjp9jJeILP4DrTqT5EXE_d3MwI0Wq6a17okgQgH8E9U_6iuLHulW_sKZGPCg==",
-  "dbuser": "gAAAAABkbCDx0aKBPwpPfug_HmE1r0EAk5xvOwIBzZAhOEJMVpVLUOHWEt9D-8aw0-cD_il5eI_c20aA5yKle75QCQqAj1WrYA==",
-  "dbpass": "gAAAAABkbCDxUeUdE5bTvmvCM7lMUQ7NQYT70yG7MZWcajh-nPZQt0V_GNEg0MajxmW5GGhWw1H7w-naI8jybSJAv7mhkJ8j9A==",
-  "jenkins_user": "gAAAAABkbCDxDo7jnWo2YoskXQdfOFDaydk_8MjoxnLoqOGXTfD4fRh9V7kirsLkPhBcJvwI0B9c22UC83SkExLYdwZkS20uYA==",
-  "jenkins_api_key": "gAAAAABkbCDxWBb_fqjoPk72DQM_khDLGhb8Q-rpSS4hgNYPRLMFvid2e2sNGS_BP5yoInlc_mYAPVYdrcgm5UO8tBG1xYUMxXvR7pn2eAG8q_16KiNDkVtDwBKcE_GGeJvLhEpxqqEz",
-  "github_owner": "gAAAAABkbCDx5oPLecfDeav6yNEbLtQMymZ9PUnpbnKqiYUrcJ3NOcDlDnhFdovbxzY67r1FnFELhyDueqZ_ekrDNf9QxVIk1g==",
-  "github_repo": "gAAAAABkbCDxHaLa22Vb-Tj1Lgr1-XvDM-_-XtZk9m7sWUf2_UGo8OZvQIr5MZEeXy5Fhsa9bnhTct_tW0DzeFCr8AJE1YkBZg==",
-  "github_api_key": "gAAAAABkbCDxoScroWt9qKYZmZ-JUj9vCELJs0YQGx7wxc93EZOc1seWLoIus37FcL-lYAcUyuAvjnwGh047_lOMo6Fi5T2E2SBqYSDQuwECeBbJUVYdhj1JrqsJyXTubaKUP4lT1_Rt"
+  "timezone": "gAAAAABkbCDxKj3sPJ0fwvyoYtSBiTzverTRQ79MVpbM6tNjKUhuz3GOE1s5TRQiNhDWqqiaUesu-L5f8M5\
+    IxK393dvgTtFbguXBDt9HK1q5JHT5pBLmVjs=",
+  "owmkey": "gAAAAABkbCDxSstzVgxLbwqU35T_vaB7TjM8a3gnnEKS0Y5DPqO41PjfU4Y5z5sPYwjo_dTKJfikr5-I0OoIe\
+    4WbONGCIrJXtYW6mydQVEOpnWVLPC4399OFtUT1gk5CTCWw6lNPDclX",
+  "city": "gAAAAABkbCDxkWyZEYacvq1z4drtBY207Lku_nWTmYaD1xsJkYrvdsRiGB2AL8AZ7rtGiAtl49t7v7ARkf8NK_0\
+    UEiVh8ACQvA==",
+  "state": "gAAAAABkbCDx98zr95Tnp60XFOJOV-GdFA68Cc1U_yQghuCrqvUH-ltpEzGGUBhHUqH672mo7w9Gfk_pKNxq-f\
+    tPEFstlz0aig==",
+  "country": "gAAAAABkbCDxogI72Nz1cRS8DYc4HONbIwmnK8GLbWdubPaeBA6PpOnIu23D8Wdt0dzvwlnqFpVqtcXhUuyb\
+    0UDeBGVDCukBKg==",
+  "google_calendar": "gAAAAABkbCDxBjnx2G6xMqX7aBK00vXf_fIjvjsxhRRnAZLq3cv3l2xmz9iElJzWVnUTlOy8iJpd\
+    N34kEZ8k-baZ6roNoRFrx2mhYHXNK_4smVYYbsOwpE6wv-uWEPlVllXkU0ur5oXmG5f7jLsX9Go6Gm69uvg7ow==",
+  "google_api_key": "gAAAAABkbCDxff2F991vxBxR205CYKo-33WJBr1f0BlLjnYir-hPut_rzM6ZxSzuFGoVPZkfGKy9E\
+    Drb87O8HJhMZLNrDFF6rFSkjV-XpowQxNtBLw28DL2Z1qbPAG2cS3e5NebJ-sMx",
+  "google_map_key": "gAAAAABkbCDxrfoURrUYrSCBNBHHEagyd_IvAngb6oRI4kV6Mk_GsGOvfy66OEpTI8ZAXdgakEfqz\
+    jX0EiunRe0afpCTqKxY7nZnUR7wzw5e1FNr9CMvOwkcYumrxVxPsKifZ7zjB56a",
+  "latitude": "gAAAAABkbCDxmNn7wgDWJXIEA_PFzOWM81XfSR6EL0oEq7CpTfMe78PAnrqcbJoSAFusF5my36Bwv8Bhawu\
+    SBRZMmNxWIfo1Fw==",
+  "longitude": "gAAAAABkbCDxgUFKToRKKZ9HYqFN_yqwir_S14svR-X5Vdl3ved4LWX9kjKTj3cVI_e-P9O8m7uLsLejQ5\
+    1tCJQbzxUEJ_NiQQ==",
+  "mongoClusterUsernamePassword": "gAAAAABkbCDxpEONBwgbwuNAgGRvaNYoE6Uc9NRt-9zamkYTRK-RNe-1N35J_6Z\
+    ZQqjKedYCa3fGRY_r_zkJsDjRElpe1-6fSO8HOjSAD1x2SSQdx-FFJ20=",
+  "cockroachClusterUsernamePassword": "gAAAAABkbCDxcA2TAWymfI77XldSWFvmn-bzUdrjp9jJeILP4DrTqT5EXE_\
+    d3MwI0Wq6a17okgQgH8E9U_6iuLHulW_sKZGPCg==",
+  "dbuser": "gAAAAABkbCDx0aKBPwpPfug_HmE1r0EAk5xvOwIBzZAhOEJMVpVLUOHWEt9D-8aw0-cD_il5eI_c20aA5yKle\
+    75QCQqAj1WrYA==",
+  "dbpass": "gAAAAABkbCDxUeUdE5bTvmvCM7lMUQ7NQYT70yG7MZWcajh-nPZQt0V_GNEg0MajxmW5GGhWw1H7w-naI8jyb\
+    SJAv7mhkJ8j9A==",
+  "jenkins_user": "gAAAAABkbCDxDo7jnWo2YoskXQdfOFDaydk_8MjoxnLoqOGXTfD4fRh9V7kirsLkPhBcJvwI0B9c22U\
+    C83SkExLYdwZkS20uYA==",
+  "jenkins_api_key": "gAAAAABkbCDxWBb_fqjoPk72DQM_khDLGhb8Q-rpSS4hgNYPRLMFvid2e2sNGS_BP5yoInlc_mYA\
+    PVYdrcgm5UO8tBG1xYUMxXvR7pn2eAG8q_16KiNDkVtDwBKcE_GGeJvLhEpxqqEz",
+  "github_owner": "gAAAAABkbCDx5oPLecfDeav6yNEbLtQMymZ9PUnpbnKqiYUrcJ3NOcDlDnhFdovbxzY67r1FnFELhyD\
+    ueqZ_ekrDNf9QxVIk1g==",
+  "github_repo": "gAAAAABkbCDxHaLa22Vb-Tj1Lgr1-XvDM-_-XtZk9m7sWUf2_UGo8OZvQIr5MZEeXy5Fhsa9bnhTct_t\
+    W0DzeFCr8AJE1YkBZg==",
+  "github_api_key": "gAAAAABkbCDxoScroWt9qKYZmZ-JUj9vCELJs0YQGx7wxc93EZOc1seWLoIus37FcL-lYAcUyuAvj\
+    nwGh047_lOMo6Fi5T2E2SBqYSDQuwECeBbJUVYdhj1JrqsJyXTubaKUP4lT1_Rt"
 }

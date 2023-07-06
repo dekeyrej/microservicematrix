@@ -1,3 +1,4 @@
+''' Looks for latest commit to github repository '''
 # import json
 import arrow
 
@@ -11,10 +12,13 @@ class GithubServer(ServerPage):
         repo = self.secrets['github_repo']
         my_token = self.secrets['github_api_key']
         self.url = f'https://api.github.com/repos/{owner}/{repo}/commits'
-        self.headers = {'Authorization': f'token {my_token}', 'Accept': 'application/vnd.github+json'}
+        self.headers = {'Authorization': f'token {my_token}',
+                        'Accept': 'application/vnd.github+json'}
 
     def update(self):
         """ called by ServerPage.check() """
+        in_format = 'YYYY-MM-DD[T]HH:mm:ssZ'
+        out_format = 'YYYY-MM-DD hh:mm:ss A ZZZ'
         tnow = arrow.now().to('US/Eastern')
         resp = self.fetch(self.url,'Fetching GitHub Commits',\
                           tnow.format('MM/DD/YYYY hh:mm A ZZZ'),\
@@ -30,7 +34,8 @@ class GithubServer(ServerPage):
             data['values'] = {}
             data['values']['commit'] = resp[0]['sha'][0:7]
             data['values']['message'] = resp[0]['commit']['message']
-            data['values']['date']   = arrow.get(resp[0]['commit']['author']['date'],'YYYY-MM-DD[T]HH:mm:ssZ').to('US/Eastern').format('YYYY-MM-DD hh:mm:ss A ZZZ')
+            commit_date = arrow.get(resp[0]['commit']['author']['date'],in_format)
+            data['values']['date'] = commit_date.to('US/Eastern').format(out_format)
 
             # print(json.dumps(data,indent=2))
             self.dba.write(data)

@@ -80,7 +80,6 @@ data['type']   = f'{MSSERVERTYPE}-Server'
 data['updated'] = tnow.to('US/Eastern').format('MM/DD/YYYY h:mm A ZZZ')
 data['valid']   = tnow.to('US/Eastern').format('MM/DD/YYYY h:mm:ss A ZZZ')
 data['values'] = {}
-# print(json.dumps(data,indent=2))
 config['dba'].write(data)
 
 if MSSERVERTYPE == 'Garmin':

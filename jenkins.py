@@ -1,4 +1,6 @@
-import json
+''' Checks latest build status for Jenkins project '''
+
+# import json
 import arrow
 
 from serverpage import ServerPage
@@ -36,7 +38,8 @@ class JenkinsServer(ServerPage):
             data['values'] = {}
             data['values']['build']  = sresp["builds"][0]["number"]
             data['values']['status'] = resp['result']
-            data['values']['time']   = arrow.get(resp['timestamp']).to('US/Eastern').format('MM/DD/YYYY h:mm A ZZZ')
+            times = arrow.get(resp['timestamp']).to('US/Eastern').format('MM/DD/YYYY h:mm A ZZZ')
+            data['values']['time']   = times
             data['values']['health'] = sresp['healthReport'][0]['score']
             data['values']['icon']   = sresp['healthReport'][0]['iconUrl']
             # print(json.dumps(data,indent=2))
