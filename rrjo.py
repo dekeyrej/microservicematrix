@@ -24,6 +24,7 @@ from moonserver    import MoonServer
 from mlbserver     import MLBServer
 from garmin        import GarminServer
 
+# MSSERVERTYPE = 'MLB'
 try:
     MSSERVERTYPE = os.environ["MSSERVERTYPE"]
 except KeyError:

@@ -86,18 +86,28 @@ class MLBServer(ServerPage):
         """ ... """
         values = {}
         values['homeAbbreviation'] = competition['competitors'][0]['team']['abbreviation']
-        values['homeColor']        = competition['competitors'][0]['team']['color']
+        try:
+            values['homeColor']        = competition['competitors'][0]['team']['color']
+            values['homeRecord']       = competition['competitors'][0]['records'][0]['summary']
+        except KeyError:
+            values['homeColor']        = '000000'
+            values['homeRecord']       = ''
         values['homeLogo']         = competition['competitors'][0]['team']['logo']
-        values['homeRecord']       = competition['competitors'][0]['records'][0]['summary']
+        
         return values
 
     def away_values(self, competition):
         """ ... """
         values = {}
         values['awayAbbreviation'] = competition['competitors'][1]['team']['abbreviation']
-        values['awayColor']        = competition['competitors'][1]['team']['color']
+        try:
+            values['awayColor']        = competition['competitors'][1]['team']['color']
+            values['awayRecord']       = competition['competitors'][1]['records'][0]['summary']
+        except KeyError:
+            values['awayColor']        = '000000'
+            values['awayRecord']       = ''
         values['awayLogo']         = competition['competitors'][1]['team']['logo']
-        values['awayRecord']       = competition['competitors'][1]['records'][0]['summary']
+        
         return values
 
     def scores(self, competition):
