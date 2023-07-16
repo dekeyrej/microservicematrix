@@ -37,36 +37,39 @@ def deploy_image(tag):
     else:
         print(f'{tag} failed to deploy.')
 
+def build_one(tag):
+    build_image(tag)
+    push_image(tag)
+    deploy_image(tag)
+
 def build_all():
     print('Building all:')
     for i in ALL:
-        build_image(i)
-        # push_image(i)
-        # deploy_image(i)
+        build_one(i)
 
 def build_calendar():
-    build_image('calendar')
+    build_one('calendar')
 
 def build_garmin():
-    build_image('garmin')
+    build_one('garmin')
 
 def build_github():
-    build_image('github')
+    build_one('github')
 
 def build_jenkins():
-    build_image('jenkins')
+    build_one('jenkins')
 
 def build_mlb():
-    build_image('mlb')
+    build_one('mlb')
 
 def build_moon():
-    build_image('moon')
+    build_one('moon')
 
 def build_events():
-    build_image('events')
+    build_one('events')
 
 def build_weather():
-    build_image('weather')
+    build_one('weather')
 
 def build_none():
     print('No images to build')
@@ -132,7 +135,7 @@ def fetch(rsess, url, auth=None, headers=None):
         #     return None
         return response.json()
 
-last_sha = "045ede4" # to-do: read this from a file
+last_sha = "99ddeb4" # to-do: read this from a file
 # last_sha = "62d0db6"
 sess = requests.session()
 dd = DecryptDicts()
