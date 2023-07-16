@@ -3,9 +3,7 @@ FROM python:slim AS builder
 RUN python -m venv /opt/venv
 ENV PATH="/opt/venv/bin:$PATH"
 COPY requirements.txt .
-COPY wheels/*.whl .
-RUN pip install -r requirements.txt && \
-    pip install *.whl
+RUN pip install -r requirements.txt 
 
 #Operational stage
 FROM python:slim

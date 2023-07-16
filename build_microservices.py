@@ -8,17 +8,7 @@ from requests.exceptions import HTTPError
 from securedict    import DecryptDicts      # decrypt the secretsecrets
 from secretsecrets import encsecrets        # encrypted configuration values
 
-wheels_copied = False
-
 ALL = ['calendar', 'garmin', 'github', 'jenkins', 'mlb', 'moon', 'events', 'weather']
-
-def copy_wheels():
-    global wheels_copied
-    if not wheels_copied:
-        cmd = 'cp ..\wheels\*.whl .\wheels'
-        result = subprocess.run(cmd, shell=True, capture_output=True)
-        if result.returncode == 0:
-            wheels_copied = True
 
 def build_image(tag):
     print(f'Building {tag}...')
@@ -49,42 +39,33 @@ def deploy_image(tag):
 
 def build_all():
     print('Building all:')
-    copy_wheels()
     for i in ALL:
         build_image(i)
         # push_image(i)
         # deploy_image(i)
 
 def build_calendar():
-    copy_wheels()
     build_image('calendar')
 
 def build_garmin():
-    copy_wheels()
     build_image('garmin')
 
 def build_github():
-    copy_wheels()
     build_image('github')
 
 def build_jenkins():
-    copy_wheels()
     build_image('jenkins')
 
 def build_mlb():
-    copy_wheels()
     build_image('mlb')
 
 def build_moon():
-    copy_wheels()
     build_image('moon')
 
 def build_events():
-    copy_wheels()
     build_image('events')
 
 def build_weather():
-    copy_wheels()
     build_image('weather')
 
 def build_none():
