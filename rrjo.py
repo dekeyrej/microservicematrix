@@ -61,9 +61,12 @@ if ENVIRONMENT == '1':  # Production
     TBLNAME = 'feed'
 else:  # Development
     print('Running in Development')
-    dd.read_key_from_file('Do_Not_Copy/refKey.txt')
+    dd.read_key_from_cluster()
+    # REFKEY = os.environ["REFKEY"]
+    # dd.set_key(REFKEY)
+    # dd.read_key_from_file('Do_Not_Copy/refKey.txt')
     config['secrets'] = dd.decrypt_dict(encsecrets)
-    DBHOST = 'rocket2'
+    DBHOST = '192.168.86.62'
     DBPORT = 5432
     TBLNAME = 'feed'
 
