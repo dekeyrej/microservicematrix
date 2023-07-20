@@ -10,6 +10,7 @@ import time                                 # time.sleep()
 import socketserver                         # for liveness probe (MyTCPHandler(), TCPServer)
 import requests                             # to create a shared session and process liveness
 import arrow                                # date/time handlling
+from dotenv import load_dotenv              # simplify dev/test/prod
 
 from datasourcelib import Database          # wrapper for postgres/cockroach/sqlite/mongodb
 from securedict    import DecryptDicts      # decrypt the secretsecrets
@@ -24,6 +25,7 @@ from moonserver    import MoonServer
 from mlbserver     import MLBServer
 from garmin        import GarminServer
 
+load_dotenv()
 # MSSERVERTYPE = 'MLB'
 try:
     MSSERVERTYPE = os.environ["MSSERVERTYPE"]
@@ -77,15 +79,6 @@ db_params = {"user": config['secrets']['dbuser'],
 
 config['dba'] = Database('postgres', db_params)
 
-# Write Startup record to database
-tnow = arrow.now()
-data = {}
-data['type']   = f'{MSSERVERTYPE}-Server'
-data['updated'] = tnow.to('US/Eastern').format('MM/DD/YYYY h:mm A ZZZ')
-data['valid']   = tnow.to('US/Eastern').format('MM/DD/YYYY h:mm:ss A ZZZ')
-data['values'] = {}
-config['dba'].write(data)
-
 if MSSERVERTYPE == 'Garmin':
     msserver = GarminServer(config, 601)
 elif MSSERVERTYPE == 'Github':
@@ -105,6 +98,15 @@ elif MSSERVERTYPE == 'MLB':
 else:
     print(f'Undefined server type "{MSSERVERTYPE}".  Exiting')
     sys.exit()
+
+# Write Startup record to database
+tnow = arrow.now()
+data = {}
+data['type']   = f'{MSSERVERTYPE}-Server'
+data['updated'] = tnow.to('US/Eastern').format('MM/DD/YYYY h:mm A ZZZ')
+data['valid']   = tnow.to('US/Eastern').format('MM/DD/YYYY h:mm:ss A ZZZ')
+data['values'] = {}
+config['dba'].write(data)
 
 with socketserver.TCPServer((HOST, PORT), MyTCPHandler) as server:
     server.timeout = 0.1
