@@ -10,7 +10,7 @@ import time                                 # time.sleep()
 import socketserver                         # for liveness probe (MyTCPHandler(), TCPServer)
 import requests                             # to create a shared session and process liveness
 import arrow                                # date/time handlling
-from dotenv import load_dotenv              # simplify dev/test/prod
+from   dotenv      import load_dotenv       # simplify dev/test/prod
 
 from datasourcelib import Database          # wrapper for postgres/cockroach/sqlite/mongodb
 from securedict    import DecryptDicts      # decrypt the secretsecrets
@@ -26,7 +26,6 @@ from mlbserver     import MLBServer
 from garmin        import GarminServer
 
 load_dotenv()
-# MSSERVERTYPE = 'MLB'
 try:
     MSSERVERTYPE = os.environ["MSSERVERTYPE"]
 except KeyError:
