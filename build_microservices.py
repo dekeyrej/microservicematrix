@@ -1,4 +1,5 @@
 import subprocess
+import time
 
 import arrow
 import json
@@ -39,13 +40,16 @@ def deploy_image(tag):
 
 def build_one(tag):
     build_image(tag)
+    time.sleep(1)
     push_image(tag)
+    time.sleep(1)
     deploy_image(tag)
 
 def build_all():
     print('Building all:')
     for i in ALL:
         build_one(i)
+        time.sleep(1)
 
 def build_calendar():
     build_one('calendar')
@@ -135,8 +139,10 @@ def fetch(rsess, url, auth=None, headers=None):
         #     return None
         return response.json()
 
-last_sha = "99ddeb4" # to-do: read this from a file
-# last_sha = "62d0db6"
+with open('last_sha.txt', 'rt', encoding='utf-8') as file:
+            last_sha = file.read()
+            file.close()
+# print(last_sha)
 sess = requests.session()
 dd = DecryptDicts()
 dd.read_key_from_cluster()
@@ -203,6 +209,9 @@ if resp is not None:
     for b in build_list:
         builds[b]()
    
-    # reset last_sha to commits[0]['sha']
     if file_list != []:
-        print(f'new last_sha = {commits[0]["sha"]}')  # to-do: write last_sha out to a file
+        last_sha = commits[0]["sha"]
+        print(f'new last_sha = {last_sha}')
+        with open('last_sha.txt', 'wt', encoding='utf-8') as file:
+            file.write(f'{last_sha}')
+            file.close()
