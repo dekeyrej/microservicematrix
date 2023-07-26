@@ -24,6 +24,7 @@ from weatherserver import OWMServer
 from moonserver    import MoonServer
 from mlbserver     import MLBServer
 from garmin        import GarminServer
+from aqiserver     import AQIServer
 
 load_dotenv()
 try:
@@ -94,6 +95,8 @@ elif MSSERVERTYPE == 'Moon':
     msserver = MoonServer(config, 911)
 elif MSSERVERTYPE == 'MLB':
     msserver = MLBServer(config, 29)
+elif MSSERVERTYPE == 'AQI':
+    msserver = AQIServer(config, 919)   # look for a different prime number around 900 (15 minutes)
 else:
     print(f'Undefined server type "{MSSERVERTYPE}".  Exiting')
     sys.exit()
