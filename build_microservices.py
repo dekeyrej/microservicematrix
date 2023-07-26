@@ -9,7 +9,7 @@ from requests.exceptions import HTTPError
 from securedict    import DecryptDicts      # decrypt the secretsecrets
 from secretsecrets import encsecrets        # encrypted configuration values
 
-ALL = ['calendar', 'garmin', 'github', 'jenkins', 'mlb', 'moon', 'events', 'weather']
+ALL = ['aqi', 'calendar', 'garmin', 'github', 'jenkins', 'mlb', 'moon', 'events', 'weather']
 
 def build_image(tag):
     print(f'Building {tag}...')
@@ -51,6 +51,9 @@ def build_all():
         build_one(i)
         time.sleep(1)
 
+def build_aqi():
+    build_one('aqi')
+
 def build_calendar():
     build_one('calendar')
 
@@ -81,6 +84,9 @@ def build_none():
 # to-do: collapse these two dicts into one
 reverse_dependencies = {
     "build_microservices.py": "None",
+    "aqiserver.py": "AQI",
+    "aqi_data.py": "AQI",
+    "Dockerfile.aqi": "AQI",
     "calserver.py": "Calendar",
     "Dockerfile.calendar": "Calendar",
     "garmin.py": "Garmin",
@@ -105,6 +111,7 @@ reverse_dependencies = {
 builds = {
     "None": build_none,
     "ALL": build_all,
+    "AQI": build_aqi,
     "Calendar": build_calendar,
     "Garmin": build_garmin,
     "GitHub": build_github,
