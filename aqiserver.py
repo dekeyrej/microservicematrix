@@ -1,5 +1,5 @@
 """ ... """
-# import json
+import json
 import arrow
 import pandas as pd
 
@@ -21,6 +21,7 @@ class AQIServer(ServerPage):
         tnow = arrow.now().to('US/Eastern')
         jstuff = self.fetch(self.url,'Fetching Air Pollution',self.now_str(tnow,True))
         if jstuff is not None:
+            # print(json.dumps(jstuff, indent=2))
             data = {}
             data['type'] = 'AQI'
             data['updated'] = self.now_str(tnow,False)
@@ -93,8 +94,9 @@ class AQIServer(ServerPage):
         scaled = 1
         row = '1'
         for i in dfindex:
-            if self.df.at[i, pl] < cval < self.df.at[i, ph]:
+            if self.df.at[i, pl] <= cval <= self.df.at[i, ph]:
                 row = i
                 # print(f'{cval} is between {self.df.at[i, pl]} and {self.df.at[i, ph]} on row {row}')
                 scaled = int(round((cval - self.df.at[i, pl])* (self.df.at[i, ah] - self.df.at[i, al])/(self.df.at[i, ph] - self.df.at[i, pl]) + self.df.at[i, al],0))
                 return scaled, row
+        return scaled, row
