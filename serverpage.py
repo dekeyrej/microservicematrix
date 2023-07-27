@@ -61,7 +61,7 @@ class ServerPage:
         """ required for Garmin server which expects an XML response instead of a JSON one """
         with self.rsess as sess:
             try:
-                response = sess.get(url,timeout=(2,5))
+                response = sess.get(url,timeout=(5,15))
                 response.raise_for_status()
             except HTTPError as http_err:
                 print(f'({name}) HTTP error occurred: {http_err} @ {now}')
