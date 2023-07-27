@@ -90,7 +90,7 @@ class AQIServer(ServerPage):
         ah = 'aqi_high'
         pl =  f'{pol}_low'
         ph = f'{pol}_high'
-        row = ''
+        row = '1'
         for i in dfindex:
             if self.df.at[i, pl] < cval < self.df.at[i, ph]:
                 row = i
