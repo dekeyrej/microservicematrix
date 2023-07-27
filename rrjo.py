@@ -12,7 +12,7 @@ import requests                             # to create a shared session and pro
 import arrow                                # date/time handlling
 
 from dotenv      import load_dotenv         # simplify dev/test/prod
-# from requests.adapters import HTTPAdapter, Retry
+# from requests.adapters import HTTPAdapter, Retry 
 from datasourcelib import Database          # wrapper for postgres/cockroach/sqlite/mongodb
 from securedict    import DecryptDicts      # decrypt the secretsecrets
 from secretsecrets import encsecrets        # encrypted configuration values
