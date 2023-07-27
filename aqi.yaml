@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: aqi
+  namespace: default
+  labels:
+    k8s-app: aqi
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      k8s-app: aqi
+  template:
+    metadata:
+      name: aqi
+      labels:
+        k8s-app: aqi
+    spec:
+      containers:
+        - name: aqi
+          image: localhost:32000/aqi:registry
+          imagePullPolicy: Always
+          ports:
+          - containerPort: 10255
+          livenessProbe:
+            tcpSocket:
+              port: 10255
+            initialDelaySeconds: 15
+            periodSeconds: 30
+          securityContext:
+            privileged: false
+      imagePullSecrets:
+        - name: regcred

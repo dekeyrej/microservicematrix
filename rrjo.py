@@ -12,7 +12,7 @@ import requests                             # to create a shared session and pro
 import arrow                                # date/time handlling
 
 from dotenv      import load_dotenv         # simplify dev/test/prod
-from requests.adapters import HTTPAdapter, Retry
+# from requests.adapters import HTTPAdapter, Retry
 from datasourcelib import Database          # wrapper for postgres/cockroach/sqlite/mongodb
 from securedict    import DecryptDicts      # decrypt the secretsecrets
 from secretsecrets import encsecrets        # encrypted configuration values
@@ -103,7 +103,7 @@ elif MSSERVERTYPE == 'Moon':
 elif MSSERVERTYPE == 'MLB':
     msserver = MLBServer(config, 29)
 elif MSSERVERTYPE == 'AQI':
-    msserver = AQIServer(config, 919)   # look for a different prime number around 900 (15 minutes)
+    msserver = AQIServer(config, 919)
 else:
     print(f'Undefined server type "{MSSERVERTYPE}".  Exiting')
     sys.exit()
