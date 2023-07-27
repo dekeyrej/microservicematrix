@@ -210,7 +210,7 @@ if resp is not None:
             pass
         # print(f)
     #
-    # build_list = ['ALL']
+    #build_list = ['ALL']
     #    
     print(f'Images to build: {list(set(build_list))}')
 
