@@ -209,7 +209,9 @@ if resp is not None:
         except KeyError:
             pass
         # print(f)
-    
+    #
+    # build_list = ['ALL']
+    #    
     print(f'Images to build: {list(set(build_list))}')
 
     # actually build the image(s)
