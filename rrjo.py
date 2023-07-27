@@ -53,10 +53,10 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
 config = {}
 config['sess'] = requests.session()
 # new retries thing
-retries = Retry(total=5,
-                backoff_factor=0.5,
-                status_forcelist=[500, 502, 503, 504])
-config['sess'].mount('https://', HTTPAdapter(max_retries=retries))
+# retries = Retry(total=5,
+#                 backoff_factor=0.5,
+#                 status_forcelist=[500, 502, 503, 504])
+# config['sess'].mount('https://', HTTPAdapter(max_retries=retries))
 # end new retries thing
 dd = DecryptDicts()
 
