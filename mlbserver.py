@@ -9,6 +9,7 @@ class MLBServer(ServerPage):
     def __init__(self, prod, period):
         """ ... """
         super().__init__(prod, period)
+        self.type = 'MLB'
         self.url = 'http://site.api.espn.com/apis/site/v2/sports/baseball/mlb/scoreboard'
 
     def update(self):

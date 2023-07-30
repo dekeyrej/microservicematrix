@@ -9,6 +9,7 @@ class GarminServer(ServerPage):
     """ ... """
     def __init__(self, prod, period):
         super().__init__(prod, period)
+        self.type = 'Track'
         self.url = 'https://inreach.garmin.com/Feed/Share/RyanTrollip'
         self.last_track = self.lastest_track()
         self.dirs = ['N','NNE','NE','ENE','E','ESE','SE','SSE','S','SSW',

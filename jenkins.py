@@ -9,6 +9,7 @@ class JenkinsServer(ServerPage):
     """ Subclass of serverpage for reading Jenkins Build Status events """
     def __init__(self, prod, period):
         super().__init__(prod, period)
+        self.type = 'Jenkins'
         self.server = "rocket3"
         self.port = 8080
         self.project = "CRServer"

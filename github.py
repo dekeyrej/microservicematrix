@@ -8,6 +8,7 @@ class GithubServer(ServerPage):
     """ Subclass of serverpage for reading Jenkins Build Status events """
     def __init__(self, prod, period):
         super().__init__(prod, period)
+        self.type = 'GitHub'
         owner = self.secrets['github_owner']
         repo = self.secrets['github_repo']
         my_token = self.secrets['github_api_key']

@@ -10,6 +10,7 @@ class MoonServer(ServerPage):
     """ subclass of ServerPage to fetch sun and moon data """
     def __init__(self, prod, period):
         super().__init__(prod, period)
+        self.type = 'Moon'
         # secrets = dd.decrypt_dict(encsecrets)
         self.loc_str = f'lat={self.secrets["latitude"]}&lon={self.secrets["longitude"]}'
         self.timezone = self.secrets['timezone'] # not currently used

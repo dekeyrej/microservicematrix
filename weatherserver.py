@@ -8,6 +8,7 @@ class OWMServer(ServerPage):
     """ ... """
     def __init__(self, prod, period):
         super().__init__(prod, period)
+        self.type = 'Weather'
         self.url = f'https://api.openweathermap.org/data/2.5/onecall?appid=' \
                    f'{self.secrets["owmkey"]}&lat={self.secrets["latitude"]}&' \
                    f'lon={self.secrets["longitude"]}' \
