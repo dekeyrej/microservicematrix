@@ -101,7 +101,7 @@ reverse_dependencies = {
     "Dockerfile.moon": "Moon",
     "nextserver.py": "Events",
     "Dockerfile.events": "Events",
-    "rrjo.py": "ALL",
+    # "rrjo.py": "ALL",
     "secretsecrets.py": "ALL",
     "serverpage.py": "ALL",
     "weatherserver.py": "Weather",
