@@ -1,19 +1,58 @@
 """ ... """
 import time
 import arrow
+import socketserver                         # for liveness probe (MyTCPHandler(), TCPServer)
+import requests   
 from requests.exceptions import HTTPError #, ConnectionError
+from requests.adapters   import HTTPAdapter, Retry 
+
+from datasourcelib import Database          # wrapper for postgres/cockroach/sqlite/mongodb
+from securedict    import DecryptDicts      # decrypt the secretsecrets
+from secretsecrets import encsecrets        # encrypted configuration values
+
 
 class ServerPage:
     """ ... """
-    def __init__(self, config, period):
-        # self.lock = lock
-        # self.syslog = syslog
-        # self.col = col
-        self.dba = config['dba']
-        self.rsess = config['sess']
-        self.secrets = config['secrets']
+    def __init__(self, prod, period):
+        self.type = None
+        self.prod = prod  # boolean: True for Production, False otherwise
+        self.secrets = self.read_secrets()
+        self.rsess = requests.session()
+        retries = Retry(total=5,
+                        backoff_factor=0.5,
+                        status_forcelist=[500, 502, 503, 504])
+        self.rsess.mount('https://', HTTPAdapter(max_retries=retries))
+        self.dba = self.connect_db()
         self.update_period = period
         self.last_update = 0
+        
+    def read_secrets(self):
+        dd = DecryptDicts()
+        if self.prod:
+            dd.read_in_cluster_key()
+        else:
+            # dd.read_key_from_cluster()
+            # REFKEY = os.environ["REFKEY"]
+            # dd.set_key(REFKEY)
+            dd.read_key_from_file('Do_Not_Copy/refKey.txt')
+        return dd.decrypt_dict(encsecrets)
+
+    def connect_db(self):
+        DBPORT = 5432
+        DBNAME = 'matrix'
+        TBLNAME = 'feed'
+        
+        if self.prod:
+            DBHOST = 'mypostgres.default'
+        else:
+            DBHOST = '192.168.86.62'  #rocket3
+        
+        db_params = {"user": self.secrets['dbuser'],
+             "pass": self.secrets['dbpass'], \
+             "host": DBHOST, "port":  DBPORT, \
+             "db_name": DBNAME, "tbl_name": TBLNAME}
+
+        return Database('postgres', db_params)
 
     def update(self): # really must be overridden...
         """ ... """
@@ -30,10 +69,32 @@ class ServerPage:
 
     def run(self):
         """ ... """
-        while True:
-            now = time.monotonic()
-            self.check(now)
-            time.sleep(1.0)
+        # Write Startup record to database
+        tnow = arrow.now()
+        data = {}
+        data['type']   = f'{self.type}-Server'
+        data['updated'] = tnow.to('US/Eastern').format('MM/DD/YYYY h:mm A ZZZ')
+        data['valid']   = tnow.to('US/Eastern').format('MM/DD/YYYY h:mm:ss A ZZZ')
+        data['values'] = {}
+        self.dba.write(data)
+
+        HOST = '0.0.0.0'
+        PORT = 10255
+
+        class MyTCPHandler(socketserver.BaseRequestHandler):
+            # Socket handler for liveness probe
+            def handle(self):
+                self.data = self.request.recv(1024).strip()
+                print('Health Check...')
+                self.request.sendall(self.data.upper())
+
+        with socketserver.TCPServer((HOST, PORT), MyTCPHandler) as server:
+            server.timeout = 0.1
+            while True:
+                now = time.monotonic()
+                self.check(now)
+                server.handle_request()
+                time.sleep(0.9)
 
     def fetch(self, url, name, now, auth=None, headers=None):
         """ ... """

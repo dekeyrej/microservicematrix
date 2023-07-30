@@ -6,8 +6,8 @@ from serverpage import ServerPage
 
 class NextEvent(ServerPage):
     """ subclass of serverpage does NOT use superclass """
-    def __init__(self, config, period):
-        super().__init__(config, period)
+    def __init__(self, prod, period):
+        super().__init__(prod, period)
         self.events_file_name = "events.txt"
 
     def update(self):
@@ -24,3 +24,15 @@ class NextEvent(ServerPage):
 
         print(f'{type(self).__name__} updated.')
         self.dba.write(data)
+
+if __name__ == '__main__':
+    import os
+    try:
+        PROD = os.environ["PROD"]
+    except KeyError:
+        pass
+    
+    if PROD == '1':
+        NextEvent(True, 3593).run()
+    else:
+        NextEvent(False, 3593).run()

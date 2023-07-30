@@ -8,8 +8,8 @@ from serverpage import ServerPage
 
 class MoonServer(ServerPage):
     """ subclass of ServerPage to fetch sun and moon data """
-    def __init__(self, config, period):
-        super().__init__(config, period)
+    def __init__(self, prod, period):
+        super().__init__(prod, period)
         # secrets = dd.decrypt_dict(encsecrets)
         self.loc_str = f'lat={self.secrets["latitude"]}&lon={self.secrets["longitude"]}'
         self.timezone = self.secrets['timezone'] # not currently used
@@ -140,3 +140,15 @@ class MoonServer(ServerPage):
         else:
             out = tnow.format('HH:mm')
         return out
+
+if __name__ == '__main__':
+    import os
+    try:
+        PROD = os.environ["PROD"]
+    except KeyError:
+        pass
+    
+    if PROD == '1':
+        MoonServer(True, 911).run()
+    else:
+        MoonServer(False, 911).run()

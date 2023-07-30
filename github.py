@@ -6,8 +6,8 @@ from serverpage import ServerPage
 
 class GithubServer(ServerPage):
     """ Subclass of serverpage for reading Jenkins Build Status events """
-    def __init__(self, config, period):
-        super().__init__(config, period)
+    def __init__(self, prod, period):
+        super().__init__(prod, period)
         owner = self.secrets['github_owner']
         repo = self.secrets['github_repo']
         my_token = self.secrets['github_api_key']
@@ -40,3 +40,15 @@ class GithubServer(ServerPage):
             # print(json.dumps(data,indent=2))
             self.dba.write(data)
             print(f'{type(self).__name__} updated.')
+
+if __name__ == '__main__':
+    import os
+    try:
+        PROD = os.environ["PROD"]
+    except KeyError:
+        pass
+    
+    if PROD == '1':
+        GithubServer(True, 599).run()
+    else:
+        GithubServer(False, 599).run()

@@ -7,8 +7,8 @@ from serverpage import ServerPage
 
 class GarminServer(ServerPage):
     """ ... """
-    def __init__(self, config, period):
-        super().__init__(config, period)
+    def __init__(self, prod, period):
+        super().__init__(prod, period)
         self.url = 'https://inreach.garmin.com/Feed/Share/RyanTrollip'
         self.last_track = self.lastest_track()
         self.dirs = ['N','NNE','NE','ENE','E','ESE','SE','SSE','S','SSW',
@@ -75,3 +75,15 @@ class GarminServer(ServerPage):
         else:
             timestr = arrow.now()
         return timestr
+
+if __name__ == '__main__':
+    import os
+    try:
+        PROD = os.environ["PROD"]
+    except KeyError:
+        pass
+    
+    if PROD == '1':
+        GarminServer(True, 601).run()
+    else:
+        GarminServer(False, 601).run()

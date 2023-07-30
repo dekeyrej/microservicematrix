@@ -9,11 +9,12 @@ from serverpage import ServerPage
 
 class AQIServer(ServerPage):
     """ ... """
-    def __init__(self, config, period):
-        super().__init__(config, period)
+    def __init__(self, prod, period):
+        super().__init__(prod, period)
+        self.type = 'AQI'
         self.url = f'https://api.openweathermap.org/data/2.5/air_pollution?appid=' \
                    f'{self.secrets["owmkey"]}&lat={self.secrets["latitude"]}&' \
-                   f'lon={self.secrets["longitude"]}' # \
+                   f'lon={self.secrets["longitude"]}'
         self.df = pd.DataFrame(aqidata, index = dfindex)
 
     def update(self):
@@ -23,7 +24,7 @@ class AQIServer(ServerPage):
         if jstuff is not None:
             # print(json.dumps(jstuff, indent=2))
             data = {}
-            data['type'] = 'AQI'
+            data['type'] = self.type
             data['updated'] = self.now_str(tnow,False)
             data['valid']   = self.now_str(tnow.shift(seconds=+self.update_period),True)
             data['values'] = {}
@@ -100,3 +101,15 @@ class AQIServer(ServerPage):
                 scaled = int(round((cval - self.df.at[i, pl])* (self.df.at[i, ah] - self.df.at[i, al])/(self.df.at[i, ph] - self.df.at[i, pl]) + self.df.at[i, al],0))
                 return scaled, row
         return scaled, row
+
+if __name__ == '__main__':
+    import os
+    try:
+        PROD = os.environ["PROD"]
+    except KeyError:
+        pass
+    
+    if PROD == '1':
+        AQIServer(True, 919).run()
+    else:
+        AQIServer(False, 919).run()

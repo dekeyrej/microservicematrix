@@ -6,9 +6,9 @@ from serverpage import ServerPage
 
 class MLBServer(ServerPage):
     """ ... """
-    def __init__(self, config, period):
+    def __init__(self, prod, period):
         """ ... """
-        super().__init__(config, period)
+        super().__init__(prod, period)
         self.url = 'http://site.api.espn.com/apis/site/v2/sports/baseball/mlb/scoreboard'
 
     def update(self):
@@ -145,3 +145,16 @@ class MLBServer(ServerPage):
         # values['pitcher']      = situation['pitcher']['athlete']['shortName']
         # values['batter']       = situation['batter']['athlete']['shortName']
         return values
+
+
+if __name__ == '__main__':
+    import os
+    try:
+        PROD = os.environ["PROD"]
+    except KeyError:
+        pass
+    
+    if PROD == '1':
+        MLBServer(True, 29).run()
+    else:
+        MLBServer(False, 29).run()

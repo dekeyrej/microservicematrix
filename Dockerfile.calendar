@@ -12,8 +12,13 @@ ENV PATH="/opt/venv/bin:$PATH" \
     PROD=1 \
     PYTHONUNBUFFERED=1
 WORKDIR /code
-COPY *.py /code/
+# always copy these two
+COPY secretsecrets.py .
+COPY serverpage.py .
+# always copy one of these
+COPY calserver.py .
+# server specific files
+# end copies
 EXPOSE 10255
 # change per server type
-ENV MSSERVERTYPE='Calendar'
-CMD ["python", "rrjo.py"]
+CMD ["python", "calserver.py"]

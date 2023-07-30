@@ -7,8 +7,8 @@ from serverpage import ServerPage
 
 class JenkinsServer(ServerPage):
     """ Subclass of serverpage for reading Jenkins Build Status events """
-    def __init__(self, config, period):
-        super().__init__(config, period)
+    def __init__(self, prod, period):
+        super().__init__(prod, period)
         self.server = "rocket3"
         self.port = 8080
         self.project = "CRServer"
@@ -45,3 +45,15 @@ class JenkinsServer(ServerPage):
             # print(json.dumps(data,indent=2))
             self.dba.write(data)
             print(f'{type(self).__name__} updated.')
+
+if __name__ == '__main__':
+    import os
+    try:
+        PROD = os.environ["PROD"]
+    except KeyError:
+        pass
+    
+    if PROD == '1':
+        JenkinsServer(True, 881).run()
+    else:
+        JenkinsServer(False, 881).run()

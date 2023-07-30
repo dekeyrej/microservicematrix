@@ -6,8 +6,8 @@ from serverpage import ServerPage
 
 class OWMServer(ServerPage):
     """ ... """
-    def __init__(self, config, period):
-        super().__init__(config, period)
+    def __init__(self, prod, period):
+        super().__init__(prod, period)
         self.url = f'https://api.openweathermap.org/data/2.5/onecall?appid=' \
                    f'{self.secrets["owmkey"]}&lat={self.secrets["latitude"]}&' \
                    f'lon={self.secrets["longitude"]}' \
@@ -99,3 +99,15 @@ class OWMServer(ServerPage):
     def deg_to_dir(self, deg):
         """ ... """
         return self.dirs[round(deg/22.5) % 16]
+
+if __name__ == '__main__':
+    import os
+    try:
+        PROD = os.environ["PROD"]
+    except KeyError:
+        pass
+    
+    if PROD == '1':
+        OWMServer(True, 907).run()
+    else:
+        OWMServer(False, 907).run()
