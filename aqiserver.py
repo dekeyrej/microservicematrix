@@ -69,18 +69,19 @@ class AQIServer(ServerPage):
         """
         units = pollutant_measures[pol]["units"]
         decimals = pollutant_measures[pol]["decimals"]
+        weight = pollutant_measures[pol]["weight"]
         
         if units == "ppm":
-            conversion = 1000
+            conversion = 24.45 / (weight * 1000)
         elif units == "ppb":
-            conversion = 1
+            conversion = 24.45 / weight
         elif units == "ug/m3":
             conversion = 1
         
         if decimals == 0:
-            return int(round((val * 10**decimals)/conversion, 0)/10**decimals)
+            return int(round(val * conversion * 10**decimals, 0)/10**decimals)
         else:
-            return round((val * 10**decimals)/conversion, 0)/10**decimals
+            return round(val * conversion * 10**decimals, 0)/10**decimals
 
     def scaled_reading(self, cval, pol):
         """
