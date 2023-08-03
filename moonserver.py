@@ -1,5 +1,6 @@
 """ Sun and Moon data server """
 import math
+from typing import Mapping
 import arrow
 # import json
 
@@ -11,9 +12,9 @@ class MoonServer(ServerPage):
     def __init__(self, prod, period):
         super().__init__(prod, period)
         self.type = 'Moon'
-        # secrets = dd.decrypt_dict(encsecrets)
         self.loc_str = f'lat={self.secrets["latitude"]}&lon={self.secrets["longitude"]}'
         self.timezone = self.secrets['timezone'] # not currently used
+        self.clear_secrets()
         self.twelve_hour = True
 
     def update(self):
@@ -42,7 +43,7 @@ class MoonServer(ServerPage):
             self.dba.write(data)
             print(f'{type(self).__name__} updated.')
 
-    def moon_condition(self, mnd):
+    def moon_condition(self, mnd: Mapping) -> (int, float):
         """ parse out the current moon condition """
         # Reconstitute JSON data into the elements we need
         phase     = int(float(mnd[0]['moonphase']['value'])) % 100
@@ -50,7 +51,7 @@ class MoonServer(ServerPage):
         # midnight  = self.parse_time(md[0]['moonphase']['time'])
         return phase, illum
 
-    def sun_event(self, mnd, tstmp):
+    def sun_event(self, mnd: Mapping, tstmp) -> str:
         """ determine the next sun event (sunrise or sunset) """
         # sunrise and sunset happen every day - easier
         sunrise   = self.parse_time(mnd[0]['sunrise']['time'])
@@ -67,7 +68,7 @@ class MoonServer(ServerPage):
             event = f"Sunrise:  {self.ts2hhmm(tomorrow_sunrise)}"
         return event
 
-    def moon_event(self, mnd):
+    def moon_event(self, mnd: Mapping) -> str:
         """ determine the next moon event (moonrise or moonset) """
         # moonrise and/or moonset may not occur in the current day
         #   so check today
@@ -108,7 +109,7 @@ class MoonServer(ServerPage):
             event = f"Moonset:  {self.ts2hhmm(next_event[1])}"
         return event
 
-    def age_to_illum(self, age):
+    def age_to_illum(self, age: int) -> float:
         """ convert age (0..100) to a percent illumination """
         if age <= 0.5:
             illum = (1 - math.cos(age * 2 * math.pi)) * 50
@@ -116,7 +117,7 @@ class MoonServer(ServerPage):
             illum = (1 + math.cos((age - 0.5) * 2 * math.pi)) * 50
         return f'{illum:.1f}%'
 
-    def url_date_str(self):
+    def url_date_str(self) -> (str, str, str):
         """ convert 'now' into three strings:
             today's date,
             tomorrow's date, and
@@ -127,11 +128,11 @@ class MoonServer(ServerPage):
         tomorrow = tnow.shift(days=+1).format('[&date=]YYYY-MM-DD[&offset=]ZZ')
         return today, tomorrow, tnow.format('X')
 
-    def parse_time(self, timestr):
-        """ converts a timestamp string into an arrow """
+    def parse_time(self, timestr: str) -> arrow:
+        """ converts a timestamp string into an arrow (a string?) """
         return arrow.get(timestr).format('X')
 
-    def ts2hhmm(self, tstmp):
+    def ts2hhmm(self, tstmp: str) -> str:
         """ converts a timestamp into an arrow and returns either a
             12-hr time, or a 24-hr time
         """

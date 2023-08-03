@@ -9,6 +9,7 @@ class GarminServer(ServerPage):
     """ ... """
     def __init__(self, prod, period):
         super().__init__(prod, period)
+        self.clear_secrets()
         self.type = 'Track'
         self.url = 'https://inreach.garmin.com/Feed/Share/RyanTrollip'
         self.last_track = self.lastest_track()
@@ -53,22 +54,22 @@ class GarminServer(ServerPage):
             # self.dba["tracks"]["ryan"].insert_one(data['track'])
 
     # parses string extracting velocity in km/h and converts to nm/h (kts)
-    def velocity_to_kts(self, velstr):
+    def velocity_to_kts(self, velstr: str) -> float:
         """ ... """
         return float(int(float(velstr.split(" ")[0]) / 1.852 * 100.0)) / 100.0
 
     # course string contains heading in degrees
-    def course(self, crsstr):
+    def course(self, crsstr:str ) -> float:
         """ ... """
         return self.deg_to_dir(float(crsstr.split(" ")[0]))
 
     # converts degrees to 'compass points'
-    def deg_to_dir(self, deg):
+    def deg_to_dir(self, deg: float) -> str:
         """ ... """
         return self.dirs[round(deg/22.5) % 16]
 
     # # query to return the latest track from tracks database
-    def lastest_track(self):
+    def lastest_track(self) -> arrow:
         """ ... """
         result = self.dba.read('Track')
         if result is not None:

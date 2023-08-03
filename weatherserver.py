@@ -1,6 +1,9 @@
 """ ... """
 # import json
+from typing import Union
 import arrow
+
+number = Union[float, int]
 
 from serverpage import ServerPage
 
@@ -13,6 +16,7 @@ class OWMServer(ServerPage):
                    f'{self.secrets["owmkey"]}&lat={self.secrets["latitude"]}&' \
                    f'lon={self.secrets["longitude"]}' \
                    f'&exclude=minutely,alerts&units=imperial&lang=en'
+        self.clear_secrets()
         self.dirs = ['N','NNE','NE','ENE','E','ESE','SE','SSE',
                      'S','SSW','SW','WSW','W','WNW','NW','NNW']
 
@@ -81,14 +85,7 @@ class OWMServer(ServerPage):
             print(f'{type(self).__name__} updated.')
             # self.log('{} updated.'.format(type(self).__name__))
 
-    def now_str(self, now, secs):
-        """ ... """
-        if secs:
-            return now.format('MM/DD/YYYY h:mm:ss A ZZZ')
-
-        return now.format('MM/DD/YYYY h:mm A ZZZ')
-
-    def to_nwid(self, icon, wid):
+    def to_nwid(self, icon: str, wid: int) -> int:
         """ ... """
         if ((icon[2] == "n") and          # icon[2] # returns "d" for day, or "n" for night
             wid in (800, 801, 802, 951)): # these four WeatherIDs have a unique night icon
@@ -97,7 +94,7 @@ class OWMServer(ServerPage):
             nwid = wid + 60000
         return nwid
 
-    def deg_to_dir(self, deg):
+    def deg_to_dir(self, deg: number) -> str:
         """ ... """
         return self.dirs[round(deg/22.5) % 16]
 

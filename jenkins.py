@@ -15,6 +15,8 @@ class JenkinsServer(ServerPage):
         self.project = "CRServer"
         self._server_url = f"http://{self.server}:{self.port}/job/{self.project}/api/json"
         self._build_stem_url = f"http://{self.server}:{self.port}/job/{self.project}"
+        self.auth = (self.secrets['jenkins_user'],self.secrets['jenkins_api_key'])
+        self.clear_secrets()
 
 
     def update(self):
@@ -22,13 +24,13 @@ class JenkinsServer(ServerPage):
         tnow = arrow.now().to('US/Eastern')
         sresp = self.fetch(self._server_url,'Fetching Jenkins CRServer',\
                            tnow.format('MM/DD/YYYY hh:mm A ZZZ'),\
-                           auth=(self.secrets['jenkins_user'],self.secrets['jenkins_api_key']))
+                           auth=self.auth)
         # health = sresp['healthReport'][0]['score']
         # print(json.dumps(sresp,indent=2))
         build_url = f'{self._build_stem_url}/{sresp["builds"][0]["number"]}/api/json'
         resp = self.fetch(build_url,'Fetching CRServer Build',\
                           tnow.format('MM/DD/YYYY hh:mm A ZZZ'),\
-                          auth=(self.secrets['jenkins_user'],self.secrets['jenkins_api_key']))
+                          auth=self.auth)
         # print(json.dumps(resp,indent=2))
         if resp is not None:
             data = {}

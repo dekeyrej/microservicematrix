@@ -1,4 +1,5 @@
 """ ... """
+from typing import Mapping
 import arrow
 # import json
 
@@ -9,6 +10,7 @@ class MLBServer(ServerPage):
     def __init__(self, prod, period):
         """ ... """
         super().__init__(prod, period)
+        self.clear_secrets()
         self.type = 'MLB'
         self.url = 'http://site.api.espn.com/apis/site/v2/sports/baseball/mlb/scoreboard'
 
@@ -65,7 +67,7 @@ class MLBServer(ServerPage):
             print(f'{type(self).__name__} updated.')
             self.dba.write(data)
 
-    def load_game(self, game): #, tnow):
+    def load_game(self, game: Mapping) -> (Mapping, str):
         """ ... """
         values = {}
         # next_start_time = tnow.replace(hour=23,minute=59,second=59)
@@ -83,7 +85,7 @@ class MLBServer(ServerPage):
         return values, start_time
         # return values, next_start_time
 
-    def home_values(self, competition):
+    def home_values(self, competition: Mapping) -> Mapping:
         """ ... """
         values = {}
         values['homeAbbreviation'] = competition['competitors'][0]['team']['abbreviation']
@@ -97,7 +99,7 @@ class MLBServer(ServerPage):
         
         return values
 
-    def away_values(self, competition):
+    def away_values(self, competition: Mapping) -> Mapping:
         """ ... """
         values = {}
         values['awayAbbreviation'] = competition['competitors'][1]['team']['abbreviation']
@@ -111,7 +113,7 @@ class MLBServer(ServerPage):
         
         return values
 
-    def scores(self, competition):
+    def scores(self, competition: Mapping) -> Mapping:
         """ ... """
         values = {}
         values['status'] = status  = competition['status']['type']['state']
@@ -133,7 +135,7 @@ class MLBServer(ServerPage):
 
         return values
 
-    def situation(self, competition):
+    def situation(self, competition: Mapping) -> Mapping:
         """ ... """
         values = {}
         situation = competition['situation']

@@ -1,5 +1,7 @@
 """ ... """
 import json
+from typing import Union
+
 import arrow
 import pandas as pd
 
@@ -7,14 +9,17 @@ from aqi_data import aqidata, pollutants, pollutant_measures, dfindex
 
 from serverpage import ServerPage
 
+number = Union[float, int]
+
 class AQIServer(ServerPage):
     """ ... """
-    def __init__(self, prod, period):
+    def __init__(self, prod: bool, period: int):
         super().__init__(prod, period)
         self.type = 'AQI'
         self.url = f'https://api.openweathermap.org/data/2.5/air_pollution?appid=' \
                    f'{self.secrets["owmkey"]}&lat={self.secrets["latitude"]}&' \
                    f'lon={self.secrets["longitude"]}'
+        self.clear_secrets()
         self.df = pd.DataFrame(aqidata, index = dfindex)
 
     def update(self):
@@ -54,14 +59,7 @@ class AQIServer(ServerPage):
             self.dba.write(data)
             # print(f'{type(self).__name__} updated.')
 
-    def now_str(self, now, secs):
-        """ ... """
-        if secs:
-            return now.format('MM/DD/YYYY h:mm:ss A ZZZ')
-
-        return now.format('MM/DD/YYYY h:mm A ZZZ')
-
-    def convert_reading(self, val, pol):
+    def convert_reading(self, val: number, pol: str) -> number:
         """ 
         Values delivered by OWM are all in micrograms per cubic meter.
         function (1) converts to ppm or ppb, and
@@ -83,7 +81,7 @@ class AQIServer(ServerPage):
         else:
             return round(val * conversion * 10**decimals, 0)/10**decimals
 
-    def scaled_reading(self, cval, pol):
+    def scaled_reading(self, cval: number, pol: str) -> int:
         """
         function scales the converted value based on the pollutants 'Break Points'
         and returns the (AQI) scaled value and the row in the table (AQI Level).

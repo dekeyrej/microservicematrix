@@ -13,6 +13,7 @@ class CalendarServer(ServerPage):
         self._base_calendar_url = f'https://www.googleapis.com/calendar/v3/calendars/' \
             f'{self.secrets["google_calendar"]}/events?key={self.secrets["google_api_key"]}' \
             f'&orderBy=starttime&singleEvents=true'
+        self.clear_secrets()
         self._url = None
 
     def update(self):

@@ -1,5 +1,6 @@
 """ ... """
 import time
+# from typing import Union
 import arrow
 import socketserver                         # for liveness probe (MyTCPHandler(), TCPServer)
 import requests   
@@ -10,18 +11,19 @@ from datasourcelib import Database          # wrapper for postgres/cockroach/sql
 from securedict    import DecryptDicts      # decrypt the secretsecrets
 from secretsecrets import encsecrets        # encrypted configuration values
 
+# number = Union[float, int]
 
 class ServerPage:
     """ ... """
-    def __init__(self, prod, period):
+    def __init__(self, prod: bool, period: int):
         self.type = None
         self.prod = prod  # boolean: True for Production, False otherwise
-        self.secrets = self.read_secrets()
         self.rsess = requests.session()
         retries = Retry(total=5,
                         backoff_factor=0.5,
                         status_forcelist=[500, 502, 503, 504])
         self.rsess.mount('https://', HTTPAdapter(max_retries=retries))
+        self.secrets = self.read_secrets()
         self.dba = self.connect_db()
         self.update_period = period
         self.last_update = 0
@@ -37,6 +39,9 @@ class ServerPage:
             dd.read_key_from_file('Do_Not_Copy/refKey.txt')
         return dd.decrypt_dict(encsecrets)
 
+    def clear_secrets(self):
+        self.secrets = None
+    
     def connect_db(self):
         DBPORT = 5432
         DBNAME = 'matrix'
@@ -58,7 +63,7 @@ class ServerPage:
         """ ... """
         print(f"{type(self).__name__} updated.")
 
-    def check(self,now):
+    def check(self, now: float):
         """ ... """
         if self.last_update == 0 or now - self.last_update > self.update_period:
             self.last_update = now
@@ -96,7 +101,7 @@ class ServerPage:
                 server.handle_request()
                 time.sleep(0.9)
 
-    def fetch(self, url, name, now, auth=None, headers=None):
+    def fetch(self, url: str, name: str, now: str, auth: str=None, headers: str=None): 
         """ ... """
         with self.rsess as sess:
             try:
@@ -118,7 +123,7 @@ class ServerPage:
             #     return None
             return response.json()
 
-    def fetch_raw(self, url, name, now):
+    def fetch_raw(self, url: str, name: str, now: str):
         """ required for Garmin server which expects an XML response instead of a JSON one """
         with self.rsess as sess:
             try:
@@ -134,3 +139,10 @@ class ServerPage:
             #     print(f'({name}) Other error occurred: {err} @ {now}')
             #     return None
             return response
+
+    def now_str(self, now: arrow, secs: bool):
+        """ ... """
+        if secs:
+            return now.format('MM/DD/YYYY h:mm:ss A ZZZ')
+
+        return now.format('MM/DD/YYYY h:mm A ZZZ')

@@ -12,6 +12,7 @@ class GithubServer(ServerPage):
         owner = self.secrets['github_owner']
         repo = self.secrets['github_repo']
         my_token = self.secrets['github_api_key']
+        self.clear_secrets()
         self.url = f'https://api.github.com/repos/{owner}/{repo}/commits'
         self.headers = {'Authorization': f'token {my_token}',
                         'Accept': 'application/vnd.github+json'}

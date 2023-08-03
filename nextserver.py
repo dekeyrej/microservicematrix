@@ -5,9 +5,10 @@ import arrow
 from serverpage import ServerPage
 
 class NextEvent(ServerPage):
-    """ subclass of serverpage does NOT use superclass """
+    """ ... """
     def __init__(self, prod, period):
         super().__init__(prod, period)
+        self.clear_secrets()
         self.type = 'Family'
         self.events_file_name = "events.txt"
 
