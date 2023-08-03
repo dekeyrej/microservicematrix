@@ -40,16 +40,16 @@ def deploy_image(tag):
 
 def build_one(tag):
     build_image(tag)
-    time.sleep(1)
+    time.sleep(5)
     push_image(tag)
-    time.sleep(1)
+    time.sleep(5)
     deploy_image(tag)
 
 def build_all():
     print('Building all:')
     for i in ALL:
         build_one(i)
-        time.sleep(1)
+        time.sleep(5)
 
 def build_aqi():
     build_one('aqi')
