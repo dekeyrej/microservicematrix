@@ -129,27 +129,25 @@ if resp is not None:
         except KeyError:
             pass
         # print(f)
-    #
-    #build_list = ['all']
-    #    
+
     print(f'Images to build: {list(set(build_list))}')
 
     # actually push/deploy the image(s)
     if build_list == ['all']:
-        print('Pushing/Deploying all')
-        # push_all()
-        # deploy_all()
+        # print('Pushing/Deploying all')
+        push_all()
+        deploy_all()
     elif build_list != []:
         for b in build_list:
-            print(f'Pushing {b}')
-            # push_image(b)
+            # print(f'Pushing {b}')
+            push_image(b)
         for b in build_list:
-            print(f'Deploying {b}')
-            # deploy_image(b)
+            # print(f'Deploying {b}')
+            deploy_image(b)
    
     if file_list != []:
         last_sha = commits[0]["sha"]
         print(f'new last_sha = {last_sha}')
-        # with open('last_sha.txt', 'wt', encoding='utf-8') as file:
-        #     file.write(f'{last_sha}')
-        #     file.close()
+        with open('last_sha.txt', 'wt', encoding='utf-8') as file:
+            file.write(f'{last_sha}')
+            file.close()
