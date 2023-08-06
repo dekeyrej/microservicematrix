@@ -13,18 +13,6 @@ import build_data
 
 ALL = build_data.services
 
-def test_all():
-    pass
-
-def build_image(tag):
-    print(f'Building {tag}...')
-    cmd = f'docker build -f Dockerfile.{tag} -t 192.168.86.49:32000/{tag}:registry .'
-    result = subprocess.run(cmd, shell=True, capture_output=True)
-    if result.returncode == 0:
-        print(f'{tag} built successfuly.')
-    else:
-        print(f'{tag} failed to build.')
-
 def push_image(tag):
     print(f'Pushing {tag} to cluster...')
     cmd = f'docker push 192.168.86.49:32000/{tag}:registry'
@@ -42,11 +30,6 @@ def deploy_image(tag):
         print(f'{tag} deployed.')
     else:
         print(f'{tag} failed to deploy.')
-
-def build_all():
-    print('Building all:')
-    for i in ALL:
-        build_image(i)
 
 def push_all():
     for m in ALL:
@@ -150,12 +133,6 @@ if resp is not None:
     #build_list = ['all']
     #    
     print(f'Images to build: {list(set(build_list))}')
-
-    # test all of the code
-    test_all()
-    # build all of the images
-    build_all()
-    # push all of the images
 
     # actually push/deploy the image(s)
     if build_list == ['all']:

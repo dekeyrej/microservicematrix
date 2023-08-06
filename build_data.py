@@ -1,0 +1,26 @@
+services = ['aqi', 'calendar', 'garmin', 'github', 'jenkins', 'mlb', 'moon', 'events', 'weather']
+
+reverse_dependencies = {
+    "build_microservices.py": "none",
+    "aqiserver.py": "aqi",
+    "aqi_data.py": "aqi",
+    "Dockerfile.aqi": "aqi",
+    "calserver.py": "calendar",
+    "Dockerfile.calendar": "calendar",
+    "garmin.py": "garmin",
+    "Dockerfile.garmin": "garmin",
+    "github.py": "github",
+    "Dockerfile.github": "github",
+    "jenkins.py": "jenkins",
+    "Dockerfile.jenkins": "jenkins",
+    "mlbserver.py": "mlb",
+    "Dockerfile.mlb": "mlb",
+    "moonserver.py": "moon",
+    "Dockerfile.moon": "moon",
+    "nextserver.py": "events",
+    "Dockerfile.events": "events",
+    "secretsecrets.py": "all",
+    "serverpage.py": "all",
+    "weatherserver.py": "weather",
+    "Dockerfile.weather": "weather",
+}

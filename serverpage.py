@@ -83,23 +83,31 @@ class ServerPage:
         data['values'] = {}
         self.dba.write(data)
 
-        HOST = '0.0.0.0'
-        PORT = 10255
+        if self.prod:
+            HOST = '0.0.0.0'
+            PORT = 10255
 
-        class MyTCPHandler(socketserver.BaseRequestHandler):
-            # Socket handler for liveness probe
-            def handle(self):
-                self.data = self.request.recv(1024).strip()
-                print('Health Check...')
-                self.request.sendall(self.data.upper())
+            class MyTCPHandler(socketserver.BaseRequestHandler):
+                # Socket handler for liveness probe
+                def handle(self):
+                    self.data = self.request.recv(1024).strip()
+                    print('Health Check...')
+                    self.request.sendall(self.data.upper())
 
-        with socketserver.TCPServer((HOST, PORT), MyTCPHandler) as server:
-            server.timeout = 0.1
+            with socketserver.TCPServer((HOST, PORT), MyTCPHandler) as server:
+                server.timeout = 0.1
+                while True:
+                    now = time.monotonic()
+                    self.check(now)
+                    server.handle_request()
+                    time.sleep(0.9)
+        else:
             while True:
-                now = time.monotonic()
-                self.check(now)
-                server.handle_request()
-                time.sleep(0.9)
+                    now = time.monotonic()
+                    self.check(now)
+                    # server.handle_request()
+                    time.sleep(0.95)
+
 
     def fetch(self, url: str, name: str, now: str, auth: str=None, headers: str=None): 
         """ ... """
