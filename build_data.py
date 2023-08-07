@@ -22,7 +22,7 @@ reverse_dependencies = {
     "Dockerfile.events": "events",
     "secretsecrets.py": "all",
     "serverpage.py": "all",
-    "requirements.txt": "all"
+    "requirements.txt": "all",
     "weatherserver.py": "weather",
     "Dockerfile.weather": "weather",
 }
