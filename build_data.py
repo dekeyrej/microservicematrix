@@ -4,6 +4,7 @@ reverse_dependencies = {
     "build_microservices.py": "none",
     "aqiserver.py": "aqi",
     "aqi_data.py": "aqi",
+    "requirements-wpd.txt": "aqi",
     "Dockerfile.aqi": "aqi",
     "calserver.py": "calendar",
     "Dockerfile.calendar": "calendar",
@@ -21,6 +22,7 @@ reverse_dependencies = {
     "Dockerfile.events": "events",
     "secretsecrets.py": "all",
     "serverpage.py": "all",
+    "requirements.txt": "all"
     "weatherserver.py": "weather",
     "Dockerfile.weather": "weather",
 }
