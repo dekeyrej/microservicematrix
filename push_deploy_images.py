@@ -66,7 +66,7 @@ def fetch(rsess, url, auth=None, headers=None):
         #     return None
         return response.json()
 
-with open('last_sha.txt', 'rt', encoding='utf-8') as file:
+with open('../last_sha.txt', 'rt', encoding='utf-8') as file:
             last_sha = file.read()
             file.close()
 # print(last_sha)
@@ -148,6 +148,6 @@ if resp is not None:
     if file_list != []:
         last_sha = commits[0]["sha"]
         print(f'new last_sha = {last_sha}')
-        with open('last_sha.txt', 'wt', encoding='utf-8') as file:
+        with open('../last_sha.txt', 'wt', encoding='utf-8') as file:
             file.write(f'{last_sha}')
             file.close()
