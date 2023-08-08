@@ -14,7 +14,6 @@ ENV PATH="/opt/venv/bin:$PATH" \
 WORKDIR /code
 # always copy these two
 COPY secretsecrets.py .
-COPY serverpage.py .
 # always copy one of these
 COPY moonserver.py .
 # server specific files
