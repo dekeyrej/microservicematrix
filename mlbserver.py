@@ -3,7 +3,7 @@ from typing import Mapping
 import arrow
 # import json
 
-from serverpage import ServerPage
+from pages import ServerPage
 
 class MLBServer(ServerPage):
     """ ... """

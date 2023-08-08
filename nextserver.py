@@ -2,7 +2,7 @@
 import json
 import arrow
 
-from serverpage import ServerPage
+from pages import ServerPage
 
 class NextEvent(ServerPage):
     """ ... """

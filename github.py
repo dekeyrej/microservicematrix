@@ -2,7 +2,7 @@
 # import json
 import arrow
 
-from serverpage import ServerPage
+from pages import ServerPage
 
 class GithubServer(ServerPage):
     """ Subclass of serverpage for reading Jenkins Build Status events """

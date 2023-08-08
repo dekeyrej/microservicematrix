@@ -5,7 +5,7 @@ import arrow
 
 number = Union[float, int]
 
-from serverpage import ServerPage
+from pages import ServerPage
 
 class OWMServer(ServerPage):
     """ ... """

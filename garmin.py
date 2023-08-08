@@ -3,7 +3,7 @@ import arrow
 import xmltodict
 # import json
 
-from serverpage import ServerPage
+from pages import ServerPage
 
 class GarminServer(ServerPage):
     """ ... """

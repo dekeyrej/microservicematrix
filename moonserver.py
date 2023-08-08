@@ -4,7 +4,7 @@ from typing import Mapping
 import arrow
 # import json
 
-from serverpage import ServerPage
+from pages import ServerPage
 # from secretsecrets import encsecrets
 
 class MoonServer(ServerPage):

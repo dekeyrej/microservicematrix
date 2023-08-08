@@ -5,3 +5,6 @@ kubectl rollout restart -n default deployment $TAG
 
 
 # kubectl scale -n default deployment $TAG --replicas=1
+
+
+# 192.168.86.49:32000/kubeagent:registry

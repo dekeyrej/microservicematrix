@@ -7,7 +7,7 @@ import pandas as pd
 
 from aqi_data import aqidata, pollutants, pollutant_measures, dfindex
 
-from serverpage import ServerPage
+from pages import ServerPage
 
 number = Union[float, int]
 
