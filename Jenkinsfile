@@ -47,7 +47,7 @@ pipeline {
                 script {
                     sh 'chmod u+x deploy.sh'
                     sh 'bash -c ./deploy.sh'
-                    sh 'pyhton3 update_sha.py'
+                    sh 'python3 update_sha.py'
                 }
             }
         }
