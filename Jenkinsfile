@@ -18,8 +18,8 @@ pipeline {
                         echo "Will skip deployment"
                     }
                     dir('.') {
-                        sh 'chmod u+x build.sh'
-                        sh 'bash -c ./build.sh'
+                        sh 'chmod u+x test.sh'
+                        sh 'bash -c ./test.sh'
                         stash(name: 'compiled-results', includes: '*.py*')
                     }
                 }
@@ -32,7 +32,8 @@ pipeline {
             }
             steps {
                 script {
-                    sh 'python3 build_images.py'
+                    sh 'chmod u+x build.sh'
+                    sh 'bash -c ./build.sh'
                 }
             }
         }
@@ -42,7 +43,9 @@ pipeline {
             steps {
                 echo 'Deploying'
                 script {
-                    sh 'python3 push_deploy_images.py'
+                    sh 'chmod u+x deploy.sh'
+                    sh 'bash -c ./deploy.sh'
+                    sh pyhton3 update_sha.py
                 }
             }
         }

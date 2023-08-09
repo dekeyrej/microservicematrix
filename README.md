@@ -5,10 +5,19 @@ Microservices Implementation of the matrix server
 
 Microservice servers to feed a Software interface to the RGB Matrix is via the python bindings provided by https://github.com/hzeller/rpi-rgb-led-matrix. Bitmap fonts are from this repository as well.
 
+Implemented by 'Strangling' the kubematrix code base - 
+- Peeling off each of the 'servers'
+- Making modifications as required to run standalone
+- Creating a copy of the Dockerfile for each
+- Testing, and when successful
+- Commenting it out of the kubematrix monolith
+
+Allow the way, pulled several (3) packages of code out and published them to PyPI dekeyrej-datasource, -securedict, and -pages
+
 Current project (this repository): Refactor the server-side into several independent microservice servers to fetch data from various public and private data sources, and stores the results in a database.  The microservices are containerized, and the containers and database are run in a local kubernetes cluster.
 - Display size: 128 x 64 pixels, 24-bit color (4 x 64x32 pixel panels in series)
-- Microservices implemented.  Air Quality, Google Calendar, Garmin tracker, GitHub commit watcher, Jenkins build watcher, MLB, Moon/Sun data, 'Family' events, and Open Weather Map server (current, hourly, daily). All but NFL/World Cup data class operational.
-- supports writing/reading SQLite, MongoDB, and Postgres-like databases (SQLite, Postgres and CockroachDB tested).
+- Microservices implemented.  Air Quality, Google Calendar, Garmin tracker, GitHub commit watcher, Jenkins build watcher, MLB, Moon/Sun data, 'Family' events, and Open Weather Map server (current, hourly, daily). All but (kubematrix) NFL/World Cup data sources are operational.
+- Supports writing/reading SQLite, MongoDB, and Postgres-like databases (SQLite, Postgres and CockroachDB tested).
 - (client in kubematrix) Python/RGBmatrix database client implemented. All but NFL/WC data classes operational.
 - (client in kubematrix) Command line argument to allow running with or without an RGB Matrix attached (for testing).
 
@@ -42,12 +51,3 @@ Previous version: Fully monolithic display running on a Raspberry Pi 3A+
 Initial version: Fully monolithic display written in Circuit Python and running on a ESP32S3 microcontroller
 - Display size: 64 x 32 pixels, 4-bit color
 - Data stream: daily Boston Red Sox game
-
-'Strangling' the kubematrix code base - 
--- Peeling off each of the 'servers'
--- making modifications as required to run standalone
--- creating a copy of the Dockerfile for each
--- testing, and when successful
--- commenting it out of the kubematrix monolith
-
-docker run --env=PROD=0 --env=PATH=/opt/venv/bin:/usr/local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin --env=PYTHONUNBUFFERED=1 --env=MSSERVERTYPE=MLB --workdir=/code -d 192.168.86.49:32000/mlb:registry

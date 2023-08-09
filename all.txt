@@ -1,0 +1,9 @@
+aqi
+calendar
+events
+garmin
+github
+jenkins
+mlb
+moon
+weather
