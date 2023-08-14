@@ -3,12 +3,12 @@ import arrow
 import xmltodict
 # import json
 
-from pages import ServerPage
+from pages.serverpage import ServerPage
 
 class GarminServer(ServerPage):
     """ ... """
-    def __init__(self, prod, period):
-        super().__init__(prod, period)
+    def __init__(self, prod, period, path: str=None):
+        super().__init__(prod, period, path)
         self.clear_secrets()
         self.type = 'Track'
         self.url = 'https://inreach.garmin.com/Feed/Share/RyanTrollip'
@@ -80,12 +80,17 @@ class GarminServer(ServerPage):
 
 if __name__ == '__main__':
     import os
+    import dotenv
+    
+    dotenv.load_dotenv()
+
     try:
         PROD = os.environ["PROD"]
+        SECRETS_PATH = os.environ["SECRETS_PATH"]
     except KeyError:
         pass
     
     if PROD == '1':
         GarminServer(True, 601).run()
     else:
-        GarminServer(False, 601).run()
+        GarminServer(False, 601, SECRETS_PATH).run()

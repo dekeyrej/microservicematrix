@@ -5,12 +5,12 @@ import arrow
 
 number = Union[float, int]
 
-from pages import ServerPage
+from pages.serverpage import ServerPage
 
 class OWMServer(ServerPage):
     """ ... """
-    def __init__(self, prod, period):
-        super().__init__(prod, period)
+    def __init__(self, prod, period, path: str=None):
+        super().__init__(prod, period, path)
         self.type = 'Weather'
         self.url = f'https://api.openweathermap.org/data/2.5/onecall?appid=' \
                    f'{self.secrets["owmkey"]}&lat={self.secrets["latitude"]}&' \
@@ -100,12 +100,17 @@ class OWMServer(ServerPage):
 
 if __name__ == '__main__':
     import os
+    import dotenv
+    
+    dotenv.load_dotenv()
+
     try:
         PROD = os.environ["PROD"]
+        SECRETS_PATH = os.environ["SECRETS_PATH"]
     except KeyError:
         pass
     
     if PROD == '1':
         OWMServer(True, 907).run()
     else:
-        OWMServer(False, 907).run()
+        OWMServer(False, 907, SECRETS_PATH).run()

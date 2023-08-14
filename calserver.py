@@ -2,12 +2,12 @@
 # import json
 import arrow
 
-from pages import ServerPage
+from pages.serverpage import ServerPage
 
 class CalendarServer(ServerPage):
     """ Subclass of serverpage for reading calendar events """
-    def __init__(self, prod, period):
-        super().__init__(prod, period)
+    def __init__(self, prod, period, path: str=None):
+        super().__init__(prod, period, path)
         self.type = 'Calendar'
 #       calendar has to be public :-/
         self._base_calendar_url = f'https://www.googleapis.com/calendar/v3/calendars/' \
@@ -41,12 +41,17 @@ class CalendarServer(ServerPage):
 
 if __name__ == '__main__':
     import os
+    import dotenv
+    
+    dotenv.load_dotenv()
+
     try:
         PROD = os.environ["PROD"]
+        SECRETS_PATH = os.environ["SECRETS_PATH"]
     except KeyError:
         pass
     
     if PROD == '1':
         CalendarServer(True, 877).run()
     else:
-        CalendarServer(False, 877).run()
+        CalendarServer(False, 877, SECRETS_PATH).run()

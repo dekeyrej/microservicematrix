@@ -2,12 +2,12 @@
 import json
 import arrow
 
-from pages import ServerPage
+from pages.serverpage import ServerPage
 
 class NextEvent(ServerPage):
     """ ... """
-    def __init__(self, prod, period):
-        super().__init__(prod, period)
+    def __init__(self, prod, period, path: str=None):
+        super().__init__(prod, period, path)
         self.clear_secrets()
         self.type = 'Family'
         self.events_file_name = "events.txt"
@@ -29,12 +29,17 @@ class NextEvent(ServerPage):
 
 if __name__ == '__main__':
     import os
+    import dotenv
+    
+    dotenv.load_dotenv()
+
     try:
         PROD = os.environ["PROD"]
+        SECRETS_PATH = os.environ["SECRETS_PATH"]
     except KeyError:
         pass
     
     if PROD == '1':
         NextEvent(True, 3593).run()
     else:
-        NextEvent(False, 3593).run()
+        NextEvent(False, 3593, SECRETS_PATH).run()

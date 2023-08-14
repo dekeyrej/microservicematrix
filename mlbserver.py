@@ -3,13 +3,13 @@ from typing import Mapping
 import arrow
 # import json
 
-from pages import ServerPage
+from pages.serverpage import ServerPage
 
 class MLBServer(ServerPage):
     """ ... """
-    def __init__(self, prod, period):
+    def __init__(self, prod, period, path: str=None):
         """ ... """
-        super().__init__(prod, period)
+        super().__init__(prod, period, path)
         self.clear_secrets()
         self.type = 'MLB'
         self.url = 'http://site.api.espn.com/apis/site/v2/sports/baseball/mlb/scoreboard'
@@ -152,12 +152,17 @@ class MLBServer(ServerPage):
 
 if __name__ == '__main__':
     import os
+    import dotenv
+    
+    dotenv.load_dotenv()
+
     try:
         PROD = os.environ["PROD"]
+        SECRETS_PATH = os.environ["SECRETS_PATH"]
     except KeyError:
         pass
     
     if PROD == '1':
         MLBServer(True, 29).run()
     else:
-        MLBServer(False, 29).run()
+        MLBServer(False, 29, SECRETS_PATH).run()

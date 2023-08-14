@@ -2,12 +2,12 @@
 # import json
 import arrow
 
-from pages import ServerPage
+from pages.serverpage import ServerPage
 
 class GithubServer(ServerPage):
     """ Subclass of serverpage for reading Jenkins Build Status events """
-    def __init__(self, prod, period):
-        super().__init__(prod, period)
+    def __init__(self, prod, period, path: str=None):
+        super().__init__(prod, period, path)
         self.type = 'GitHub'
         owner = self.secrets['github_owner']
         repo = self.secrets['github_repo']
@@ -45,12 +45,17 @@ class GithubServer(ServerPage):
 
 if __name__ == '__main__':
     import os
+    import dotenv
+    
+    dotenv.load_dotenv()
+
     try:
         PROD = os.environ["PROD"]
+        SECRETS_PATH = os.environ["SECRETS_PATH"]
     except KeyError:
         pass
     
     if PROD == '1':
         GithubServer(True, 599).run()
     else:
-        GithubServer(False, 599).run()
+        GithubServer(False, 599, SECRETS_PATH).run()

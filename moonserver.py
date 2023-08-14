@@ -4,13 +4,13 @@ from typing import Mapping
 import arrow
 # import json
 
-from pages import ServerPage
+from pages.serverpage import ServerPage
 # from secretsecrets import encsecrets
 
 class MoonServer(ServerPage):
     """ subclass of ServerPage to fetch sun and moon data """
-    def __init__(self, prod, period):
-        super().__init__(prod, period)
+    def __init__(self, prod, period, path: str=None):
+        super().__init__(prod, period, path)
         self.type = 'Moon'
         self.loc_str = f'lat={self.secrets["latitude"]}&lon={self.secrets["longitude"]}'
         self.timezone = self.secrets['timezone'] # not currently used
@@ -145,12 +145,17 @@ class MoonServer(ServerPage):
 
 if __name__ == '__main__':
     import os
+    import dotenv
+    
+    dotenv.load_dotenv()
+
     try:
         PROD = os.environ["PROD"]
+        SECRETS_PATH = os.environ["SECRETS_PATH"]
     except KeyError:
         pass
     
     if PROD == '1':
         MoonServer(True, 911).run()
     else:
-        MoonServer(False, 911).run()
+        MoonServer(False, 911, SECRETS_PATH).run()
