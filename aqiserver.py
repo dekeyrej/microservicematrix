@@ -7,14 +7,14 @@ import pandas as pd
 
 from aqi_data import aqidata, pollutants, pollutant_measures, dfindex
 
-from pages import ServerPage
+from pages.serverpage import ServerPage
 
 number = Union[float, int]
 
 class AQIServer(ServerPage):
     """ ... """
-    def __init__(self, prod: bool, period: int):
-        super().__init__(prod, period)
+    def __init__(self, prod: bool, period: int, path: str=None):
+        super().__init__(prod, period, path)
         self.type = 'AQI'
         self.url = f'https://api.openweathermap.org/data/2.5/air_pollution?appid=' \
                    f'{self.secrets["owmkey"]}&lat={self.secrets["latitude"]}&' \
@@ -103,12 +103,17 @@ class AQIServer(ServerPage):
 
 if __name__ == '__main__':
     import os
+    import dotenv
+    
+    dotenv.load_dotenv()
+
     try:
         PROD = os.environ["PROD"]
+        SECRETS_PATH = os.environ["SECRETS_PATH"]
     except KeyError:
         pass
     
     if PROD == '1':
         AQIServer(True, 919).run()
     else:
-        AQIServer(False, 919).run()
+        AQIServer(False, 919, SECRETS_PATH).run()

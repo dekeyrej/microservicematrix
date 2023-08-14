@@ -1,11 +1,12 @@
 import subprocess
+import json
 
 import arrow
 import requests
 from requests.exceptions import HTTPError
 
-from securedict    import DecryptDicts      # decrypt the secretsecrets
-from secretsecrets import encsecrets        # encrypted configuration values
+# from securedict    import DecryptDicts      # decrypt the secretsecrets
+# from secretsecrets import encsecrets        # encrypted configuration values
 
 import build_data
 
@@ -36,18 +37,25 @@ def fetch(rsess, url, auth=None, headers=None):
         #     return None
         return response.json()
 
+def read_secrets(path):
+    with open(path) as file:
+        newsecrets = json.loads(file.read())
+        file.close()
+    return newsecrets
+
 with open('../last_sha.txt', 'rt', encoding='utf-8') as file:
             last_sha = file.read()
             file.close()
 # print(last_sha)
 sess = requests.session()
-dd = DecryptDicts()
-dd.read_key_from_cluster()
-secrets = dd.decrypt_dict(encsecrets)
+# dd = DecryptDicts()
+# dd.read_key_from_cluster()
+# secrets = dd.decrypt_dict(encsecrets)
+secrets = read_secrets('secrets.json')
 
 owner = secrets['github_owner']
-repo = 'microservicematrix'
-# repo = secrets['github_repo']
+# repo = 'microservicematrix'
+repo = secrets['github_repo']
 my_token = secrets['github_api_key']
 url = f'https://api.github.com/repos/{owner}/{repo}/commits'
 headers = {'Authorization': f'token {my_token}', 

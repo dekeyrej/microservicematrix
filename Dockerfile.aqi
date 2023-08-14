@@ -10,10 +10,11 @@ FROM python:slim
 COPY --from=builder /opt/venv /opt/venv
 ENV PATH="/opt/venv/bin:$PATH" \
     PROD=1 \
-    PYTHONUNBUFFERED=1
+    PYTHONUNBUFFERED=1 \
+    SECRETS_PATH="None"
 WORKDIR /code
 # always copy these two
-COPY secretsecrets.py .
+# COPY secretsecrets.py .
 # always copy one of these
 COPY aqiserver.py .
 # server specific files

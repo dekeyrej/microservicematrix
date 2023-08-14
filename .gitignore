@@ -1,5 +1,7 @@
-__pycache__
-Do_Not_Copy
-venvw
+__pycache__/
+Do_Not_Copy/
+venvw/
 events.txt
 last_sha.txt
+.env
+secrets.json
