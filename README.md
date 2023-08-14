@@ -1,7 +1,7 @@
 # microservicematrix
 Microservices Implementation of the matrix server
 
-<b>Overall project intent</b>: Consume various local and internet data sources and display on a 128x64 pixel RGB LED matrix (quad sized tidbyt).
+<b>Overall project intent</b>: Consume various local and internet data sources and display on a 128x64 pixel RGB LED matrix (quad sized tidbyt). Along the way, grow my skills in python, databases, containerization, docker, kubernetes, github and jenkins.
 
 Microservice servers to feed a Software interface to the RGB Matrix is via the python bindings provided by https://github.com/hzeller/rpi-rgb-led-matrix. Bitmap fonts are from this repository as well.
 
@@ -14,12 +14,12 @@ Implemented by 'Strangling' the kubematrix code base -
 
 Allow the way, pulled several (3) packages of code out and published them to PyPI dekeyrej-datasource, -securedict, and -pages
 
-Current project (this repository): Refactor the server-side into several independent microservice servers to fetch data from various public and private data sources, and stores the results in a database.  The microservices are containerized, and the containers and database are run in a local kubernetes cluster.
+Current project (this repository): Refactor the server-side into several independent microservice servers to fetch data from various public and private data sources, and stores the results in a database.  The microservices are containerized, and the containers and database are run in a local kubernetes cluster. **Secrets for servers pulled from kebernetes secret (prod), or local secrets.json (dev).**
 - Display size: 128 x 64 pixels, 24-bit color (4 x 64x32 pixel panels in series)
-- Microservices implemented.  Air Quality, Google Calendar, Garmin tracker, GitHub commit watcher, Jenkins build watcher, MLB, Moon/Sun data, 'Family' events, and Open Weather Map server (current, hourly, daily). All but (kubematrix) NFL/World Cup data sources are operational.
+- Microservices implemented.  **Air Quality**, Google Calendar, **Garmin tracker**, **GitHub commit watcher**, **Jenkins build watcher**, MLB, Moon/Sun data, 'Family' events, and Open Weather Map server (current, hourly, daily). All but (kubematrix) NFL/World Cup data sources are operational.
 - Supports writing/reading SQLite, MongoDB, and Postgres-like databases (SQLite, Postgres and CockroachDB tested).
-- (client in kubematrix) Python/RGBmatrix database client implemented. All but NFL/WC data classes operational.
-- (client in kubematrix) Command line argument to allow running with or without an RGB Matrix attached (for testing).
+- (https://github.com/dekeyrej/matrixclient.git) Python/RGBmatrix database client implemented. All but NFL/WC data classes operational.
+- (https://github.com/dekeyrej/matrixclient.git) Command line argument to allow running with or without an RGB Matrix attached (for testing).
 
 Previous project: Refactor client/server to communicate via a database and run dataserver and database in a kubernetes cluster.
 - Display size: 128 x 64 pixels, 24-bit color (4 x 64x32 pixel panels in series)
