@@ -1,6 +1,7 @@
 """ ... """
 import arrow
-import xmltodict
+# import xmltodict
+import xml.etree.ElementTree as ET
 # import json
 
 from pages.serverpage import ServerPage
@@ -28,9 +29,10 @@ class GarminServer(ServerPage):
             data['valid'] = \
                 tnow.shift(seconds=+self.update_period).format('MM/DD/YYYY h:mm:ss A ZZZ')
             data['values'] = {}
-            source = xmltodict.parse(resp.content)
             # json_str = json.dumps(data)
-            track_data = source['kml']['Document']['Folder']['Placemark'][0]['ExtendedData']['Data']
+            # source = xmltodict.parse(resp.content)
+            # track_data = source['kml']['Document']['Folder']['Placemark'][0]['ExtendedData']['Data']
+            track_data = self.xml2dict(resp.content)
             # print(track_data)
             # track_time = arrow.get(track_data[ 2]['value'],'M/D/YYYY h:mm:ss A')
             # print(arrow.now().to('US/Eastern').format('M/D/YYYY h:mm:ss A'))
@@ -53,30 +55,36 @@ class GarminServer(ServerPage):
             ## this may not be portable for CockroachDB ##
             # self.dba["tracks"]["ryan"].insert_one(data['track'])
 
-    # parses string extracting velocity in km/h and converts to nm/h (kts)
     def velocity_to_kts(self, velstr: str) -> float:
-        """ ... """
+        """ parses string - extracting velocity in km/h and converts to nm/h (kts) """
         return float(int(float(velstr.split(" ")[0]) / 1.852 * 100.0)) / 100.0
 
-    # course string contains heading in degrees
     def course(self, crsstr:str ) -> float:
-        """ ... """
+        """ course string contains heading in degrees """
         return self.deg_to_dir(float(crsstr.split(" ")[0]))
 
-    # converts degrees to 'compass points'
     def deg_to_dir(self, deg: float) -> str:
-        """ ... """
+        """ converts degrees to 'compass points' """
         return self.dirs[round(deg/22.5) % 16]
 
-    # # query to return the latest track from tracks database
     def lastest_track(self) -> arrow:
-        """ ... """
+        """ query to return the latest track from tracks database """
         result = self.dba.read('Track')
         if result is not None:
             timestr = arrow.get(result['values']['Time'],'M/D/YYYY h:mm:ss A')
         else:
             timestr = arrow.now()
         return timestr
+
+    def xml2dict(self,data):
+        """ strips values from Garmin inReach kml data and returns them in an array """
+        output = []
+        tree = ET.fromstring(data)
+        # print(tree)
+        for child in tree.iter('{http://www.opengis.net/kml/2.2}ExtendedData'):
+            for data in child:
+                output.append({'@name': data.get('name'), 'value': data[0].text})
+        return output
 
 if __name__ == '__main__':
     import os
