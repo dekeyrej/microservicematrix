@@ -12,23 +12,22 @@ class JenkinsServer(ServerPage):
         self.type = 'Jenkins'
         self.server = "rocket3"
         self.port = 8080
-        self.project = "CRServer"
+        self.project = self.secrets['jenkins_project']
         self._server_url = f"http://{self.server}:{self.port}/job/{self.project}/api/json"
         self._build_stem_url = f"http://{self.server}:{self.port}/job/{self.project}"
         self.auth = (self.secrets['jenkins_user'],self.secrets['jenkins_api_key'])
         self.clear_secrets()
 
-
     def update(self):
         """ called by ServerPage.check() """
         tnow = arrow.now().to('US/Eastern')
-        sresp = self.fetch(self._server_url,'Fetching Jenkins CRServer',\
+        sresp = self.fetch(self._server_url,'Fetching Jenkins MicroServiceMatrix',\
                            tnow.format('MM/DD/YYYY hh:mm A ZZZ'),\
                            auth=self.auth)
         # health = sresp['healthReport'][0]['score']
         # print(json.dumps(sresp,indent=2))
         build_url = f'{self._build_stem_url}/{sresp["builds"][0]["number"]}/api/json'
-        resp = self.fetch(build_url,'Fetching CRServer Build',\
+        resp = self.fetch(build_url,'Fetching MicroServiceMatrix Build',\
                           tnow.format('MM/DD/YYYY hh:mm A ZZZ'),\
                           auth=self.auth)
         # print(json.dumps(resp,indent=2))
