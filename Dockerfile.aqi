@@ -16,7 +16,7 @@ WORKDIR /code
 # always copy these two
 # COPY secretsecrets.py .
 # always copy one of these
-COPY aqiserver.py aqi_data.py .
+COPY aqiserver.py aqi_data.py /code/
 # server specific files
 # COPY aqi_data.py .
 # end copies
