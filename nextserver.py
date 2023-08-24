@@ -20,9 +20,11 @@ class NextEvent(ServerPage):
         data['updated'] = tnow.format('MM/DD/YYYY h:mm A ZZZ')
         data['valid'] = tnow.shift(seconds=+self.update_period).format('MM/DD/YYYY h:mm:ss A ZZZ')
 
-        with open(self.events_file_name, encoding='utf-8') as file:
-            data['values'] = json.loads(file.read())
-            file.close()
+        if self.prod:
+            data['values'] = self.read_kube_secret("default", "matrix-events", "events", inkube=True)
+        else:
+            # data['values'] = self.read_kube_secret("default", "matrix-events", "events", inkube=False)
+            data['values'] = self.read_json_from_file(self.events_file_name)
 
         print(f'{type(self).__name__} updated.')
         self.dba.write(data)

@@ -18,7 +18,7 @@ WORKDIR /code
 # always copy one of these
 COPY nextserver.py .
 # server specific files
-COPY events.txt .
+# COPY events.txt .
 # end copies
 EXPOSE 10255
 # change per server type
