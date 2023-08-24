@@ -16,9 +16,9 @@ WORKDIR /code
 # always copy these two
 # COPY secretsecrets.py .
 # always copy one of these
-COPY aqiserver.py .
+COPY aqiserver.py aqi_data.py .
 # server specific files
-COPY aqi_data.py .
+# COPY aqi_data.py .
 # end copies
 EXPOSE 10255
 # change per server type
