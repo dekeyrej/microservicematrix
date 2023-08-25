@@ -52,15 +52,9 @@ podTemplate(label: 'jenkins-agent', cloud: 'kubernetes', serviceAccount: 'jenkin
         }
         stage('Deploy Latest') {
             container('python3') {
-                sh 'for i in `cat builds.txt`; do kubectl rollout restart deployment -n ${namespace} $i && sleep 5; done'
-                sh """
-                    # do
-                    #     kubectl get replicaset -l k8s-app=$i -o jsonpath='{.items[0].metadata.name}' > replicaset.${i}
-                    #     kubectl rollout restart deployment -n ${namespace} $i
-                    #     sleep 5
-                    #     kubectl delete replicaset `cat replicaset.${i}`
-                    # done
-                """
+                if (fileExists('builds.txt')) {
+                    sh 'for i in `cat builds.txt`; do kubectl rollout restart deployment -n ${namespace} $i && sleep 5; done'
+                }
                 milestone(3)
             }
         }
