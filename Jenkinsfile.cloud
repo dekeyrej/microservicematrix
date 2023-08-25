@@ -34,6 +34,7 @@ podTemplate(label: 'jenkins-agent', cloud: 'kubernetes', serviceAccount: 'jenkin
         }
         stage('Build Docker Image') {
             container('buildkit') {
+                unstash(name: 'builds')
                 sh """
                     for i in `cat builds.txt`
                     do
@@ -45,7 +46,7 @@ podTemplate(label: 'jenkins-agent', cloud: 'kubernetes', serviceAccount: 'jenkin
         }
         stage('Deploy Latest') {
             container('kubectl') {
-                sh "kubectl patch -n ${namespace} deployment demo-frontend -p '{\"spec\": { \"template\" : {\"spec\" : {\"containers\" : [{ \"name\" : \"demo-frontend\", \"image\" : \"${image}\"}]}}}}'"
+                unstash(name: 'builds')
                 sh """
                     for i in `cat builds.txt`
                     do

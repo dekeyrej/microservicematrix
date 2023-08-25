@@ -13,6 +13,14 @@ import build_data
 ALL = build_data.services
 reverse_dependencies = build_data.reverse_dependencies
 
+def read_kube_secret(namespace, secret, datapath, inkube=True):
+    if inkube:
+        config.incluster_config.load_incluster_config()
+    else:
+        config.load_kube_config()
+    v1 = client.CoreV1Api()
+    return json.loads(base64.b64decode(v1.read_namespaced_secret(secret, namespace).data[datapath]).decode('utf-8'))
+
 def fetch(rsess, url, auth=None, headers=None):
     """ ... """
     name = "GitHub"
@@ -37,30 +45,15 @@ def fetch(rsess, url, auth=None, headers=None):
         #     return None
         return response.json()
 
-def read_secrets(path):
-    with open(path) as file:
-        newsecrets = json.loads(file.read())
-        file.close()
-    return newsecrets
 try:
     last_sha = os.environ["GIT_PREVIOUS_SUCCESSFUL_COMMIT"]
 except KeyError:
     last_sha = '000000'
-# with open('../last_sha.txt', 'rt', encoding='utf-8') as file:
-#             last_sha = file.read()
-#             file.close()
-print(last_sha)
+
+print(f'Last successful commit: {last_sha}')
+
 sess = requests.session()
-# dd = DecryptDicts()
-# dd.read_key_from_cluster()
-# secrets = dd.decrypt_dict(encsecrets)
-def read_kube_secret(namespace, secret, datapath, inkube=True):
-    if inkube:
-        config.incluster_config.load_incluster_config()
-    else:
-        config.load_kube_config()
-    v1 = client.CoreV1Api()
-    return json.loads(base64.b64decode(v1.read_namespaced_secret(secret, namespace).data[datapath]).decode('utf-8'))
+
 secrets = read_kube_secret("default", "matrix-secrets", "secrets.json", True)
 
 owner = secrets['github_owner']
@@ -80,10 +73,7 @@ if resp is not None:
     commits = []
     out_files = []
     newest_sha = resp[0]['sha'][0:7]
-    print(newest_sha)
-    # with open('../new_last_sha.txt', 'wt', encoding='utf-8') as file:
-    #     file.write(f'{newest_sha}')
-    #     file.close()
+    print(f'Latest commit: {newest_sha}')
     for i in range(resp_count):
         sha = resp[i]['sha'][0:7]
         cmd = f"git diff-tree --no-commit-id --name-only -r {sha}"
@@ -122,6 +112,7 @@ if resp is not None:
             pass
         
     bl = list(set(build_list))
+    print(bl)
     with open('builds.txt', 'wt', encoding='utf-8') as file:
         for b in bl:
             print(f'{b}')
