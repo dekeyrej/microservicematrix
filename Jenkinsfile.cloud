@@ -27,15 +27,15 @@ podTemplate(label: 'jenkins-agent', cloud: 'kubernetes', serviceAccount: 'jenkin
                     python3 -m compileall *.py
                     python3 determine_tags.py
                 """
-                stash(name: 'builds', includes: 'builds.txt')
-                stash(name: 'compiled-results', includes: '*.py*')
+                stash(name: 'builds', includes: './builds.txt')
                 milestone(1)
             }
         }
         stage('Build Docker Image') {
             container('buildkit') {
-                unstash(name: 'builds')
+                unstash('builds')
                 sh """
+                    cat builds.txt
                     for i in `cat builds.txt`
                     do
                         buildctl build --frontend dockerfile.v0 --local context=. --local dockerfile=. --opt filename=Dockerfile.${i} --output type=image,name=${repository}/${i}:${tag},push=true
