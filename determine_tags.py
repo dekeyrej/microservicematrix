@@ -81,24 +81,24 @@ if resp is not None:
             print('breaking???')
             break
         else:
-            print(f'running : {cmd}')
+            # print(f'running : {cmd}')
             result = subprocess.run(cmd, shell=True, capture_output=True)
-            print(f'Return code is: {result.returncode}')
-            print(f'stdout: "{result.stdout.decode()}"')
+            # print(f'Return code is: {result.returncode}')
+            # print(f'stdout: "{result.stdout.decode()}"')
             if result.returncode == 0:
                 files = result.stdout.decode('utf-8').split('\n')
                 out_files.extend(files)
                 print(f'Files changed in {sha}: {files}')
             else:
                 files = []
-            message = resp[i]['commit']['message']
-            commit_date = arrow.get(resp[i]['commit']['author']['date'],in_format)
-            commit = {}
-            commit['sha']     = sha
-            commit['message'] = message
-            commit['date']    = commit_date.to('US/Eastern').format(out_format)
-            commit['files']   = files
-            commits.append(commit)
+            # message = resp[i]['commit']['message']
+            # commit_date = arrow.get(resp[i]['commit']['author']['date'],in_format)
+            # commit = {}
+            # commit['sha']     = sha
+            # commit['message'] = message
+            # commit['date']    = commit_date.to('US/Eastern').format(out_format)
+            # commit['files']   = files
+            # commits.append(commit)
 
     # print(json.dumps(commits,indent=2))
     file_list = list(set(out_files))[1:]
