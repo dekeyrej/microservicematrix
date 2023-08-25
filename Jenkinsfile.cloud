@@ -1,7 +1,6 @@
 tag="registry"
 repository="192.168.86.49:32000"
 namespace="default"
-last_sha="${env.GIT_PREVIOUS_SUCCESSFUL_COMMIT}"
 
 podTemplate(label: 'jenkins-agent', cloud: 'kubernetes', serviceAccount: 'jenkins-admin',
   containers: [
@@ -16,12 +15,15 @@ podTemplate(label: 'jenkins-agent', cloud: 'kubernetes', serviceAccount: 'jenkin
         stage('Prepare'){
             checkout scm
             // should be c253736
-            if (env.GIT_PREVIOUS_SUCCESSFUL_COMMIT != null) {
-                echo "Will skip deployment"
-            }
         }
         stage('Test') {
             container('python3') {
+                if (env.GIT_PREVIOUS_SUCCESSFUL_COMMIT != null) {
+                    last_sha="${env.GIT_PREVIOUS_SUCCESSFUL_COMMIT}"
+                    echo "May skip deployment"
+                } else {
+                    echo "Will deploy"
+                }
                 sh """ 
                     apt update
                     apt install git curl -y
