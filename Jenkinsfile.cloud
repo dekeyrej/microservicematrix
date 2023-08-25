@@ -6,7 +6,6 @@ podTemplate(label: 'jenkins-agent', cloud: 'kubernetes', serviceAccount: 'jenkin
   containers: [
     containerTemplate(name: 'python3',  image: 'python:slim',          ttyEnabled: true, command: 'cat'),
     containerTemplate(name: 'buildkit', image: 'moby/buildkit:master', ttyEnabled: true, privileged: true),
-    containerTemplate(name: 'kubectl',  image: 'roffe/kubectl',        ttyEnabled: true, command: 'cat'),
   ],
   volumes: [
     secretVolume(mountPath: '/etc/.ssh', secretName: 'ssh-home')
@@ -20,7 +19,9 @@ podTemplate(label: 'jenkins-agent', cloud: 'kubernetes', serviceAccount: 'jenkin
             container('python3') {
                 sh """ 
                     apt update
-                    apt install git -y
+                    apt install git curl -y
+                    curl -LO 'https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl'
+                    install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
                     python3 -m venv .
                     . bin/activate
                     pip install pylint pylint-venv pytest arrow kubernetes
@@ -50,7 +51,7 @@ podTemplate(label: 'jenkins-agent', cloud: 'kubernetes', serviceAccount: 'jenkin
             }
         }
         stage('Deploy Latest') {
-            container('kubectl') {
+            container('python3') {
                 sh 'for i in `cat builds.txt`; do kubectl rollout restart deployment -n ${namespace} $i && sleep 5; done'
                 sh """
                     # do
