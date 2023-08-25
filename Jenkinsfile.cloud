@@ -1,0 +1,75 @@
+tag="registry"
+repository="192.168.86.49:32000"
+namespace="default"
+
+podTemplate(label: 'prod-matrix-pod', cloud: 'kubernetes', serviceAccount: 'jenkins',
+  containers: [
+    containerTemplate(name: 'python3',  image: 'python:slim',          ttyEnabled: true, command: 'cat'),
+    containerTemplate(name: 'buildkit', image: 'moby/buildkit:master', ttyEnabled: true, privileged: true),
+    containerTemplate(name: 'kubectl',  image: 'roffe/kubectl',        ttyEnabled: true, command: 'cat'),
+  ],
+  volumes: [
+    secretVolume(mountPath: '/etc/.ssh', secretName: 'ssh-home')
+  ]
+) {
+    node() {
+        stage('Prepare') {
+            checkout scm
+        }
+        stage('Test') {
+            container('python3') {
+                sh """
+                    python3 -m venv .
+                    source bin/activate
+                    pip install -r requirements-wpd.txt
+                    python3 -m pylint --fail-under 9.0 *.py
+                    python3 -m compileall *.py
+                    python3 determine_tags.py
+                """
+                stash(name: 'builds', includes: 'builds.txt')
+                stash(name: 'compiled-results', includes: '*.py*')
+                milestone(1)
+            }
+        }
+        stage('Build Docker Image') {
+            container('buildkit') {
+                sh """
+                    for i in `cat builds.txt`
+                    do
+                        buildctl build --frontend dockerfile.v0 --local context=. --local dockerfile=. --opt filename=Dockerfile.${i} --output type=image,name=${repository}/${i}:${tag},push=true
+                    done
+                """
+                milestone(2)
+            }
+        }
+        stage('Deploy Latest') {
+            container('kubectl') {
+                sh "kubectl patch -n ${namespace} deployment demo-frontend -p '{\"spec\": { \"template\" : {\"spec\" : {\"containers\" : [{ \"name\" : \"demo-frontend\", \"image\" : \"${image}\"}]}}}}'"
+                sh """
+                    for i in `cat builds.txt`
+                    do
+                        kubectl get replicaset -l k8s-app=$i -o jsonpath='{.items[0].metadata.name}' > replicaset.${i}
+                        kubectl rollout restart -n ${namespace} deployment $i
+                        sleep 5
+                        kubectl delete replicaset `cat replicaset.${i}`
+                    done
+                """
+                milestone(3)
+            }
+        }
+        stage('Cleanup') {
+            container('python3') {
+                sh "python3 update_sha.py"
+                milestone(4)
+            }
+        }
+    }
+}
+
+properties([[
+    $class: 'BuildDiscarderProperty',
+    strategy: [
+        $class: 'LogRotator',
+        artifactDaysToKeepStr: '', artifactNumToKeepStr: '', daysToKeepStr: '', numToKeepStr: '10']
+    ]
+]);
