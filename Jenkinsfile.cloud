@@ -44,7 +44,7 @@ podTemplate(label: 'jenkins-agent', cloud: 'kubernetes', serviceAccount: 'jenkin
                     // unstash(name: 'builds')
                     if (fileExists('builds.txt')) {
                         echo "File builds.txt found!"
-                        sh 'for j in `cat builds.txt`; do echo $j; done'
+                        sh 'for i in `cat builds.txt`; do echo ${i}; done'
                     }
                 }
                 milestone(2)
@@ -52,15 +52,15 @@ podTemplate(label: 'jenkins-agent', cloud: 'kubernetes', serviceAccount: 'jenkin
         }
         stage('Deploy Latest') {
             container('kubectl') {
-                unstash(name: 'builds')
+                // unstash(name: 'builds')
+                sh 'for i in `cat builds.txt`; do kubectl rollout restart -n ${namespace} deployment $i && sleep 5; done'
                 sh """
-                    for i in `cat builds.txt`
-                    do
-                        kubectl get replicaset -l k8s-app=$i -o jsonpath='{.items[0].metadata.name}' > replicaset.${i}
-                        kubectl rollout restart -n ${namespace} deployment $i
-                        sleep 5
-                        kubectl delete replicaset `cat replicaset.${i}`
-                    done
+                    # do
+                    #     kubectl get replicaset -l k8s-app=$i -o jsonpath='{.items[0].metadata.name}' > replicaset.${i}
+                    #     kubectl rollout restart -n ${namespace} deployment $i
+                    #     sleep 5
+                    #     kubectl delete replicaset `cat replicaset.${i}`
+                    # done
                 """
                 milestone(3)
             }
