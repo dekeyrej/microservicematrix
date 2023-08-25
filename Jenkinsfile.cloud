@@ -36,6 +36,13 @@ podTemplate(label: 'jenkins-agent', cloud: 'kubernetes', serviceAccount: 'jenkin
         }
         stage('Build Docker Image') {
             container('buildkit') {
+                sh """
+                    adduser -D -u 1000 jenkins
+                    mkdir /home/jenkins/agent
+                    mkdir /home/jenkins/agent/workspace
+                    mkdir /home/jenkins/agent/workspace/CloudMicroServiceMatrix
+                    chown -R jenkins:jenkins /home/jenkins/agent
+                """
                 unstash('builds')
                 sh """
                     pwd
