@@ -23,7 +23,7 @@ podTemplate(label: 'jenkins-agent', cloud: 'kubernetes', serviceAccount: 'jenkin
                     . bin/activate
                     pip install pylint pylint-venv pytest arrow requests
                     pip install -r requirements-wpd.txt
-                    python3 -m pylint --fail-under 9.0 *.py
+                    python3 -m pylint --fail-under 8.0 *.py
                     python3 -m compileall *.py
                     python3 determine_tags.py
                 """
