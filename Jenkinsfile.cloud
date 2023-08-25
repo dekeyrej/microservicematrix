@@ -20,7 +20,7 @@ podTemplate(label: 'jenkins-agent', cloud: 'kubernetes', serviceAccount: 'jenkin
             container('python3') {
                 sh """ 
                     apt update
-                    apt install git
+                    apt install git -y
                     python3 -m venv .
                     . bin/activate
                     pip install pylint pylint-venv pytest arrow requests
