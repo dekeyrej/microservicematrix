@@ -15,7 +15,7 @@ podTemplate(label: 'jenkins-agent', cloud: 'kubernetes', serviceAccount: 'jenkin
         stage('Prepare'){
             checkout scm
             // should be c253736
-            echo '%GIT_PREVIOUS_SUCCESSFUL_COMMIT%'
+            echo "${GIT_PREVIOUS_SUCCESSFUL_COMMIT}"
         }
         stage('Test') {
             container('python3') {
@@ -31,7 +31,7 @@ podTemplate(label: 'jenkins-agent', cloud: 'kubernetes', serviceAccount: 'jenkin
                     # python3 -m pylint --fail-under 8.0 *.py
                     # python3 -m compileall *.py
                     git config --global --add safe.directory /home/jenkins/agent/workspace/CloudMicroServiceMatrix
-                    export last_sha='%GIT_PREVIOUS_SUCCESSFUL_COMMIT%'
+                    export last_sha=${GIT_PREVIOUS_SUCCESSFUL_COMMIT}
                     python3 determine_tags.py
                 """
                 stash(name: 'builds', includes: 'builds.txt')
