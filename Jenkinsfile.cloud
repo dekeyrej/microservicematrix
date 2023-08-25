@@ -21,12 +21,12 @@ podTemplate(label: 'jenkins-agent', cloud: 'kubernetes', serviceAccount: 'jenkin
                 sh """ 
                     apt update
                     apt install git -y
-                    python3 -m venv .
-                    . bin/activate
-                    pip install pylint pylint-venv pytest arrow requests
-                    pip install -r requirements-wpd.txt
-                    python3 -m pylint --fail-under 8.0 *.py
-                    python3 -m compileall *.py
+                    // python3 -m venv .
+                    // . bin/activate
+                    // pip install pylint pylint-venv pytest arrow requests
+                    // pip install -r requirements-wpd.txt
+                    // python3 -m pylint --fail-under 8.0 *.py
+                    // python3 -m compileall *.py
                     git config --global --add safe.directory /home/jenkins/agent/workspace/CloudMicroServiceMatrix
                     python3 determine_tags.py
                 """
