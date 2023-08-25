@@ -20,7 +20,7 @@ podTemplate(label: 'jenkins-agent', cloud: 'kubernetes', serviceAccount: 'jenkin
             container('python3') {
                 sh """
                     python3 -m venv .
-                    source bin/activate
+                    . bin/activate
                     pip install -r requirements-wpd.txt
                     python3 -m pylint --fail-under 9.0 *.py
                     python3 -m compileall *.py
