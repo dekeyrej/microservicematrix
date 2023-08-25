@@ -14,7 +14,9 @@ podTemplate(label: 'jenkins-agent', cloud: 'kubernetes', serviceAccount: 'jenkin
 ) {
     node() {
         stage('Prepare') {
-            checkout scm
+            container('python3') {
+                checkout scm
+            }
         }
         stage('Test') {
             container('python3') {
