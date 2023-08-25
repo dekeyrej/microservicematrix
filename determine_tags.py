@@ -83,7 +83,7 @@ if resp is not None:
         else:
             print(f'running : {cmd}')
             result = subprocess.run(cmd, shell=True, capture_output=True)
-            print('Return code is: {result.returncode}')
+            print(f'Return code is: {result.returncode}')
             if result.returncode == 0:
                 files = result.stdout.decode('utf-8').split('\n')
                 out_files.extend(files)
