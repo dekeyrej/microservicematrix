@@ -4,7 +4,6 @@ namespace="default"
 
 podTemplate(label: 'jenkins-agent', cloud: 'kubernetes', serviceAccount: 'jenkins-admin',
   containers: [
-    containerTemplate(name: 'python3',  image: 'python:slim',          ttyEnabled: true, command: 'cat'),
     containerTemplate(name: 'buildkit', image: 'moby/buildkit:master', ttyEnabled: true, privileged: true),
   ],
   volumes: [
@@ -12,36 +11,6 @@ podTemplate(label: 'jenkins-agent', cloud: 'kubernetes', serviceAccount: 'jenkin
   ]
 ) {
     node('jenkins-agent') {
-        stage('Prepare'){
-            checkout scm
-            // should be c253736
-        }
-        stage('Test') {
-            container('python3') {
-                if (env.GIT_PREVIOUS_SUCCESSFUL_COMMIT != null) {
-                    last_sha="${env.GIT_PREVIOUS_SUCCESSFUL_COMMIT}"
-                    echo "May skip deployment"
-                } else {
-                    echo "Will deploy"
-                }
-                sh """ 
-                    apt update
-                    apt install git curl -y
-                    curl -LO 'https://dl.k8s.io/release/v1.27.2/bin/linux/amd64/kubectl'
-                    install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
-                    python3 -m venv .
-                    . bin/activate
-                    pip install pylint pylint-venv pytest arrow kubernetes
-                    # pip install -r requirements-wpd.txt
-                    # python3 -m pylint --fail-under 8.0 *.py
-                    # python3 -m compileall *.py
-                    git config --global --add safe.directory /home/jenkins/agent/workspace/CloudMicroServiceMatrix
-                    python3 determine_tags.py
-                """
-                stash(name: 'builds', includes: 'builds.txt')
-                milestone(1)
-            }
-        }
         stage('Build Docker Image') {
             container('buildkit') {
                 sh """
@@ -51,18 +20,10 @@ podTemplate(label: 'jenkins-agent', cloud: 'kubernetes', serviceAccount: 'jenkin
                 dir('/home/jenkins/agent/workspace/CloudMicroServiceMatrix') {
                     if (fileExists('builds.txt')) {
                         echo "File builds.txt found!"
-                        sh 'for i in `cat builds.txt`; do buildctl build --frontend dockerfile.v0 --local context=. --local dockerfile=. --opt filename=Dockerfile.${i} --output type=image,name=${repository}/${i}:${tag},registry.insecure=true,push=true; done'
+                        sh 'if [`stat -c %s builds.txt` -gt 0 ] then; for i in `cat builds.txt`; do echo "buildctl build --frontend dockerfile.v0 --local context=. --local dockerfile=. --opt filename=Dockerfile.${i} --output type=image,name=${repository}/${i}:${tag},registry.insecure=true,push=true"; done; fi'
                     }
                 }
-                milestone(2)
-            }
-        }
-        stage('Deploy Latest') {
-            container('python3') {
-                if (fileExists('builds.txt')) {
-                    sh 'for i in `cat builds.txt`; do kubectl rollout restart deployment -n ${namespace} $i && sleep 5; done'
-                }
-                milestone(3)
+                milestone(1)
             }
         }
     }

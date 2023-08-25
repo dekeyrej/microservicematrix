@@ -54,7 +54,7 @@ print(f'Last successful commit: {last_sha}')
 
 sess = requests.session()
 
-secrets = read_kube_secret("default", "matrix-secrets", "secrets.json", True)
+secrets = read_kube_secret("default", "matrix-secrets", "secrets.json", False)
 
 owner = secrets['github_owner']
 repo = secrets['github_repo']
@@ -78,7 +78,7 @@ if resp is not None:
         sha = resp[i]['sha'][0:7]
         cmd = f"git diff-tree --no-commit-id --name-only -r {sha}"
         if sha == last_sha:
-            print('breaking???')
+            # print('breaking???')
             break
         else:
             # print(f'running : {cmd}')
