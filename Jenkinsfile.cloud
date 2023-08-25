@@ -38,7 +38,6 @@ podTemplate(label: 'jenkins-agent', cloud: 'kubernetes', serviceAccount: 'jenkin
             container('buildkit') {
                 sh """
                     adduser -D -u 1000 jenkins
-                    chown -R jenkins:jenkins /home/jenkins/agent
                 """
                 dir('/home/jenkins/agent/workspace/CloudMicroServiceMatrix'){
                     unstash('builds')
@@ -49,7 +48,7 @@ podTemplate(label: 'jenkins-agent', cloud: 'kubernetes', serviceAccount: 'jenkin
                         do
                             buildctl build --frontend dockerfile.v0 --local context=. --local dockerfile=. --opt filename=Dockerfile.${i} --output type=image,name=${repository}/${i}:${tag},push=true
                         done
-                """
+                    """
                 }
                 milestone(2)
             }
