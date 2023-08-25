@@ -1,12 +1,11 @@
+import os
 import subprocess
 import json
 
 import arrow
 import requests
 from requests.exceptions import HTTPError
-
-# from securedict    import DecryptDicts      # decrypt the secretsecrets
-# from secretsecrets import encsecrets        # encrypted configuration values
+from kubernetes import config, client
 
 import build_data
 
@@ -42,19 +41,28 @@ def read_secrets(path):
         newsecrets = json.loads(file.read())
         file.close()
     return newsecrets
-
-with open('../last_sha.txt', 'rt', encoding='utf-8') as file:
-            last_sha = file.read()
-            file.close()
-# print(last_sha)
+try:
+    last_sha = os.environ["GIT_PREVIOUS_SUCCESSFUL_COMMIT"]
+except KeyError:
+    last_sha = '000000'
+# with open('../last_sha.txt', 'rt', encoding='utf-8') as file:
+#             last_sha = file.read()
+#             file.close()
+print(last_sha)
 sess = requests.session()
 # dd = DecryptDicts()
 # dd.read_key_from_cluster()
 # secrets = dd.decrypt_dict(encsecrets)
-secrets = read_secrets('secrets.json')
+def read_kube_secret(namespace, secret, datapath, inkube=True):
+    if inkube:
+        config.incluster_config.load_incluster_config()
+    else:
+        config.load_kube_config()
+    v1 = client.CoreV1Api()
+    return json.loads(base64.b64decode(v1.read_namespaced_secret(secret, namespace).data[datapath]).decode('utf-8'))
+secrets = read_kube_secret("default", "matrix-secrets", "secrets.json", True)
 
 owner = secrets['github_owner']
-# repo = 'microservicematrix'
 repo = secrets['github_repo']
 my_token = secrets['github_api_key']
 url = f'https://api.github.com/repos/{owner}/{repo}/commits'
@@ -71,9 +79,10 @@ if resp is not None:
     commits = []
     out_files = []
     newest_sha = resp[0]['sha'][0:7]
-    with open('../new_last_sha.txt', 'wt', encoding='utf-8') as file:
-        file.write(f'{newest_sha}')
-        file.close()
+    print(newest_sha)
+    # with open('../new_last_sha.txt', 'wt', encoding='utf-8') as file:
+    #     file.write(f'{newest_sha}')
+    #     file.close()
     for i in range(resp_count):
         sha = resp[i]['sha'][0:7]
         cmd = f"git diff-tree --no-commit-id --name-only -r {sha}"

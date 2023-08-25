@@ -58,12 +58,6 @@ podTemplate(label: 'jenkins-agent', cloud: 'kubernetes', serviceAccount: 'jenkin
                 milestone(3)
             }
         }
-        stage('Cleanup') {
-            container('python3') {
-                sh "python3 update_sha.py"
-                milestone(4)
-            }
-        }
     }
 }
 
