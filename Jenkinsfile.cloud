@@ -25,6 +25,7 @@ podTemplate(label: 'jenkins-agent', cloud: 'kubernetes', serviceAccount: 'jenkin
                     pip install -r requirements-wpd.txt
                     python3 -m pylint --fail-under 8.0 *.py
                     python3 -m compileall *.py
+                    which git
                     python3 determine_tags.py
                 """
                 stash(name: 'builds', includes: './builds.txt')

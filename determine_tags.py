@@ -78,9 +78,12 @@ if resp is not None:
         sha = resp[i]['sha'][0:7]
         cmd = f"git diff-tree --no-commit-id --name-only -r {sha}"
         if sha == last_sha:
+            print('breaking???')
             break
         else:
+            print(f'running : {cmd}')
             result = subprocess.run(cmd, shell=True, capture_output=True)
+            print('Return code is: {result.returncode}')
             if result.returncode == 0:
                 files = result.stdout.decode('utf-8').split('\n')
                 out_files.extend(files)
