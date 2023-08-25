@@ -42,11 +42,10 @@ podTemplate(label: 'jenkins-agent', cloud: 'kubernetes', serviceAccount: 'jenkin
                     chdir /home/jenkins/agent/workspace/CloudMicroServiceMatrix
                 """
                 unstash(name: 'builds')
+                if (fileExists('builds.txt')) {
+                    echo "File builds.txt found!"
+                }
                 sh """
-                    pwd
-                    ls -al
-                    cat builds.txt
-                    echo "After the cat, and before the loop"
                     for i in `cat builds.txt` 
                     do 
                         buildctl build --frontend dockerfile.v0 --local context=. --local dockerfile=. --opt filename=Dockerfile.${i} --output type=image,name=${repository}/${i}:${tag},push=true
