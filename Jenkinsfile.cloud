@@ -41,10 +41,9 @@ podTemplate(label: 'jenkins-agent', cloud: 'kubernetes', serviceAccount: 'jenkin
                     chown -R jenkins:jenkins /home/jenkins/agent
                 """
                 dir('/home/jenkins/agent/workspace/CloudMicroServiceMatrix') {
-                    // unstash(name: 'builds')
                     if (fileExists('builds.txt')) {
                         echo "File builds.txt found!"
-                        sh 'for i in `cat builds.txt`; do buildctl build --frontend dockerfile.v0 --local context=. --local dockerfile=. --opt filename=Dockerfile.${i} --output type=image,name=${repository}/${i}:${tag},push=true; done'
+                        sh 'for i in `cat builds.txt`; do buildctl build --frontend dockerfile.v0 --local context=. --local dockerfile=. --opt filename=Dockerfile.${i} --output type=image,name=${repository}/${i}:${tag},registry.insecure=true,push=true; done'
                     }
                 }
                 milestone(2)
@@ -52,7 +51,6 @@ podTemplate(label: 'jenkins-agent', cloud: 'kubernetes', serviceAccount: 'jenkin
         }
         stage('Deploy Latest') {
             container('kubectl') {
-                // unstash(name: 'builds')
                 sh 'for i in `cat builds.txt`; do kubectl rollout restart deployment -n ${namespace} $i && sleep 5; done'
                 sh """
                     # do
