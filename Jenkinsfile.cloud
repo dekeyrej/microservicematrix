@@ -35,6 +35,7 @@ podTemplate(label: 'jenkins-agent', cloud: 'kubernetes', serviceAccount: 'jenkin
             container('buildkit') {
                 unstash('builds')
                 sh """
+                    pwd
                     cat builds.txt
                     for i in `cat builds.txt`
                     do
