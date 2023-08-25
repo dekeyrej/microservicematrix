@@ -46,9 +46,9 @@ def fetch(rsess, url, auth=None, headers=None):
         return response.json()
 
 try:
-    last_sha = os.environ["GIT_PREVIOUS_SUCCESSFUL_COMMIT"]
+    last_sha = os.environ["last_sha"]
 except KeyError:
-    last_sha = '4ff9f5f'
+    last_sha = 'b88e622'
 
 print(f'Last successful commit: {last_sha}')
 
