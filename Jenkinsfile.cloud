@@ -25,7 +25,7 @@ podTemplate(label: 'jenkins-agent', cloud: 'kubernetes', serviceAccount: 'jenkin
                     if (fileExists('builds.txt')) {
                         echo "File builds.txt found!"
                         // sh 'if [ `stat -c %s builds.txt` -gt 0 ]; then for i in `cat builds.txt`; do echo "buildctl build --frontend dockerfile.v0 --local context=. --local dockerfile=. --opt filename=Dockerfile.${i} --output type=image,name=${repository}/${i}:${tag},registry.insecure=true,push=true"; done; fi'
-                        sh """
+                        sh '''
                             if [ `stat -c %s builds.txt` -gt 0 ] 
                             then 
                                 for i in `cat builds.txt` 
@@ -33,7 +33,7 @@ podTemplate(label: 'jenkins-agent', cloud: 'kubernetes', serviceAccount: 'jenkin
                                     echo "buildctl build --frontend dockerfile.v0 --local context=. --local dockerfile=. --opt filename=Dockerfile.${i} --output type=image,name=${repository}/${i}:${tag},registry.insecure=true,push=true"
                                 done 
                             fi
-                        """
+                        '''
                     }
                 }
                 milestone(1)
