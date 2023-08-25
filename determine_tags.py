@@ -1,6 +1,7 @@
 import os
 import subprocess
 import json
+import base64
 
 import arrow
 import requests
