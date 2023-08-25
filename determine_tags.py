@@ -13,7 +13,7 @@ import build_data
 ALL = build_data.services
 reverse_dependencies = build_data.reverse_dependencies
 
-def read_kube_secret(namespace, secret, datapath, inkube=True):
+def read_kube_secret(namespace, secret, datapath, inkube=False):
     if inkube:
         config.incluster_config.load_incluster_config()
     else:
@@ -78,29 +78,16 @@ if resp is not None:
         sha = resp[i]['sha'][0:7]
         cmd = f"git diff-tree --no-commit-id --name-only -r {sha}"
         if sha == last_sha:
-            # print('breaking???')
             break
         else:
-            # print(f'running : {cmd}')
             result = subprocess.run(cmd, shell=True, capture_output=True)
-            # print(f'Return code is: {result.returncode}')
-            # print(f'stdout: "{result.stdout.decode()}"')
             if result.returncode == 0:
                 files = result.stdout.decode('utf-8').split('\n')
                 out_files.extend(files)
                 print(f'Files changed in {sha}: {files}')
             else:
                 files = []
-            # message = resp[i]['commit']['message']
-            # commit_date = arrow.get(resp[i]['commit']['author']['date'],in_format)
-            # commit = {}
-            # commit['sha']     = sha
-            # commit['message'] = message
-            # commit['date']    = commit_date.to('US/Eastern').format(out_format)
-            # commit['files']   = files
-            # commits.append(commit)
 
-    # print(json.dumps(commits,indent=2))
     file_list = list(set(out_files))[1:]
     print(f'Unique files changed since {last_sha}: {str(file_list)}')
     

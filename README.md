@@ -1,9 +1,11 @@
-# microservicematrix
+# microservicematrix #
 Microservices Implementation of the matrix server
 
 <b>Overall project intent</b>: Consume various local and internet data sources and display on a 128x64 pixel RGB LED matrix (quad sized tidbyt). Along the way, grow my skills in python, databases, containerization, docker, kubernetes, github and jenkins.
 
 Microservice servers to feed a Software interface to the RGB Matrix is via the python bindings provided by https://github.com/hzeller/rpi-rgb-led-matrix. Bitmap fonts are from this repository as well.
+
+<b>Build note: Before you commit any changes, run 'determine_tags.py' which will update 'builds.txt' to tell Jenkins which microservices need to be rebuilt.</b>
 
 Implemented by 'Strangling' the kubematrix code base - 
 - Peeling off each of the 'servers'
