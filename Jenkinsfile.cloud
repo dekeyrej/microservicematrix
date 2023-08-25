@@ -12,7 +12,7 @@ podTemplate(label: 'jenkins-agent', cloud: 'kubernetes', serviceAccount: 'jenkin
     secretVolume(mountPath: '/etc/.ssh', secretName: 'ssh-home')
   ]
 ) {
-    node() {
+    node(POD_LABEL) {
         stage('Test') {
             container('python3') {
                 sh """
