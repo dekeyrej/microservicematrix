@@ -7,6 +7,9 @@ podTemplate(label: 'jenkins-agent', cloud: 'kubernetes', serviceAccount: 'jenkin
     containerTemplate(name: 'python3',  image: 'python:slim',          ttyEnabled: true, command: 'cat'),
     containerTemplate(name: 'buildkit', image: 'moby/buildkit:master', ttyEnabled: true, privileged: true),
     containerTemplate(name: 'kubectl',  image: 'roffe/kubectl',        ttyEnabled: true, command: 'cat'),
+  ],
+  volumes: [
+    secretVolume(mountPath: '/etc/.ssh', secretName: 'ssh-home')
   ]
 ) {
     node('jenkins-agent') {
