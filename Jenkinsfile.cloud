@@ -28,6 +28,7 @@ podTemplate(label: 'jenkins-agent', cloud: 'kubernetes', serviceAccount: 'jenkin
                     python3 -m pylint --fail-under 8.0 *.py
                     python3 -m compileall *.py
                     which git
+                    git config --global --add safe.directory /home/jenkins/agent/workspace/CloudMicroServiceMatrix
                     git diff-tree --no-commit-id --name-only -r 64afcee
                     python3 determine_tags.py
                 """
