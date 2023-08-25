@@ -40,7 +40,9 @@ podTemplate(label: 'jenkins-agent', cloud: 'kubernetes', serviceAccount: 'jenkin
                     adduser -D -u 1000 jenkins
                     chown -R jenkins:jenkins /home/jenkins/agent
                 """
-                unstash('builds')
+                dir('/home/jenkins/agent/workspace/CloudMicroServiceMatrix'){
+                    unstash('builds')
+                }
                 sh """
                     pwd
                     cat builds.txt
