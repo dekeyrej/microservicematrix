@@ -11,6 +11,10 @@ podTemplate(label: 'jenkins-agent', cloud: 'kubernetes', serviceAccount: 'jenkin
   ]
 ) {
     node('jenkins-agent') {
+        stage('Prepare'){
+            checkout scm
+            sh "echo `stat -c %s builds.txt`"
+        }
         stage('Build Docker Image') {
             container('buildkit') {
                 sh """
