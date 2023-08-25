@@ -2,7 +2,7 @@ tag="registry"
 repository="192.168.86.49:32000"
 namespace="default"
 
-podTemplate(label: 'prod-matrix-pod', cloud: 'kubernetes', serviceAccount: 'jenkins',
+podTemplate(label: 'jenkins-agent', cloud: 'kubernetes', serviceAccount: 'jenkins-admin',
   containers: [
     containerTemplate(name: 'python3',  image: 'python:slim',          ttyEnabled: true, command: 'cat'),
     containerTemplate(name: 'buildkit', image: 'moby/buildkit:master', ttyEnabled: true, privileged: true),
