@@ -71,7 +71,7 @@ podTemplate(label: 'jenkins-agent', cloud: 'kubernetes', serviceAccount: 'jenkin
         stage('Cleanup') {
             container('python3') {
                 // sh 'for i in `kubectl get replicasets -o wide | awk \' + '{if ($2 == 0 && $3 == 0){print $1} }\' + '` ; do kubectl delete replicaset $i ; done'
-                sh 'for i in `kubectl get replicasets -o wide | awk \''{if ($2 == 0 && $3 == 0){print $1} }\''` ; do kubectl delete replicaset $i ; done'
+                sh 'for i in `kubectl get replicasets -o wide | awk ''{if ($2 == 0 && $3 == 0){print $1} }''` ; do kubectl delete replicaset $i ; done'
                 sh '''kubectl get replicasets -o wide > repsets
                 awk \'{if ($2 == 0 && $3 == 0){print $1} }\' repsets > emptyrepsets
                 for i in ` cat emptyrepsets` ; do kubectl delete replicaset $i ; done'''
