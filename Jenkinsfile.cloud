@@ -14,11 +14,11 @@ podTemplate(label: 'jenkins-agent', cloud: 'kubernetes', serviceAccount: 'jenkin
     node('jenkins-agent') {
         stage('Prepare'){
             checkout scm
-            // sh "echo `stat -c %s builds.txt`"
         }
         stage('Test') {
             container('python3') {
                 sh """ 
+                    export PROD=2
                     apt update
                     apt install git curl -y -q
                     curl -LO 'https://dl.k8s.io/release/v1.27.2/bin/linux/amd64/kubectl'
