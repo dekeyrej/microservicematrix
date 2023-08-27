@@ -4,8 +4,8 @@ namespace="default"
 
 podTemplate(label: 'jenkins-agent', cloud: 'kubernetes', serviceAccount: 'jenkins-admin',
   containers: [
-    containerTemplate(name: 'python3',  image: 'python:slim',          ttyEnabled: true, command: 'cat'),
-    containerTemplate(name: 'buildkit', image: 'moby/buildkit:master', ttyEnabled: true, privileged: true),
+    containerTemplate(name: 'python3',  image: 'localhost:32000/python:08262023',   ttyEnabled: true, command: 'cat'),
+    containerTemplate(name: 'buildkit', image: 'localhost:32000/buildkit:08262023', ttyEnabled: true, privileged: true),
   ],
   volumes: [
     secretVolume(mountPath: '/etc/.ssh', secretName: 'ssh-home')
@@ -19,15 +19,15 @@ podTemplate(label: 'jenkins-agent', cloud: 'kubernetes', serviceAccount: 'jenkin
             container('python3') {
                 sh """ 
                     export PROD=2
-                    apt update
-                    apt-get install git curl -y -q
-                    curl -LO 'https://dl.k8s.io/release/v1.27.2/bin/linux/amd64/kubectl'
-                    install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
+                    # apt update
+                    # apt-get install git curl -y -q
+                    # curl -LO 'https://dl.k8s.io/release/v1.27.2/bin/linux/amd64/kubectl'
+                    # install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
                     python3 -m venv .
                     . bin/activate
                     pip install pylint pylint-venv pytest
                     pip install -r requirements-wpd.txt
-                    python3 -m pylint --fail-under 8.0 *.py
+                    python3 -m pylint --fail-under 9.0 *.py
                     git config --global --add safe.directory /home/jenkins/agent/workspace/CloudMicroServiceMatrix
                     python3 determine_tags.py
                 """
@@ -37,10 +37,10 @@ podTemplate(label: 'jenkins-agent', cloud: 'kubernetes', serviceAccount: 'jenkin
         }
         stage('Build Docker Image') {
             container('buildkit') {
-                sh """
-                    adduser -D -u 1000 jenkins
-                    chown -R jenkins:jenkins /home/jenkins/agent
-                """
+                // sh """
+                    # adduser -D -u 1000 jenkins
+                    # chown -R jenkins:jenkins /home/jenkins/agent
+                // """
                 dir('/home/jenkins/agent/workspace/CloudMicroServiceMatrix') {
                     if (fileExists('builds.txt')) {
                         echo "File builds.txt found!"
