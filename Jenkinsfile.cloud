@@ -72,14 +72,18 @@ podTemplate(label: 'jenkins-agent', cloud: 'kubernetes', serviceAccount: 'jenkin
             container('python3') {
                 // sh 'for i in `kubectl get replicasets -o wide | awk \' + '{if ($2 == 0 && $3 == 0){print $1} }\' + '` ; do kubectl delete replicaset $i ; done'
                 // sh 'for i in `kubectl get replicasets -o wide | awk ''{if ($2 == 0 && $3 == 0){print $1} }''` ; do kubectl delete replicaset $i ; done'
-                sh '''kubectl get replicasets -n default -o wide > repsets
+                sh '''
+                kubectl get replicasets -n default -o wide > repsets
                 awk \'{if ($2 == 0 && $3 == 0){print $1} }\' repsets > emptyrepsets
-                for i in `cat emptyrepsets` ; do kubectl delete replicaset $i ; done'''
+                for i in `cat emptyrepsets`
+                do 
+                    kubectl delete replicaset -n default $i
+                done
+                '''
                 // sh 'kubectl get replicasets -o wide > reps'
                 // sh "cat reps | awk '{if ($2 == 0 && $3 == 0){print $1}}' > repstodel"
                 // sh 'for i in `cat repstodel`; do kubectl delete replicaset $i; done'
                 // sh 'for i in `kubectl get replicasets -o wide | awk \' + '{if ($2 == 0 && $3 == 0){print $1}}\' + '` ; do kubectl delete replicaset $i ; done'
-                sh 'sleep 200'
                 milestone(4)
             }
         }
