@@ -1,21 +1,29 @@
-pollutants = ["o3", "pm2_5", "pm10", "co", "so2", "no2"] # OWM also returns "no" and "nh3", but I have no guidance for them
-
-# derived from https://www.airnow.gov/sites/default/files/2020-05/aqi-technical-assistance-document-sept2018.pdf
+""" Data used by aqiserver.py """
+# OWM also returns "no" and "nh3", but I have no guidance for them
+pollutants = ["o3", "pm2_5", "pm10", "co", "so2", "no2"]
+"""
+https://www.airnow.gov/sites/default/files/2020-05/aqi-technical-assistance-document-sept2018.pdf
+"""
 pollutant_measures = {
     "o3":    {"name": "Ozone", "weight": 47.998, "units": "ppb",   "decimals": 0}, 
-    "pm2_5": {"name": "Particulate Matter (2.5 microns)", "weight": 1, "units": "ug/m3", "decimals": 1}, 
-    "pm10":  {"name": "Particulate Matter (10 microns)", "weight": 1, "units": "ug/m3", "decimals": 0}, 
+    "pm2_5": {"name": "Particulate Matter (2.5 microns)", "weight": 1, "units": "ug/m3", 
+              "decimals": 1}, 
+    "pm10":  {"name": "Particulate Matter (10 microns)", "weight": 1, "units": "ug/m3", 
+              "decimals": 0}, 
     "co":    {"name": "Carbon Monoxide", "weight": 28.01, "units": "ppm",   "decimals": 1}, 
     "so2":   {"name": "Sulfur Dioxide", "weight": 64.065, "units": "ppb",   "decimals": 0}, 
     "no2":   {"name": "Nitrogen Dioxide", "weight": 46.006, "units": "ppb",   "decimals": 0}
 }
 
 dfindex = ["1", "2", "3", "4", "5", "6"]
-
-# derived from https://www.airnow.gov/sites/default/files/2020-05/aqi-technical-assistance-document-sept2018.pdf
+"""
+https://www.airnow.gov/sites/default/files/2020-05/aqi-technical-assistance-document-sept2018.pdf
+"""
 aqidata = {
-    "aqi_adjective": ["Good", "Moderate", "Unhealthy for Sensitive Groups", "Unhealthy", "Very Unhealthy", "Hazardous"], 
-    "aqi_color":     ["(0,228,0)", "(255,255,0)", "(255,126,0)", "(255,0,0)", "(143,63,151)", "(126,0,35)"], 
+    "aqi_adjective": ["Good", "Moderate", "Unhealthy for Sensitive Groups", 
+                      "Unhealthy", "Very Unhealthy", "Hazardous"], 
+    "aqi_color":     ["(0,228,0)", "(255,255,0)", "(255,126,0)", 
+                      "(255,0,0)", "(143,63,151)", "(126,0,35)"], 
     "aqi_low":  [0, 51, 101, 151, 201, 301], 
     "aqi_high": [50, 100, 150, 200, 300, 500], 
     "o3_low":  [0, 55, 71, 86, 106, 201], 

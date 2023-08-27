@@ -1,15 +1,14 @@
 """ ... """
-import json
 from typing import Union
 
 import arrow
 import pandas as pd
 
-from aqi_data import aqidata, pollutants, pollutant_measures, dfindex
-
 from pages.serverpage import ServerPage
 
-number = Union[float, int]
+from aqi_data import aqidata, pollutants, pollutant_measures, dfindex
+
+numtype = Union[float, int]
 
 class AQIServer(ServerPage):
     """ ... """
@@ -20,7 +19,7 @@ class AQIServer(ServerPage):
                    f'{self.secrets["owmkey"]}&lat={self.secrets["latitude"]}&' \
                    f'lon={self.secrets["longitude"]}'
         self.clear_secrets()
-        self.df = pd.DataFrame(aqidata, index = dfindex)
+        self.daf = pd.DataFrame(aqidata, index = dfindex)
 
     def update(self):
         """ ... """
@@ -33,33 +32,36 @@ class AQIServer(ServerPage):
             data['updated'] = self.now_str(tnow,False)
             data['valid']   = self.now_str(tnow.shift(seconds=+self.update_period),True)
             data['values'] = {}
-            data['values']['dt'] = arrow.get(str(jstuff['list'][0]['dt']), 'X').to('US/Eastern').format('MM/DD/YYYY h:mm A ZZZ')
+            dts = arrow.get(str(jstuff['list'][0]['dt']), 'X')
+            data['values']['dt'] = dts.to('US/Eastern').format('MM/DD/YYYY h:mm A ZZZ')
             # loop through the readings
             maxscore = 1
             maxrow = "1"
             maxpol = ""
             index = 0
-            for p in pollutants:
-                raw = jstuff["list"][0]["components"][p]
-                converted = self.convert_reading(raw, p)
-                scaled, row = self.scaled_reading(converted, p)
+            for pol in pollutants:
+                raw = jstuff["list"][0]["components"][pol]
+                converted = self.convert_reading(raw, pol)
+                scaled, row = self.scaled_reading(converted, pol)
                 if scaled > maxscore:
                     maxscore = scaled
                     maxrow = row
-                    maxpol = p
+                    maxpol = pol
                 # print(f'{p} - raw: {raw}, converted: {converted}, scaled: {scaled} on row {row}')
                 index += 1
 
-            print(f'AQI: {maxscore} ({self.df.at[maxrow,"aqi_adjective"]} - {self.df.at[maxrow,"aqi_color"]}) with {pollutant_measures[maxpol]["name"]} as the main factor.')
+            print(f'AQI: {maxscore} ({self.daf.at[maxrow,"aqi_adjective"]} -' \
+                  f'{self.daf.at[maxrow,"aqi_color"]}) '\
+                  f'with {pollutant_measures[maxpol]["name"]} as the main factor.')
             data['values']['aqi_score'] = maxscore
-            data['values']['aqi_adjective'] = self.df.at[maxrow,"aqi_adjective"]
-            data['values']['color'] = self.df.at[maxrow,"aqi_color"]
+            data['values']['aqi_adjective'] = self.daf.at[maxrow,"aqi_adjective"]
+            data['values']['color'] = self.daf.at[maxrow,"aqi_color"]
             data['values']['main_pollutant'] = pollutant_measures[maxpol]["name"]
             # write out the results
             self.dba.write(data)
             # print(f'{type(self).__name__} updated.')
 
-    def convert_reading(self, val: number, pol: str) -> number:
+    def convert_reading(self, val: numtype, pol: str) -> numtype:
         """ 
         Values delivered by OWM are all in micrograms per cubic meter.
         function (1) converts to ppm or ppb, and
@@ -68,43 +70,46 @@ class AQIServer(ServerPage):
         units = pollutant_measures[pol]["units"]
         decimals = pollutant_measures[pol]["decimals"]
         weight = pollutant_measures[pol]["weight"]
-        
+
         if units == "ppm":
             conversion = 24.45 / (weight * 1000)
         elif units == "ppb":
             conversion = 24.45 / weight
         elif units == "ug/m3":
             conversion = 1
-        
+
         if decimals == 0:
             return int(round(val * conversion * 10**decimals, 0)/10**decimals)
-        else:
-            return round(val * conversion * 10**decimals, 0)/10**decimals
 
-    def scaled_reading(self, cval: number, pol: str) -> int:
+        return round(val * conversion * 10**decimals, 0)/10**decimals
+
+    def scaled_reading(self, cval: numtype, pol: str) -> int:
         """
         function scales the converted value based on the pollutants 'Break Points'
         and returns the (AQI) scaled value and the row in the table (AQI Level).
-        Derived from https://www.airnow.gov/sites/default/files/2020-05/aqi-technical-assistance-document-sept2018.pdf
+        https://www.airnow.gov/sites/default/files/
+                 2020-05/aqi-technical-assistance-document-sept2018.pdf
         """
-        al = 'aqi_low'
-        ah = 'aqi_high'
-        pl =  f'{pol}_low'
-        ph = f'{pol}_high'
+        aql = 'aqi_low'
+        aqh = 'aqi_high'
+        pml =  f'{pol}_low'
+        pmh = f'{pol}_high'
         scaled = 1
         row = '1'
         for i in dfindex:
-            if self.df.at[i, pl] <= cval <= self.df.at[i, ph]:
+            if self.daf.at[i, pml] <= cval <= self.daf.at[i, pmh]:
                 row = i
-                # print(f'{cval} is between {self.df.at[i, pl]} and {self.df.at[i, ph]} on row {row}')
-                scaled = int(round((cval - self.df.at[i, pl])* (self.df.at[i, ah] - self.df.at[i, al])/(self.df.at[i, ph] - self.df.at[i, pl]) + self.df.at[i, al],0))
+                scaled = int(round((cval - self.daf.at[i, pml])* (self.daf.at[i, aqh] -
+                                                                 self.daf.at[i, aql])/
+                                   (self.daf.at[i, pmh] -
+                                    self.daf.at[i, pml]) + self.daf.at[i, aql],0))
                 return scaled, row
         return scaled, row
 
 if __name__ == '__main__':
     import os
     import dotenv
-    
+
     dotenv.load_dotenv()
 
     try:
@@ -112,7 +117,7 @@ if __name__ == '__main__':
         SECRETS_PATH = os.environ["SECRETS_PATH"]
     except KeyError:
         pass
-    
+
     if PROD == '1':
         AQIServer(True, 919).run()
     else:

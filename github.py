@@ -46,7 +46,7 @@ class GithubServer(ServerPage):
 if __name__ == '__main__':
     import os
     import dotenv
-    
+
     dotenv.load_dotenv()
 
     try:
@@ -54,7 +54,7 @@ if __name__ == '__main__':
         SECRETS_PATH = os.environ["SECRETS_PATH"]
     except KeyError:
         pass
-    
+
     if PROD == '1':
         GithubServer(True, 599).run()
     else:

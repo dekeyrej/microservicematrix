@@ -96,7 +96,7 @@ class MLBServer(ServerPage):
             values['homeColor']        = '000000'
             values['homeRecord']       = ''
         values['homeLogo']         = competition['competitors'][0]['team']['logo']
-        
+
         return values
 
     def away_values(self, competition: Mapping) -> Mapping:
@@ -110,7 +110,7 @@ class MLBServer(ServerPage):
             values['awayColor']        = '000000'
             values['awayRecord']       = ''
         values['awayLogo']         = competition['competitors'][1]['team']['logo']
-        
+
         return values
 
     def scores(self, competition: Mapping) -> Mapping:
@@ -153,7 +153,7 @@ class MLBServer(ServerPage):
 if __name__ == '__main__':
     import os
     import dotenv
-    
+
     dotenv.load_dotenv()
 
     try:
@@ -161,7 +161,7 @@ if __name__ == '__main__':
         SECRETS_PATH = os.environ["SECRETS_PATH"]
     except KeyError:
         pass
-    
+
     if PROD == '1':
         MLBServer(True, 29).run()
     else:

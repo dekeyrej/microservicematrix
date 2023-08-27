@@ -20,7 +20,7 @@ podTemplate(label: 'jenkins-agent', cloud: 'kubernetes', serviceAccount: 'jenkin
                 sh """ 
                     export PROD=2
                     apt update
-                    apt install git curl -y -q
+                    apt-get install git curl -y -q
                     curl -LO 'https://dl.k8s.io/release/v1.27.2/bin/linux/amd64/kubectl'
                     install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
                     python3 -m venv .

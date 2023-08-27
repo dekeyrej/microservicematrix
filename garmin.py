@@ -1,8 +1,6 @@
 """ ... """
-import arrow
-# import xmltodict
 import xml.etree.ElementTree as ET
-# import json
+import arrow
 
 from pages.serverpage import ServerPage
 
@@ -31,7 +29,7 @@ class GarminServer(ServerPage):
             data['values'] = {}
             # json_str = json.dumps(data)
             # source = xmltodict.parse(resp.content)
-            # track_data = source['kml']['Document']['Folder']['Placemark'][0]['ExtendedData']['Data']
+    # track_data = source['kml']['Document']['Folder']['Placemark'][0]['ExtendedData']['Data']
             track_data = self.xml2dict(resp.content)
             # print(track_data)
             # track_time = arrow.get(track_data[ 2]['value'],'M/D/YYYY h:mm:ss A')
@@ -82,14 +80,14 @@ class GarminServer(ServerPage):
         tree = ET.fromstring(data)
         # print(tree)
         for child in tree.iter('{http://www.opengis.net/kml/2.2}ExtendedData'):
-            for data in child:
-                output.append({'@name': data.get('name'), 'value': data[0].text})
+            for cdata in child:
+                output.append({'@name': cdata.get('name'), 'value': cdata[0].text})
         return output
 
 if __name__ == '__main__':
     import os
     import dotenv
-    
+
     dotenv.load_dotenv()
 
     try:
@@ -97,7 +95,7 @@ if __name__ == '__main__':
         SECRETS_PATH = os.environ["SECRETS_PATH"]
     except KeyError:
         pass
-    
+
     if PROD == '1':
         GarminServer(True, 601).run()
     else:

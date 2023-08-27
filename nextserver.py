@@ -1,7 +1,5 @@
 """ reads events.txt and loads it into the database """
-import json
 import arrow
-
 from pages.serverpage import ServerPage
 
 class NextEvent(ServerPage):
@@ -21,9 +19,11 @@ class NextEvent(ServerPage):
         data['valid'] = tnow.shift(seconds=+self.update_period).format('MM/DD/YYYY h:mm:ss A ZZZ')
 
         if self.prod:
-            data['values'] = self.read_kube_secret("default", "matrix-events", "events", inkube=True)
+            data['values'] = self.read_kube_secret("default", "matrix-events",
+                                                   "events", inkube=True)
         else:
-            # data['values'] = self.read_kube_secret("default", "matrix-events", "events", inkube=False)
+            # data['values'] = self.read_kube_secret("default", "matrix-events",
+            #                                      "events", inkube=False)
             data['values'] = self.read_json_from_file(self.events_file_name)
 
         print(f'{type(self).__name__} updated.')
@@ -32,7 +32,7 @@ class NextEvent(ServerPage):
 if __name__ == '__main__':
     import os
     import dotenv
-    
+
     dotenv.load_dotenv()
 
     try:
@@ -40,7 +40,7 @@ if __name__ == '__main__':
         SECRETS_PATH = os.environ["SECRETS_PATH"]
     except KeyError:
         pass
-    
+
     if PROD == '1':
         NextEvent(True, 3593).run()
     else:
