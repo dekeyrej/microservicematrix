@@ -19,10 +19,6 @@ podTemplate(label: 'jenkins-agent', cloud: 'kubernetes', serviceAccount: 'jenkin
             container('python3') {
                 sh """ 
                     export PROD=2
-                    # apt update
-                    # apt-get install git curl -y -q
-                    # curl -LO 'https://dl.k8s.io/release/v1.27.2/bin/linux/amd64/kubectl'
-                    # install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
                     python3 -m venv .
                     . bin/activate
                     pip install pylint pylint-venv pytest
@@ -37,10 +33,6 @@ podTemplate(label: 'jenkins-agent', cloud: 'kubernetes', serviceAccount: 'jenkin
         }
         stage('Build Docker Image') {
             container('buildkit') {
-                // sh """
-                    # adduser -D -u 1000 jenkins
-                    # chown -R jenkins:jenkins /home/jenkins/agent
-                // """
                 dir('/home/jenkins/agent/workspace/CloudMicroServiceMatrix') {
                     if (fileExists('builds.txt')) {
                         echo "File builds.txt found!"
