@@ -28,7 +28,10 @@ podTemplate(label: 'jenkins-agent', cloud: 'kubernetes', serviceAccount: 'jenkin
                     pip install pylint pylint-venv pytest
                     pip install -r requirements-wpd.txt
                     python3 -m pylint --fail-under 8.0 *.py
+                    git config --global --add safe.directory /home/jenkins/agent/workspace/CloudMicroServiceMatrix
+                    python3 determine_tags.py
                 """
+                stash(name: 'builds', includes: 'builds.txt')
                 milestone(1)
             }
         }
@@ -40,7 +43,7 @@ podTemplate(label: 'jenkins-agent', cloud: 'kubernetes', serviceAccount: 'jenkin
                 """
                 dir('/home/jenkins/agent/workspace/CloudMicroServiceMatrix') {
                     if (fileExists('builds.txt')) {
-                        // echo "File builds.txt found!"
+                        echo "File builds.txt found!"
                         sh '''
                             if [ `stat -c %s builds.txt` -gt 0 ] 
                             then 
@@ -58,6 +61,7 @@ podTemplate(label: 'jenkins-agent', cloud: 'kubernetes', serviceAccount: 'jenkin
         stage('Deploy Latest') {
             container('python3') {
                 if (fileExists('builds.txt')) {
+                    echo "File builds.txt found!"
                     sh '''
                             if [ `stat -c %s builds.txt` -gt 0 ] 
                             then 
@@ -80,6 +84,7 @@ podTemplate(label: 'jenkins-agent', cloud: 'kubernetes', serviceAccount: 'jenkin
                         kubectl delete replicaset $i 
                     done
                 '''
+                milestone(4)
             }
         }
     }

@@ -1,29 +1,27 @@
 import os
 import subprocess
 import json
-import base64
 
 import arrow
 import requests
 from requests.exceptions import HTTPError
-from kubernetes import config, client
+
+import dotenv
+dotenv.load_dotenv()
+
+import kube
+ks = kube.kube_secrets(False)
+secrets = ks.read_secret("default", "matrix-secrets", "secrets.json", True) # for test and prod
 
 import build_data
-
 ALL = build_data.services
 reverse_dependencies = build_data.reverse_dependencies
 
-def read_kube_secret(namespace, secret, datapath, inkube=False):
-    if inkube:
-        config.incluster_config.load_incluster_config()
-    else:
-        config.load_kube_config()
-    v1 = client.CoreV1Api()
-    return json.loads(base64.b64decode(v1.read_namespaced_secret(secret, namespace).data[datapath]).decode('utf-8'))
+sess = requests.session()
 
-def fetch(rsess, url, auth=None, headers=None):
+def fetch(rsess, url, name, auth=None, headers=None):
     """ ... """
-    name = "GitHub"
+    # name = "GitHub"
     now = arrow.now().format('MM/DD/YYYY hh:mm A ZZZ')
     with rsess as sess:
         try:
@@ -45,35 +43,39 @@ def fetch(rsess, url, auth=None, headers=None):
         #     return None
         return response.json()
 
-try:
-    last_sha = os.environ["last_sha"]
-except KeyError:
-    last_sha = 'b88e622'
+# get the SHA1 of the last successful build from Jenkins
+if os.environ['PROD'] == '0':
+    jserver  = "rocket2"
+    jport    = 32005
+else:
+    jserver  = secrets['jenkins_host']
+    jport    = secrets['jenkins_port']
+jproject = secrets['jenkins_project']
+jserver_url = f"http://{jserver}:{jport}/job/{jproject}/lastSuccessfulBuild/api/json"
+jauth       = (secrets['jenkins_user'],secrets['jenkins_api_key'])
+# print(f'URL: {jserver_url}, with auth {jauth}')
+jresp = fetch(sess, jserver_url, 'Jenkins', auth=jauth)
+last_sha = jresp['changeSets'][0]['items'][0]['commitId'][0:7]
+print(f'Commit for lastest successful build: {last_sha}')
 
-print(f'Last successful commit: {last_sha}')
-
-sess = requests.session()
-
-secrets = read_kube_secret("default", "matrix-secrets", "secrets.json", False)
-
-owner = secrets['github_owner']
-repo = secrets['github_repo']
+# get the list of commits from GitHub
+owner    = secrets['github_owner']
+repo     = secrets['github_repo']
 my_token = secrets['github_api_key']
 url = f'https://api.github.com/repos/{owner}/{repo}/commits'
 headers = {'Authorization': f'token {my_token}', 
            'Accept': 'application/vnd.github+json'}
+resp = fetch(sess, url, 'GitHub', headers=headers)
 
 in_format = 'YYYY-MM-DD[T]HH:mm:ssZ'
 out_format = 'YYYY-MM-DD hh:mm:ss A ZZZ'
-
-resp = fetch(sess, url, headers=headers)
 
 if resp is not None:
     resp_count = len(resp)
     commits = []
     out_files = []
-    newest_sha = resp[0]['sha'][0:7]
-    print(f'Latest commit: {newest_sha}')
+#     newest_sha = resp[0]['sha'][0:7]
+    print(f"Latest commit: {resp[0]['sha'][0:7]}")
     for i in range(resp_count):
         sha = resp[i]['sha'][0:7]
         cmd = f"git diff-tree --no-commit-id --name-only -r {sha}"
