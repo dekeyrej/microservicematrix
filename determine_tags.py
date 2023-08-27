@@ -10,7 +10,7 @@ import dotenv
 dotenv.load_dotenv()
 
 import kube
-ks = kube.kube_secrets(False)
+ks = kube.kube_secrets(True)
 secrets = ks.read_secret("default", "matrix-secrets", "secrets.json", True) # for test and prod
 
 import build_data
