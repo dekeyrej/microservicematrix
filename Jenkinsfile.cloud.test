@@ -47,7 +47,10 @@ podTemplate(label: 'jenkins-agent', cloud: 'kubernetes', serviceAccount: 'jenkin
                                 done 
                             fi
                         '''
+                    } else {
+                        echo "File builds.txt NOT found!"
                     }
+
                 }
                 milestone(2)
             }
