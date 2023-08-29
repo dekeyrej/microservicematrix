@@ -30,7 +30,7 @@ podTemplate(label: 'jenkins-agent', cloud: 'kubernetes', serviceAccount: 'jenkin
                     python3 determine_tags.py
                     ls -al
                 """
-                stash(name: 'builds', includes: 'builds.txt')
+                stash(name: 'builds', includes: '*.py, Dockerfile.*, *.txt')
                 milestone(1)
             }
         }
@@ -42,6 +42,7 @@ podTemplate(label: 'jenkins-agent', cloud: 'kubernetes', serviceAccount: 'jenkin
                     if (fileExists('builds.txt')) {
                         echo "File builds.txt found!"
                         sh '''
+                            ls -al
                             if [ `stat -c %s builds.txt` -gt 0 ]
                             then 
                                 for i in `cat builds.txt` 
