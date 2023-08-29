@@ -1,7 +1,3 @@
-tag="registry"
-repository="172.17.5.224:32000"
-namespace="default"
-
 podTemplate(label: 'jenkins-agent', cloud: 'kubernetes', serviceAccount: 'jenkins-admin',
   containers: [
     containerTemplate(name: 'python3',  image: 'localhost:32000/python:08262023',   ttyEnabled: true, command: 'cat'),
@@ -19,6 +15,7 @@ podTemplate(label: 'jenkins-agent', cloud: 'kubernetes', serviceAccount: 'jenkin
     node('jenkins-agent') {
         stage('Prepare'){
             checkout scm
+            echo '${tag} ${repository} ${namespace}'
         }
         stage('Test') {
             container('python3') {
