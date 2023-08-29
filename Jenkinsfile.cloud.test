@@ -19,6 +19,7 @@ podTemplate(label: 'jenkins-agent', cloud: 'kubernetes', serviceAccount: 'jenkin
         stage('Test') {
             container('python3') {
                 sh """ 
+                    pwd
                     export PROD=2
                     python3 -m venv .
                     . bin/activate
@@ -27,6 +28,7 @@ podTemplate(label: 'jenkins-agent', cloud: 'kubernetes', serviceAccount: 'jenkin
                     python3 -m pylint --fail-under 9.0 *.py
                     git config --global --add safe.directory /home/jenkins/agent/workspace/CloudMicroServiceMatrix
                     python3 determine_tags.py
+                    ls -al
                 """
                 stash(name: 'builds', includes: 'builds.txt')
                 milestone(1)
@@ -36,6 +38,7 @@ podTemplate(label: 'jenkins-agent', cloud: 'kubernetes', serviceAccount: 'jenkin
             container('buildkit') {
                 unstash(name: 'builds')
                 dir('/home/jenkins/agent/workspace/CloudMicroServiceMatrix') {
+                    unstash(name: 'builds')
                     echo "${tag} ${repository} ${namespace}"
                     if (fileExists('builds.txt')) {
                         echo "File builds.txt found!"
@@ -50,6 +53,10 @@ podTemplate(label: 'jenkins-agent', cloud: 'kubernetes', serviceAccount: 'jenkin
                         '''
                     } else {
                         echo "File builds.txt NOT found!"
+                        sh '''
+                            pwd
+                            ls -al
+                        '''
                     }
 
                 }
