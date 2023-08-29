@@ -15,7 +15,6 @@ podTemplate(label: 'jenkins-agent', cloud: 'kubernetes', serviceAccount: 'jenkin
     node('jenkins-agent') {
         stage('Prepare'){
             checkout scm
-            echo "${tag} ${repository} ${namespace}"
         }
         stage('Test') {
             container('python3') {
@@ -36,10 +35,11 @@ podTemplate(label: 'jenkins-agent', cloud: 'kubernetes', serviceAccount: 'jenkin
         stage('Build Docker Image') {
             container('buildkit') {
                 dir('/home/jenkins/agent/workspace/CloudMicroServiceMatrix') {
+                    echo "${tag} ${repository} ${namespace}"
                     if (fileExists('builds.txt')) {
                         echo "File builds.txt found!"
                         sh '''
-                            if [ `stat -c %s builds.txt` -gt 0 ] 
+                            if [ `stat -c %s builds.txt` -gt 0 ]
                             then 
                                 for i in `cat builds.txt` 
                                 do 
