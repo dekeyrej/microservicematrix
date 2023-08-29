@@ -1,6 +1,6 @@
 tag="registry"
 repository="172.17.5.224:32000"
-namespace="microservices"
+namespace="default"
 
 podTemplate(label: 'jenkins-agent', cloud: 'kubernetes', serviceAccount: 'jenkins-admin',
   containers: [
