@@ -9,11 +9,17 @@ podTemplate(label: 'jenkins-agent', cloud: 'kubernetes', serviceAccount: 'jenkin
   ],
   volumes: [
     secretVolume(mountPath: '/etc/.ssh', secretName: 'ssh-home')
+  ],
+  envVars: [
+    envVar(key: 'tag', value: 'registry'),
+    envVar(key: 'repository', value: '192.168.86.49:32000'),
+    envVar(key: 'namespace', value: 'default'),
   ]
 ) {
     node('jenkins-agent') {
         stage('Prepare'){
             checkout scm
+            echo "${env.getEnvironment()}"
         }
         stage('Test') {
             container('python3') {

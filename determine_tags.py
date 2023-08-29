@@ -14,7 +14,7 @@ import kube
 import build_data
 
 dotenv.load_dotenv()
-kks = kube.KubeSecrets(True)
+kks = kube.KubeSecrets(False)
 secrets = kks.read_secret("default", "matrix-secrets", "secrets.json", True) # for test and prod
 ALL = build_data.services
 reverse_dependencies = build_data.reverse_dependencies
@@ -54,7 +54,10 @@ jproject = secrets['jenkins_project']
 jserver_url = f"http://{jserver}:{jport}/job/{jproject}/lastSuccessfulBuild/api/json"
 jauth       = (secrets['jenkins_user'],secrets['jenkins_api_key'])
 jresp = fetch(sess, jserver_url, 'Jenkins', auth=jauth)
-last_sha = jresp['changeSets'][0]['items'][0]['commitId'][0:7]
+try:
+    last_sha = jresp['changeSets'][0]['items'][0]['commitId'][0:7]
+except IndexError:
+    last_sha = 'cf6d7f0'
 print(f'Commit for lastest successful build: {last_sha}')
 
 # get the list of commits from GitHub
