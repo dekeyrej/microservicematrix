@@ -36,7 +36,6 @@ podTemplate(label: 'jenkins-agent', cloud: 'kubernetes', serviceAccount: 'jenkin
         }
         stage('Build Docker Image') {
             container('buildkit') {
-                unstash(name: 'builds')
                 dir('/home/jenkins/agent/workspace/CloudMicroServiceMatrix') {
                     unstash(name: 'builds')
                     echo "${tag} ${repository} ${namespace}"
