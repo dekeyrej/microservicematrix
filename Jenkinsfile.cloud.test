@@ -15,7 +15,7 @@ podTemplate(label: 'jenkins-agent', cloud: 'kubernetes', serviceAccount: 'jenkin
     node('jenkins-agent') {
         stage('Prepare'){
             checkout scm
-            echo '${tag} ${repository} ${namespace}'
+            echo "${tag} ${repository} ${namespace}"
         }
         stage('Test') {
             container('python3') {
