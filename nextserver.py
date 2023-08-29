@@ -1,6 +1,7 @@
 """ reads events.txt and loads it into the database """
 import arrow
 from pages.serverpage import ServerPage
+from kube import KubeSecrets
 
 class NextEvent(ServerPage):
     """ ... """
@@ -19,8 +20,11 @@ class NextEvent(ServerPage):
         data['valid'] = tnow.shift(seconds=+self.update_period).format('MM/DD/YYYY h:mm:ss A ZZZ')
 
         if self.prod:
-            data['values'] = self.read_kube_secret("default", "matrix-events",
-                                                   "events", inkube=True)
+            ks = KubeSecrets(True)
+            data['values'] = ks.read_secret("default", "matrix-events",
+                                            "events", data_is_json=True)
+            # data['values'] = self.read_kube_secret("default", "matrix-events",
+            #                                        "events", inkube=True)
         else:
             # data['values'] = self.read_kube_secret("default", "matrix-events",
             #                                      "events", inkube=False)

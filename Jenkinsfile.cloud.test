@@ -60,7 +60,7 @@ podTemplate(label: 'jenkins-agent', cloud: 'kubernetes', serviceAccount: 'jenkin
                                 for i in `cat builds.txt` 
                                 do 
                                     # kubectl apply -f  $i.yaml
-                                    kubectl rollout restart deployment -n ${namespace} $i
+                                    kubectl rollout restart deployment $i
                                     sleep 5
                                 done 
                             fi

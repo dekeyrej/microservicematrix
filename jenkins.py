@@ -10,8 +10,8 @@ class JenkinsServer(ServerPage):
     def __init__(self, prod, period, path: str=None):
         super().__init__(prod, period, path)
         self.type = 'Jenkins'
-        self.server = "rocket3"
-        self.port = 8080
+        self.server = self.secrets['jenkins_host']
+        self.port = self.secrets['jenkins_port']
         self.project = self.secrets['jenkins_project']
         self._server_url = f"http://{self.server}:{self.port}/job/{self.project}/api/json"
         self._build_stem_url = f"http://{self.server}:{self.port}/job/{self.project}"
