@@ -35,6 +35,7 @@ podTemplate(label: 'jenkins-agent', cloud: 'kubernetes', serviceAccount: 'jenkin
         stage('Build Docker Image') {
             container('buildkit') {
                 dir('/home/jenkins/agent/workspace/CloudMicroServiceMatrix') {
+                    unstash(name: 'builds')
                     if (fileExists('builds.txt')) {
                         echo "File builds.txt found!"
                         sh '''
