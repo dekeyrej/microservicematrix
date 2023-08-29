@@ -1,0 +1,94 @@
+tag="registry"
+repository="172.17.5.224:32000"
+namespace="microservices"
+
+podTemplate(label: 'jenkins-agent', cloud: 'kubernetes', serviceAccount: 'jenkins-admin',
+  containers: [
+    containerTemplate(name: 'python3',  image: 'localhost:32000/python:08262023',   ttyEnabled: true, command: 'cat'),
+    containerTemplate(name: 'buildkit', image: 'localhost:32000/buildkit:08262023', ttyEnabled: true, privileged: true),
+  ],
+  volumes: [
+    secretVolume(mountPath: '/etc/.ssh', secretName: 'ssh-home')
+  ]
+) {
+    node('jenkins-agent') {
+        stage('Prepare'){
+            checkout scm
+        }
+        stage('Test') {
+            container('python3') {
+                sh """ 
+                    export PROD=2
+                    python3 -m venv .
+                    . bin/activate
+                    pip install pylint pylint-venv pytest
+                    pip install -r requirements-wpd.txt
+                    python3 -m pylint --fail-under 9.0 *.py
+                    git config --global --add safe.directory /home/jenkins/agent/workspace/CloudMicroServiceMatrix
+                    python3 determine_tags.py
+                """
+                stash(name: 'builds', includes: 'builds.txt')
+                milestone(1)
+            }
+        }
+        stage('Build Docker Image') {
+            container('buildkit') {
+                dir('/home/jenkins/agent/workspace/CloudMicroServiceMatrix') {
+                    if (fileExists('builds.txt')) {
+                        echo "File builds.txt found!"
+                        sh '''
+                            if [ `stat -c %s builds.txt` -gt 0 ] 
+                            then 
+                                for i in `cat builds.txt` 
+                                do 
+                                    buildctl build --frontend dockerfile.v0 --local context=. --local dockerfile=. --opt filename=Dockerfile.${i} --output type=image,name=${repository}/${i}:${tag},registry.insecure=true,push=true
+                                done 
+                            fi
+                        '''
+                    }
+                }
+                milestone(2)
+            }
+        }
+        stage('Deploy Latest') {
+            container('python3') {
+                if (fileExists('builds.txt')) {
+                    echo "File builds.txt found!"
+                    sh '''
+                            if [ `stat -c %s builds.txt` -gt 0 ] 
+                            then 
+                                for i in `cat builds.txt` 
+                                do 
+                                    kubectl apply -f  $i.yaml
+                                    # kubectl rollout restart deployment -n ${namespace} $i
+                                    sleep 5
+                                done 
+                            fi
+                        '''
+                }
+                milestone(3)
+            }
+        }
+        stage('Cleanup') {
+            container('python3') {
+                sh '''
+                kubectl get replicasets -n default -o wide > repsets
+                awk \'{if ($2 == 0 && $3 == 0){print $1} }\' repsets > emptyrepsets
+                for i in `cat emptyrepsets`
+                do 
+                    kubectl delete replicaset -n default $i
+                done
+                '''
+                milestone(4)
+            }
+        }
+    }
+}
+
+properties([[
+    $class: 'BuildDiscarderProperty',
+    strategy: [
+        $class: 'LogRotator',
+        artifactDaysToKeepStr: '', artifactNumToKeepStr: '', daysToKeepStr: '10', numToKeepStr: '2']
+    ]
+]);
