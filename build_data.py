@@ -1,5 +1,5 @@
 """ data structures to implement an efficient build mechanish """
-services = ['aqi', 'gcal', 'garmin', 'github', 'jenkins', 'mlb', 'moon', 'events', 'weather']
+services = ['aqi', 'mycal', 'garmin', 'github', 'jenkins', 'mlb', 'moon', 'events', 'weather']
 
 reverse_dependencies = {
     "aqi.py": "aqi",
