@@ -29,7 +29,7 @@ podTemplate(label: 'jenkins-agent', cloud: 'kubernetes', serviceAccount: 'jenkin
                     git config --global --add safe.directory /home/jenkins/agent/workspace/CloudMicroServiceMatrix
                     python3 determine_tags.py
                 '''
-                stash(name: 'builds', includes: '*.py, Dockerfile.*, *.txt')
+                stash(name: 'builds', includes: '*.py, Dockerfile, *.txt')
                 milestone(1)
             }
         }
