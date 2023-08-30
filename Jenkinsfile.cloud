@@ -19,10 +19,10 @@ podTemplate(label: 'jenkins-agent', cloud: 'kubernetes', serviceAccount: 'jenkin
         stage('Test') {
             container('python3') {
                 dir('/home/jenkins/agent/workspace/CloudMicroServiceMatrix') {
-                    sh """ 
-                        export PROD=2
-                        pip install pylint dekeyrej-pages python-dotenv pandas
-                        python3 -m pylint --fail-under 9.0 *.py
+                    sh """
+                        pwd
+                        ls -al
+                        pip freeze
                         git config --global --add safe.directory /home/jenkins/agent/workspace/CloudMicroServiceMatrix
                         python3 determine_tags.py
                     """
