@@ -20,6 +20,7 @@ podTemplate(label: 'jenkins-agent', cloud: 'kubernetes', serviceAccount: 'jenkin
             container('python3') {
                 sh ''' 
                     export PROD=2
+                    sleep 999
                     python3 -m venv .
                     . bin/activate
                     pip install pylint pylint-venv pytest
