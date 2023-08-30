@@ -19,15 +19,11 @@ podTemplate(label: 'jenkins-agent', cloud: 'kubernetes', serviceAccount: 'jenkin
         stage('Test') {
             container('python3') {
                 sh '''
-                    apt-get update
-                    apt-get install -y git curl
                     curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
                     install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
                 '''
                 sh ''' 
                     export PROD=2
-                    python3 -m venv .
-                    . bin/activate
                     pip install pylint pylint-venv pytest
                     pip install -r requirements.txt
                     pip install -r requirements-pandas.txt
