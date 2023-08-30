@@ -7,8 +7,6 @@ import pandas as pd
 
 from pages.serverpage import ServerPage
 
-# from aqi_data import aqidata, pollutants, pollutant_measures, dfindex
-
 numtype = Union[float, int]
 
 class AQIServer(ServerPage):
