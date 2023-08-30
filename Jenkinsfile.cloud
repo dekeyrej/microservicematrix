@@ -1,6 +1,6 @@
 podTemplate(label: 'jenkins-agent', cloud: 'kubernetes', serviceAccount: 'jenkins-admin',
   containers: [
-    containerTemplate(name: 'python3',  image: '192.168.86.49:32000/python',   ttyEnabled: true, command: 'cat'),
+    containerTemplate(name: 'python3',  image: '192.168.86.49:32000/python.08292023',   ttyEnabled: true, command: 'cat'),
     containerTemplate(name: 'buildkit', image: 'localhost:32000/buildkit:08292023', ttyEnabled: true, privileged: true),
   ],
   volumes: [
@@ -18,13 +18,8 @@ podTemplate(label: 'jenkins-agent', cloud: 'kubernetes', serviceAccount: 'jenkin
         }
         stage('Test') {
             container('python3') {
-                sh '''
-                    curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
-                    install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
-                '''
                 sh ''' 
                     export PROD=2
-                    sleep 600
                     pip install pylint dekeyrej-pages python-dotenv pandas
                     python3 -m pylint --fail-under 9.0 *.py
                     git config --global --add safe.directory /home/jenkins/agent/workspace/CloudMicroServiceMatrix
