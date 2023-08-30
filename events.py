@@ -7,7 +7,7 @@ class NextEvent(ServerPage):
     def __init__(self, prod, period, path: str=None):
         super().__init__(prod, period, path)
         self.clear_secrets()
-        self.type = 'Family'
+        self.type = 'Events'
         self.events_file_name = "events.txt"
 
     def update(self):
