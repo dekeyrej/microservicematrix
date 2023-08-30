@@ -1,23 +1,23 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: calendar
+  name: mycal
   namespace: default
   labels:
-    k8s-app: calendar
+    k8s-app: mycal
 spec:
   replicas: 1
   selector:
     matchLabels:
-      k8s-app: calendar
+      k8s-app: mycal
   template:
     metadata:
-      name: calendar
+      name: mycal
       labels:
-        k8s-app: calendar
+        k8s-app: mycal
     spec:
       containers:
-        - name: calendar
+        - name: mycal
           image: localhost:32000/mycal:registry
           imagePullPolicy: Always
           ports:
