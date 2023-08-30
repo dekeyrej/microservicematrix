@@ -43,7 +43,8 @@ podTemplate(label: 'jenkins-agent', cloud: 'kubernetes', serviceAccount: 'jenkin
                             then 
                                 for i in `cat builds.txt` 
                                 do 
-                                    buildctl build --frontend dockerfile.v0 --local context=. --local dockerfile=. --opt filename=Dockerfile.${i} --output type=image,name=${repository}/${i}:${tag},registry.insecure=true,push=true
+                                    if [ $i = \'aqi\' ]; then pandas=True; else pandas=False; fi 
+                                    buildctl build --frontend dockerfile.v0 --local context=. --local dockerfile=. --opt build-arg:MICROSERVICE=${i} --opt build-arg:PANDAS=${pandas} --output type=image,name=${repository}/${i}:${tag},registry.insecure=true,push=true
                                 done 
                             fi
                         '''

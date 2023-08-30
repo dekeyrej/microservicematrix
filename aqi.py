@@ -1,12 +1,13 @@
 """ ... """
 from typing import Union
+import json
 
 import arrow
 import pandas as pd
 
 from pages.serverpage import ServerPage
 
-from aqi_data import aqidata, pollutants, pollutant_measures, dfindex
+# from aqi_data import aqidata, pollutants, pollutant_measures, dfindex
 
 numtype = Union[float, int]
 
@@ -19,7 +20,16 @@ class AQIServer(ServerPage):
                    f'{self.secrets["owmkey"]}&lat={self.secrets["latitude"]}&' \
                    f'lon={self.secrets["longitude"]}'
         self.clear_secrets()
-        self.daf = pd.DataFrame(aqidata, index = dfindex)
+        self.load_data()
+        self.daf = pd.DataFrame(self.aqidata, index = self.dfindex)
+
+    def load_data(self):
+        cmap = self.ks.read_map('default', 'aqi-data')
+        self.aqidata = json.loads(cmap.data['aqidata'])
+        self.pollutants = json.loads(cmap.data['pollutants'])
+        self.pollutant_measures = json.loads(cmap.data['pollutant_measures'])
+        self.dfindex = json.loads(cmap.data['dfindex'])
+        
 
     def update(self):
         """ ... """
@@ -39,7 +49,7 @@ class AQIServer(ServerPage):
             maxrow = "1"
             maxpol = ""
             index = 0
-            for pol in pollutants:
+            for pol in self.pollutants:
                 raw = jstuff["list"][0]["components"][pol]
                 converted = self.convert_reading(raw, pol)
                 scaled, row = self.scaled_reading(converted, pol)
@@ -52,11 +62,11 @@ class AQIServer(ServerPage):
 
             print(f'AQI: {maxscore} ({self.daf.at[maxrow,"aqi_adjective"]} -' \
                   f'{self.daf.at[maxrow,"aqi_color"]}) '\
-                  f'with {pollutant_measures[maxpol]["name"]} as the main factor.')
+                  f'with {self.pollutant_measures[maxpol]["name"]} as the main factor.')
             data['values']['aqi_score'] = maxscore
             data['values']['aqi_adjective'] = self.daf.at[maxrow,"aqi_adjective"]
             data['values']['color'] = self.daf.at[maxrow,"aqi_color"]
-            data['values']['main_pollutant'] = pollutant_measures[maxpol]["name"]
+            data['values']['main_pollutant'] = self.pollutant_measures[maxpol]["name"]
             # write out the results
             self.dba.write(data)
             # print(f'{type(self).__name__} updated.')
@@ -67,9 +77,9 @@ class AQIServer(ServerPage):
         function (1) converts to ppm or ppb, and
                 (2) returns the correct significant digits
         """
-        units = pollutant_measures[pol]["units"]
-        decimals = pollutant_measures[pol]["decimals"]
-        weight = pollutant_measures[pol]["weight"]
+        units = self.pollutant_measures[pol]["units"]
+        decimals = self.pollutant_measures[pol]["decimals"]
+        weight = self.pollutant_measures[pol]["weight"]
 
         if units == "ppm":
             conversion = 24.45 / (weight * 1000)
@@ -96,7 +106,7 @@ class AQIServer(ServerPage):
         pmh = f'{pol}_high'
         scaled = 1
         row = '1'
-        for i in dfindex:
+        for i in self.dfindex:
             if self.daf.at[i, pml] <= cval <= self.daf.at[i, pmh]:
                 row = i
                 scaled = int(round((cval - self.daf.at[i, pml])* (self.daf.at[i, aqh] -
