@@ -17,4 +17,5 @@ ENV PATH="/opt/venv/bin:$PATH" \
 WORKDIR /code
 COPY $MICROSERVICE.py .
 EXPOSE 10255
-CMD ["python", "$MICROSERVICE.py"]
+ENV APP=$MICROSERVICE.py
+CMD ["sh", "-c", "python /code/${APP}"]
