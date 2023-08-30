@@ -11,7 +11,7 @@ from requests.exceptions import HTTPError
 import kube
 import build_data
 
-kks = kube.KubeSecrets(True)
+kks = kube.KubeSecrets(False)
 secrets = kks.read_secret("default", "matrix-secrets", "secrets.json", True) # for test and prod
 ALL = build_data.services
 reverse_dependencies = build_data.reverse_dependencies
@@ -42,6 +42,7 @@ jport    = secrets['jenkins_port']
 jproject = secrets['jenkins_project']
 jserver_url = f"http://{jserver}:{jport}/job/{jproject}/lastSuccessfulBuild/api/json"
 jauth       = (secrets['jenkins_user'],secrets['jenkins_api_key'])
+print(f'{jserver_url}:{jauth}')
 jresp = fetch(sess, jserver_url, 'Jenkins', auth=jauth)
 try:
     last_sha = jresp['changeSets'][0]['items'][0]['commitId'][0:7]

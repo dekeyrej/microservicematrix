@@ -18,7 +18,7 @@ spec:
     spec:
       containers:
         - name: calendar
-          image: localhost:32000/calendar:registry
+          image: localhost:32000/mycal:registry
           imagePullPolicy: Always
           ports:
           - containerPort: 10255

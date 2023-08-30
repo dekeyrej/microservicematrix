@@ -1,8 +1,8 @@
 __pycache__/
 Do_Not_Copy/
-venvw/
+.venv/
 events.txt
-last_sha.txt
-new_last_sha.txt
 .env
 secrets.json
+secrets.json.test
+builds.txt
