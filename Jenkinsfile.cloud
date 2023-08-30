@@ -1,6 +1,6 @@
 podTemplate(label: 'jenkins-agent', cloud: 'kubernetes', serviceAccount: 'jenkins-admin',
   containers: [
-    containerTemplate(name: 'python3',  image: 'localhost:32000/python:08292023',   ttyEnabled: true, command: 'cat'),
+    containerTemplate(name: 'python3',  image: 'python:slim',   ttyEnabled: true, command: 'cat'),
     containerTemplate(name: 'buildkit', image: 'localhost:32000/buildkit:08292023', ttyEnabled: true, privileged: true),
   ],
   volumes: [
@@ -18,9 +18,14 @@ podTemplate(label: 'jenkins-agent', cloud: 'kubernetes', serviceAccount: 'jenkin
         }
         stage('Test') {
             container('python3') {
+                sh '''
+                    apt-get update
+                    apt-get install -y git curl
+                    curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+                    install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
+                '''
                 sh ''' 
                     export PROD=2
-                    sleep 999
                     python3 -m venv .
                     . bin/activate
                     pip install pylint pylint-venv pytest
