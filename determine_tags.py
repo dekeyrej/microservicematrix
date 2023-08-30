@@ -11,7 +11,7 @@ from requests.exceptions import HTTPError
 import kube
 import build_data
 
-kks = kube.KubeSecrets(False)
+kks = kube.KubeSecrets(True)
 secrets = kks.read_secret("default", "matrix-secrets", "secrets.json", True) # for test and prod
 ALL = build_data.services
 reverse_dependencies = build_data.reverse_dependencies
