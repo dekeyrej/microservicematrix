@@ -88,6 +88,7 @@ if resp is not None:
     for f in file_list:
         try:
             if reverse_dependencies[f] == 'all':
+                print('Build all!')
                 build_list = ALL
                 break
             build_list.append(reverse_dependencies[f])
