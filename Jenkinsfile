@@ -65,7 +65,7 @@ podTemplate(label: 'jenkins-agent', cloud: 'kubernetes', serviceAccount: 'jenkin
                         then 
                             for i in `cat builds.txt` 
                             do 
-                                kubectl rollout restart deployment $i -n $namespace
+                                kubectl rollout restart -n $namespace deployment $i
                                 sleep 5
                             done 
                         fi
@@ -85,7 +85,7 @@ podTemplate(label: 'jenkins-agent', cloud: 'kubernetes', serviceAccount: 'jenkin
                             awk \'{if ($2 == 0 && $3 == 0){print $1} }\' repsets > emptyrepsets
                             for i in `cat emptyrepsets`
                             do 
-                                kubectl delete replicaset $i -n $namespace
+                                kubectl delete -n $namespace replicaset $i
                             done
                         fi
                     '''
