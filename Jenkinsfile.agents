@@ -1,5 +1,6 @@
 podTemplate(label: 'jenkins-agent', cloud: 'kubernetes', serviceAccount: 'jenkins-admin',
   containers: [
+    containerTemplate(name: 'python3',  image: 'localhost:32000/python:08292023',   ttyEnabled: true, command: 'cat'),
     containerTemplate(name: 'buildkit', image: 'localhost:32000/buildkit:08292023', ttyEnabled: true, privileged: true),
   ],
   volumes: [
@@ -9,7 +10,14 @@ podTemplate(label: 'jenkins-agent', cloud: 'kubernetes', serviceAccount: 'jenkin
     node('jenkins-agent') {
         stage('Prepare'){
             checkout scm
-            stash(name: 'dockerfiles', includes: 'Dockerfile.*')
+        }
+        stage('Get Dockerfiles') {
+            container('python3') {
+                dir('/home/jenkins/agent/workspace/CloudMicroServiceMatrix') {
+                    stash(name: 'dockerfiles', includes: 'Dockerfile.*')
+                    milestone(1)
+                }
+            }
         }
         stage('Build and Push Agent Images') {
             container('buildkit') {
