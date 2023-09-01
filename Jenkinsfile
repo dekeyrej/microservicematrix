@@ -18,7 +18,7 @@ podTemplate(label: 'jenkins-agent', cloud: 'kubernetes', serviceAccount: 'jenkin
         }
         stage('Test') {
             container('python3') {
-                dir('/home/jenkins/agent/workspace/CloudMicroServiceMatrix') {
+                dir('/home/jenkins/agent/workspace/MicroServiceMatrix') {
                     sh """
                         export PROD=2
                         python3 -m venv .
@@ -37,7 +37,7 @@ podTemplate(label: 'jenkins-agent', cloud: 'kubernetes', serviceAccount: 'jenkin
         }
         stage('Build Docker Image') {
             container('buildkit') {
-                dir('/home/jenkins/agent/workspace/CloudMicroServiceMatrix') {
+                dir('/home/jenkins/agent/workspace/MicroServiceMatrix') {
                     unstash(name: 'builds')
                     if (fileExists('builds.txt')) {
                         echo "File builds.txt found!"

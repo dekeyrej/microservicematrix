@@ -18,19 +18,21 @@ podTemplate(label: 'jenkins-agent', cloud: 'kubernetes', serviceAccount: 'jenkin
         }
         stage('Test') {
             container('python3') {
-                sh ''' 
-                    export PROD=1
-                    python3 -m venv .
-                    . bin/activate
-                    pip install pylint pylint-venv pytest
-                    pip install -r requirements.txt
-                    pip install -r requirements-pandas.txt
-                    python3 -m pylint --fail-under 9.0 *.py
-                    git config --global --add safe.directory /home/jenkins/agent/workspace/MicroServiceMatrix
-                    python3 determine_tags.py
-                '''
-                stash(name: 'builds', includes: '*.py, Dockerfile, *.txt')
-                milestone(1)
+                dir('/home/jenkins/agent/workspace/MicroServiceMatrix') {
+                    sh ''' 
+                        export PROD=1
+                        python3 -m venv .
+                        . bin/activate
+                        pip install pylint pylint-venv pytest
+                        pip install -r requirements.txt
+                        pip install -r requirements-pandas.txt
+                        python3 -m pylint --fail-under 9.0 *.py
+                        git config --global --add safe.directory /home/jenkins/agent/workspace/MicroServiceMatrix
+                        python3 determine_tags.py
+                    '''
+                    stash(name: 'builds', includes: '*.py, Dockerfile, *.txt')
+                    milestone(1)
+                }
             }
         }
         stage('Build Docker Image') {
