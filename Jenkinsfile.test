@@ -20,7 +20,7 @@ podTemplate(label: 'jenkins-agent', cloud: 'kubernetes', serviceAccount: 'jenkin
             container('python3') {
                 dir('/home/jenkins/agent/workspace/MicroServiceMatrix') {
                     sh ''' 
-                        echo $tag $repository $ namespace
+                        echo $tag $repository $namespace
                         export PROD=1
                         python3 -m venv .
                         . bin/activate
@@ -39,7 +39,7 @@ podTemplate(label: 'jenkins-agent', cloud: 'kubernetes', serviceAccount: 'jenkin
         stage('Build Docker Image') {
             container('buildkit') {
                 sh '''
-                    echo $tag $repository $ namespace
+                    echo $tag $repository $namespace
                     chmod a+x build.sh
                     ./build.sh
                 '''
@@ -49,7 +49,7 @@ podTemplate(label: 'jenkins-agent', cloud: 'kubernetes', serviceAccount: 'jenkin
         stage('Deploy Latest') {
             container('python3') {
                 sh '''
-                    echo $tag $repository $ namespace
+                    echo $tag $repository $namespace
                     chmod a+x deploy.sh
                     ./deploy.sh
                 '''
@@ -59,7 +59,7 @@ podTemplate(label: 'jenkins-agent', cloud: 'kubernetes', serviceAccount: 'jenkin
         stage('Cleanup') {
             container('python3') {
                 sh '''
-                    echo $tag $repository $ namespace
+                    echo $tag $repository $namespace
                     chmod a+x cleanup.sh
                     ./cleanup.sh
                 '''
