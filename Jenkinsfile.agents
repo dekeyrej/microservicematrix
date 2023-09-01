@@ -1,6 +1,5 @@
 podTemplate(label: 'jenkins-agent', cloud: 'kubernetes', serviceAccount: 'jenkins-admin',
   containers: [
-    containerTemplate(name: 'python3',  image: 'localhost:32000/python:08292023',   ttyEnabled: true, command: 'cat'),
     containerTemplate(name: 'buildkit', image: 'localhost:32000/buildkit:08292023', ttyEnabled: true, privileged: true),
   ],
   volumes: [
@@ -11,27 +10,15 @@ podTemplate(label: 'jenkins-agent', cloud: 'kubernetes', serviceAccount: 'jenkin
         stage('Prepare'){
             checkout scm
         }
-        stage('Get Dockerfiles') {
-            container('python3') {
-                dir('/home/jenkins/agent/workspace/CloudMicroServiceMatrix') {
-                    sh '''
-                    pwd
-                    ls -al
-                    '''
-                    stash(name: 'dockerfiles', includes: 'Dockerfile.*')
-                    milestone(1)
-                }
-            }
-        }
         stage('Build and Push Agent Images') {
             container('buildkit') {
-                dir('/home/jenkins/agent/workspace/CloudMicroServiceMatrix') {
-                    unstash(Name: 'dockerfiles')
-                    sh '''
+                // unstash(Name: 'dockerfiles')
+                sh '''
+                    pwd
+                    ls -al
                     buildctl build --frontend dockerfile.v0 --local context=. --local dockerfile=. --opt filename=Dockerfile.python   --output type=image,name=localhost/python:latest,registry.insecure=true,push=true
                     buildctl build --frontend dockerfile.v0 --local context=. --local dockerfile=. --opt filename=Dockerfile.buildkit --output type=image,name=localhost/buildkit:latest,registry.insecure=true,push=true
-                    '''
-                }
+                '''
             }
         }
     }
