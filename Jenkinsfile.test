@@ -41,7 +41,8 @@ podTemplate(label: 'jenkins-agent', cloud: 'kubernetes', serviceAccount: 'jenkin
                     pwd
                     chmod a+x build.sh
                     ls -al
-                    build.sh
+                    export PWD=`pwd`
+                    ${PWD}/build.sh
                 '''
                 milestone(2)
             }
