@@ -61,27 +61,35 @@ podTemplate(label: 'jenkins-agent', cloud: 'kubernetes', serviceAccount: 'jenkin
                 if (fileExists('builds.txt')) {
                     echo "File builds.txt found!"
                     sh '''
-                            if [ `stat -c %s builds.txt` -gt 0 ] 
-                            then 
-                                for i in `cat builds.txt` 
-                                do 
-                                    kubectl rollout restart deployment -n ${namespace} $i
-                                    sleep 5
-                                done 
-                            fi
-                        '''
+                        if [ `stat -c %s builds.txt` -gt 0 ] 
+                        then 
+                            for i in `cat builds.txt` 
+                            do 
+                                kubectl rollout restart deployment -n ${namespace} $i
+                                sleep 5
+                            done 
+                        fi
+                    '''
                 }
                 milestone(3)
             }
         }
         stage('Cleanup ReplicaSets') {
             container('python3') {
-                sh '''kubectl get replicasets -n default -o wide > repsets
-                      awk \'{if ($2 == 0 && $3 == 0){print $1} }\' repsets > emptyrepsets
-                      for i in `cat emptyrepsets`
-                      do 
-                          kubectl delete replicaset -n default $i
-                      done'''
+                if (fileExists('builds.txt')) {
+                    echo "File builds.txt found!"
+                    sh '''
+                        if [ `stat -c %s builds.txt` -gt 0 ] 
+                        then
+                            kubectl get replicasets -n default -o wide > repsets
+                            awk \'{if ($2 == 0 && $3 == 0){print $1} }\' repsets > emptyrepsets
+                            for i in `cat emptyrepsets`
+                            do 
+                                kubectl delete replicaset -n default $i
+                            done
+                        fi
+                    '''
+                }
                 milestone(4)
             }
         }
