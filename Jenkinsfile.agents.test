@@ -6,7 +6,7 @@ podTemplate(label: 'jenkins-agent', cloud: 'kubernetes', serviceAccount: 'jenkin
     secretVolume(mountPath: '/etc/.ssh', secretName: 'ssh-home')
   ],
   envVars: [
-    envVar(key: 'repository', value: 'registry.container-registry:32000'),
+    envVar(key: 'repository', value: '172.17.5.224:32000'),
   ]
 ) {
     node('jenkins-agent') {
