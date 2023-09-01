@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 for i in `cat builds.txt`
 do
     if [ $i = 'aqi' ]; then pandas=True; else pandas=False; fi 
