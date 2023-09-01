@@ -9,10 +9,12 @@ podTemplate(label: 'jenkins-agent', cloud: 'kubernetes', serviceAccount: 'jenkin
     node('jenkins-agent') {
         stage('Prepare'){
             checkout scm
+            stash(name: 'dockerfiles', includes: 'Dockerfile.*')
         }
         stage('Build and Push Agent Images') {
             container('buildkit') {
                 dir('/home/jenkins/agent/workspace/CloudMicroServiceMatrix') {
+                    unstash(Name: 'dockerfiles')
                     sh '''
                     buildctl build --frontend dockerfile.v0 --local context=. --local dockerfile=. --opt filename=Dockerfile.python   --output type=image,name=localhost/python:latest,registry.insecure=true,push=true
                     buildctl build --frontend dockerfile.v0 --local context=. --local dockerfile=. --opt filename=Dockerfile.buildkit --output type=image,name=localhost/buildkit:latest,registry.insecure=true,push=true
