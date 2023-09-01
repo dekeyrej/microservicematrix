@@ -76,14 +76,12 @@ podTemplate(label: 'jenkins-agent', cloud: 'kubernetes', serviceAccount: 'jenkin
         }
         stage('Cleanup ReplicaSets') {
             container('python3') {
-                sh '''
-                    kubectl get replicasets -n default -o wide > repsets
-                    awk \''{if ($2 == 0 && $3 == 0){print $1} }\'' repsets > emptyrepsets
-                    for i in `cat emptyrepsets`
-                    do 
-                        kubectl delete replicaset -n default $i
-                    done
-                '''
+                sh '''kubectl get replicasets -n default -o wide > repsets
+                      awk \'{if ($2 == 0 && $3 == 0){print $1} }\' repsets > emptyrepsets
+                      for i in `cat emptyrepsets`
+                      do 
+                          kubectl delete replicaset -n default $i
+                      done'''
                 milestone(4)
             }
         }
