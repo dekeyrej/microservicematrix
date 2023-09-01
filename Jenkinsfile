@@ -35,7 +35,7 @@ podTemplate(label: 'jenkins-agent', cloud: 'kubernetes', serviceAccount: 'jenkin
                 }
             }
         }
-        stage('Build Docker Image') {
+        stage('Build Image(s)') {
             container('buildkit') {
                 dir('/home/jenkins/agent/workspace/MicroServiceMatrix') {
                     unstash(name: 'builds')
@@ -56,7 +56,7 @@ podTemplate(label: 'jenkins-agent', cloud: 'kubernetes', serviceAccount: 'jenkin
                 milestone(2)
             }
         }
-        stage('Deploy Latest') {
+        stage('Deploy Image(s)') {
             container('python3') {
                 if (fileExists('builds.txt')) {
                     echo "File builds.txt found!"
@@ -74,15 +74,15 @@ podTemplate(label: 'jenkins-agent', cloud: 'kubernetes', serviceAccount: 'jenkin
                 milestone(3)
             }
         }
-        stage('Cleanup') {
+        stage('Cleanup ReplicaSets') {
             container('python3') {
                 sh '''
-                kubectl get replicasets -n default -o wide > repsets
-                awk \'{if ($2 == 0 && $3 == 0){print $1} }\' repsets > emptyrepsets
-                for i in `cat emptyrepsets`
-                do 
-                    kubectl delete replicaset -n default $i
-                done
+                    kubectl get replicasets -n default -o wide > repsets
+                    awk \''{if ($2 == 0 && $3 == 0){print $1} }\'' repsets > emptyrepsets
+                    for i in `cat emptyrepsets`
+                    do 
+                        kubectl delete replicaset -n default $i
+                    done
                 '''
                 milestone(4)
             }
