@@ -11,7 +11,7 @@ FROM python:slim
 ARG MICROSERVICE
 COPY --from=builder /opt/venv /opt/venv
 ENV PATH="/opt/venv/bin:$PATH" \
-    PROD=2 \
+    PROD=1 \
     PYTHONUNBUFFERED=1 \
     SECRETS_PATH="None"
 WORKDIR /code
