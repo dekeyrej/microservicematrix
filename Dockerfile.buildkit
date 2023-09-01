@@ -1,0 +1,3 @@
+FROM moby/buildkit:master
+RUN adduser -D -u 1000 jenkins
+RUN chown -R jenkins:jenkins /home/jenkins
