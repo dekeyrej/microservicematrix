@@ -1,4 +1,6 @@
+#!/bin/sh
 for i in `cat builds.txt`
 do
-    docker build -f Dockerfile.$i -t 192.168.86.49:32000/$i:registry .
+    if [ $i = 'aqi' ]; then pandas=True; else pandas=False; fi 
+    buildctl build --frontend dockerfile.v0 --local context=. --local dockerfile=. --opt build-arg:MICROSERVICE=${i} --opt build-arg:PANDAS=${pandas} --output type=image,name=${repository}/${i}:${tag},registry.insecure=true,push=true
 done
