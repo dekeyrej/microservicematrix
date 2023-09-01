@@ -14,6 +14,10 @@ podTemplate(label: 'jenkins-agent', cloud: 'kubernetes', serviceAccount: 'jenkin
         stage('Get Dockerfiles') {
             container('python3') {
                 dir('/home/jenkins/agent/workspace/CloudMicroServiceMatrix') {
+                    sh '''
+                    pwd
+                    ls -al
+                    '''
                     stash(name: 'dockerfiles', includes: 'Dockerfile.*')
                     milestone(1)
                 }
