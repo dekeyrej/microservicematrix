@@ -30,7 +30,7 @@ podTemplate(label: 'jenkins-agent', cloud: 'kubernetes', serviceAccount: 'jenkin
                         git config --global --add safe.directory /home/jenkins/agent/workspace/MicroServiceMatrix
                         python3 determine_tags.py
                     '''
-                    stash(name: 'builds', includes: '*.py, Dockerfile, *.txt')
+                    stash(name: 'builds', includes: '*.py, Dockerfile, *.txt, *.awk')
                     milestone(1)
                 }
             }
@@ -69,7 +69,7 @@ podTemplate(label: 'jenkins-agent', cloud: 'kubernetes', serviceAccount: 'jenkin
                         then 
                             for i in `cat builds.txt` 
                             do 
-                                kubectl rollout restart -n $namespace deployment $i 
+                                kubectl rollout restart deployment/${i}
                                 sleep 5
                             done 
                         fi
@@ -86,11 +86,11 @@ podTemplate(label: 'jenkins-agent', cloud: 'kubernetes', serviceAccount: 'jenkin
                         if [ `stat -c %s builds.txt` -gt 0 ] 
                         then
                             kubectl get replicasets -n default -o wide > repsets
-                            awk \'{if ($2 == 0 && $3 == 0){print $1} }\' repsets > emptyrepsets
+                            awk -f script.awk repsets > emptyrepsets
                             for i in `cat emptyrepsets`
-                            do 
-                                kubectl delete -n $namespace replicaset $i 
-                            done
+                                do 
+                                    kubectl delete replicaset $i --namespace $namespace
+                                done
                         fi
                     '''
                 }
