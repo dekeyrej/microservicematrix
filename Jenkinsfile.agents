@@ -12,12 +12,9 @@ podTemplate(label: 'jenkins-agent', cloud: 'kubernetes', serviceAccount: 'jenkin
         }
         stage('Build and Push Agent Images') {
             container('buildkit') {
-                // unstash(Name: 'dockerfiles')
                 sh '''
-                    pwd
-                    ls -al
-                    buildctl build --frontend dockerfile.v0 --local context=. --local dockerfile=. --opt filename=Dockerfile.python   --output type=image,name=localhost/python:latest,registry.insecure=true,push=true
-                    buildctl build --frontend dockerfile.v0 --local context=. --local dockerfile=. --opt filename=Dockerfile.buildkit --output type=image,name=localhost/buildkit:latest,registry.insecure=true,push=true
+                    buildctl build --frontend dockerfile.v0 --local context=. --local dockerfile=. --opt filename=Dockerfile.python   --output type=image,name=192.168.86.49/python:latest,registry.insecure=true,push=true
+                    buildctl build --frontend dockerfile.v0 --local context=. --local dockerfile=. --opt filename=Dockerfile.buildkit --output type=image,name=192.168.86.49/buildkit:latest,registry.insecure=true,push=true
                 '''
             }
         }
