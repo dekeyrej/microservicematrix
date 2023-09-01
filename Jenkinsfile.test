@@ -41,7 +41,7 @@ podTemplate(label: 'jenkins-agent', cloud: 'kubernetes', serviceAccount: 'jenkin
                     pwd
                     ls -al
                     chmod a+x build.sh
-                    ./build.sh
+                    build.sh
                 '''
                 milestone(2)
             }
@@ -51,7 +51,7 @@ podTemplate(label: 'jenkins-agent', cloud: 'kubernetes', serviceAccount: 'jenkin
                 sh '''
                     echo $tag $repository $namespace
                     chmod a+x deploy.sh
-                    ./deploy.sh
+                    deploy.sh
                 '''
                 milestone(3)
             }
@@ -61,7 +61,7 @@ podTemplate(label: 'jenkins-agent', cloud: 'kubernetes', serviceAccount: 'jenkin
                 sh '''
                     echo $tag $repository $namespace
                     chmod a+x cleanup.sh
-                    ./cleanup.sh
+                    cleanup.sh
                 '''
                 milestone(4)
             }
