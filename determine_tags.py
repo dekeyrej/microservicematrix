@@ -49,8 +49,8 @@ print(f'{jserver_url}:{jauth}')
 jresp = fetch(sess, jserver_url, 'Jenkins', auth=jauth)
 try:
     last_sha = jresp['changeSets'][0]['items'][0]['commitId'][0:7]
-except IndexError:
-    last_sha = 'cf6d7f0'
+except TypeError:
+    last_sha = 'a7e94bc'
 print(f'Commit for lastest successful build: {last_sha}')
 
 # get the list of commits from GitHub
