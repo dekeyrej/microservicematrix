@@ -11,6 +11,7 @@ class MoonServer(ServerPage):
     """ subclass of ServerPage to fetch sun and moon data """
     def __init__(self, prod, period, path: str=None):
         super().__init__(prod, period, path)
+        self.headers = {'User-Agent': 'moon.py joedekeyrel@gmail.com'}
         self.type = 'Moon'
         self.loc_str = f'lat={self.secrets["latitude"]}&lon={self.secrets["longitude"]}'
         self.timezone = self.secrets['timezone'] # not currently used
@@ -33,7 +34,7 @@ class MoonServer(ServerPage):
         respcount = 0
         responses = []
         for i in range(4):
-            responses.append(self.fetch(urls[i],'Fetching Moon/Sun',tnow.format('MM/DD/YYYY hh:mm A ZZZ')))
+            responses.append(self.fetch(urls[i],'Fetching Moon/Sun',tnow.format('MM/DD/YYYY hh:mm A ZZZ'), headers=self.headers))
             if responses[i] is not None: respcount += 1
 
         if respcount == 4:
@@ -56,15 +57,16 @@ class MoonServer(ServerPage):
             data['values']['sunevent']  = self.sun_event(sun_data, tstmp)
             data['values']['moonevent'] = self.moon_event(moon_data)
             self.dba.write(data)
-            print(json.dumps(data['values'], indent=1))
+            # print(json.dumps(data['values'], indent=1))
             print(f'{type(self).__name__} updated.')
 
     def moon_condition(self, mnd: Mapping) -> (int, float):
         """ parse out the current moon condition """
         # Reconstitute JSON data into the elements we need
         # moonphase values seem to be in the range 0.0..359.99
-        phase     =               int(float(mnd[0]['properties']['moonphase']) / 3.6 ) % 100  # => 0..99
-        illum     = self.age_to_illum(float(mnd[0]['properties']['moonphase']) / 3600)        # => 0.0..1.0
+        # print(f"{mnd[0]['moonphase']} {int(float(mnd[0]['moonphase']) / 3.6 ) % 100} {float(mnd[0]['moonphase']) / 360}")
+        phase     =               int(float(mnd[0]['moonphase']) / 3.6 ) % 100  # => 0..99
+        illum     = self.age_to_illum(float(mnd[0]['moonphase']) / 360)        # => 0.0..1.0
         return phase, illum
 
     def sun_event(self, mnd: Mapping, tstmp) -> str:
