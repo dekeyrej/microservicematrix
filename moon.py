@@ -2,7 +2,7 @@
 import math
 from typing import Mapping
 import arrow
-# import json
+import json
 
 from pages.serverpage import ServerPage
 # from secretsecrets import encsecrets
@@ -18,37 +18,53 @@ class MoonServer(ServerPage):
         self.twelve_hour = True
 
     def update(self):
-        """ fetch web data and update database """
+        """ 
+        fetch web data and update database 
+        as of 9/1/2023, Norwegian Met updated its API to version 3.0
+        """
         updtp = self.update_period
         tnow = arrow.now().to('US/Eastern')
         today, tomorrow, tstmp = self.url_date_str()
-        url = ['https://api.met.no/weatherapi/sunrise/2.0/.json?' + self.loc_str + today]
-        url.append('https://api.met.no/weatherapi/sunrise/2.0/.json?' + self.loc_str + tomorrow)
-        responsea = self.fetch(url[0],'Fetching Moon/Sun',tnow.format('MM/DD/YYYY hh:mm A ZZZ'))
-        responseb = self.fetch(url[1],'Fetching Moon/Sun',tnow.format('MM/DD/YYYY hh:mm A ZZZ'))
-        if responsea is not None and responseb is not None:
+        urls = []
+        urls.append('https://api.met.no/weatherapi/sunrise/3.0/sun?' + self.loc_str + today)
+        urls.append('https://api.met.no/weatherapi/sunrise/3.0/sun?' + self.loc_str + tomorrow)
+        urls.append('https://api.met.no/weatherapi/sunrise/3.0/moon?' + self.loc_str + today)
+        urls.append('https://api.met.no/weatherapi/sunrise/3.0/moon?' + self.loc_str + tomorrow)
+        respcount = 0
+        responses = []
+        for i in range(4):
+            responses.append(self.fetch(urls[i],'Fetching Moon/Sun',tnow.format('MM/DD/YYYY hh:mm A ZZZ')))
+            if responses[i] is not None: respcount += 1
+
+        if respcount == 4:
             data = {}
             data['type'] = 'Moon'
             data['updated'] = tnow.format('MM/DD/YYYY h:mm A ZZZ')
             data['valid'] = tnow.shift(seconds=+updtp).format('MM/DD/YYYY h:mm:ss A ZZZ')
             data['values'] = {}
 
-            moon_data = [responsea['location']['time'][0]]
-            moon_data.append(responseb['location']['time'][0])
+            sun_data = []
+            sun_data.append(responses[0]['properties'])
+            sun_data.append(responses[1]['properties'])
+
+            moon_data = []
+            moon_data.append(responses[2]['properties'])
+            moon_data.append(responses[3]['properties'])
 
             data['values']['phase'], data['values']['illumstr'] = self.moon_condition(moon_data)
             # print(tstmp)
-            data['values']['sunevent']  = self.sun_event(moon_data, tstmp)
+            data['values']['sunevent']  = self.sun_event(sun_data, tstmp)
             data['values']['moonevent'] = self.moon_event(moon_data)
             self.dba.write(data)
+            print(json.dumps(data['values'], indent=1))
             print(f'{type(self).__name__} updated.')
 
     def moon_condition(self, mnd: Mapping) -> (int, float):
         """ parse out the current moon condition """
         # Reconstitute JSON data into the elements we need
-        phase     = int(float(mnd[0]['moonphase']['value'])) % 100
-        illum     = self.age_to_illum(float(mnd[0]['moonphase']['value']) / 100)
-        # midnight  = self.parse_time(md[0]['moonphase']['time'])
+        # moonphase values seem to be in the range 0.0..359.99
+        phase     =               int(float(mnd[0]['properties']['moonphase']) / 3.6 ) % 100  # => 0..99
+        illum     = self.age_to_illum(float(mnd[0]['properties']['moonphase']) / 3600)        # => 0.0..1.0
         return phase, illum
 
     def sun_event(self, mnd: Mapping, tstmp) -> str:

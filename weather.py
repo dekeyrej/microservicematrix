@@ -46,7 +46,9 @@ class OWMServer(ServerPage):
                 data['values']["current"]["windGust"]  = 0.0
             data['values']["current"]["desc"]      = jstuff["current"]["weather"][0]["description"]
             icon = jstuff["current"]["weather"][0]["icon"]
+            data['values']["current"]["dn"] = icon[2]
             wid  = int(str(jstuff["current"]["weather"][0]["id"]))
+            data['values']["current"]["wid"] = wid
             data['values']["current"]["nwid"]    = self.to_nwid(icon, wid)
 # forecast weather
             data['values']["forecast"] = []
@@ -62,8 +64,8 @@ class OWMServer(ServerPage):
                 icon = jstuff["daily"][i]["weather"][0]["icon"]
                 wid  = int(str(jstuff["daily"][i]["weather"][0]["id"]))
                 nwid = self.to_nwid(icon,wid)
-                data['values']["forecast"].append({"dow" : dow, "nwid": nwid,
-                                                   "high": high, "low": low})
+                data['values']["forecast"].append({"dow" : dow, "dn": icon[2], "wid": wid,
+                                                   "nwid": nwid, "high": high, "low": low})
 # hourly weather
             data['values']["hourly"] = []
             for i in range(0,48):
@@ -76,8 +78,8 @@ class OWMServer(ServerPage):
                 icon = jstuff["hourly"][i]["weather"][0]["icon"]
                 wid  = int(str(jstuff["hourly"][i]["weather"][0]["id"]))
                 nwid = self.to_nwid(icon, wid)
-                data['values']["hourly"].append({"hour": hour, "nwid": nwid,
-                                                 "temp": temp, "feel": feel})
+                data['values']["hourly"].append({"hour": hour, "dn": icon[2], "wid": wid, 
+                                                 "nwid": nwid, "temp": temp, "feel": feel})
 
             # self.mongoWrite(data, 'Weather')
             self.dba.write(data)
@@ -86,6 +88,7 @@ class OWMServer(ServerPage):
 
     def to_nwid(self, icon: str, wid: int) -> int:
         """ ... """
+        # print(f'Icon: {icon}, WeatherID: {wid}')
         if ((icon[2] == "n") and          # icon[2] # returns "d" for day, or "n" for night
             wid in (800, 801, 802, 951)): # these four WeatherIDs have a unique night icon
             nwid = wid + 61000

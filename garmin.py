@@ -8,9 +8,9 @@ class GarminServer(ServerPage):
     """ ... """
     def __init__(self, prod, period, path: str=None):
         super().__init__(prod, period, path)
-        self.clear_secrets()
         self.type = 'Track'
-        self.url = 'https://inreach.garmin.com/Feed/Share/RyanTrollip'
+        self.url = self.secrets['garmin_url']
+        self.clear_secrets()
         self.last_track = self.lastest_track()
         self.dirs = ['N','NNE','NE','ENE','E','ESE','SE','SSE','S','SSW',
                      'SW','WSW','W','WNW','NW','NNW']
