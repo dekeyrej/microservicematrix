@@ -19,7 +19,11 @@ podTemplate(label: 'jenkins-agent', cloud: 'kubernetes', serviceAccount: 'jenkin
         stage('Test') {
             container('python3') {
                 dir('/home/jenkins/agent/workspace/MicroServiceMatrix') {
-                    sh """
+                    sh '''
+                        echo $tag $repository $namespace
+                        chmod a+x build.sh
+                        chmod a+x deploy.sh
+                        chmod a+x cleanup.sh
                         export PROD=2
                         python3 -m venv .
                         . bin/activate
@@ -29,7 +33,7 @@ podTemplate(label: 'jenkins-agent', cloud: 'kubernetes', serviceAccount: 'jenkin
                         python3 -m pylint --fail-under 9.0 *.py
                         git config --global --add safe.directory /home/jenkins/agent/workspace/CloudMicroServiceMatrix
                         python3 determine_tags.py
-                    """
+                    '''
                     stash(name: 'builds', includes: 'builds.txt')
                     milestone(1)
                 }
@@ -58,38 +62,21 @@ podTemplate(label: 'jenkins-agent', cloud: 'kubernetes', serviceAccount: 'jenkin
         }
         stage('Deploy Image(s)') {
             container('python3') {
-                if (fileExists('builds.txt')) {
-                    echo "File builds.txt found!"
-                    sh '''
-                        if [ `stat -c %s builds.txt` -gt 0 ] 
-                        then 
-                            for i in `cat builds.txt` 
-                            do 
-                                kubectl rollout restart -n $namespace deployment $i
-                                sleep 5
-                            done 
-                        fi
-                    '''
-                }
+                sh '''
+                    echo $tag $repository $namespace
+                    export PWD=`pwd`
+                    ${PWD}/deploy.sh
+                '''
                 milestone(3)
             }
         }
         stage('Cleanup ReplicaSets') {
             container('python3') {
-                if (fileExists('builds.txt')) {
-                    echo "File builds.txt found!"
-                    sh '''
-                        if [ `stat -c %s builds.txt` -gt 0 ] 
-                        then
-                            kubectl get replicasets -n default -o wide > repsets
-                            awk \'{if ($2 == 0 && $3 == 0){print $1} }\' repsets > emptyrepsets
-                            for i in `cat emptyrepsets`
-                            do 
-                                kubectl delete -n $namespace replicaset $i
-                            done
-                        fi
-                    '''
-                }
+                sh '''
+                    echo $tag $repository $namespace
+                    export PWD=`pwd`
+                    ${PWD}/cleanup.sh
+                '''
                 milestone(4)
             }
         }
