@@ -34,8 +34,11 @@ class MoonServer(ServerPage):
         respcount = 0
         responses = []
         for i in range(4):
-            responses.append(self.fetch(urls[i],'Fetching Moon/Sun',tnow.format('MM/DD/YYYY hh:mm A ZZZ'), headers=self.headers))
-            if responses[i] is not None: respcount += 1
+            resp = self.fetch(urls[i],'Fetching Moon/Sun',tnow.format('MM/DD/YYYY hh:mm A ZZZ'), headers=self.headers)
+            if resp is not None: 
+                # print(f'response from url:{urls[i]} is [{resp}]')
+                responses.append(resp)
+                respcount += 1
 
         if respcount == 4:
             data = {}
@@ -92,13 +95,15 @@ class MoonServer(ServerPage):
         #   so check today
         events = []
         if 'moonrise' in mnd[0]:
-            rise = self.parse_time(mnd[0]['moonrise']['time'])
-            events.append(('Rise',rise))
+            if mnd[0]['moonrise']['time'] is not None:
+                rise = self.parse_time(mnd[0]['moonrise']['time'])
+                events.append(('Rise',rise))
         else:
             rise = None
         if 'moonset' in mnd[0]:
-            mset = self.parse_time(mnd[0]['moonset']['time'])
-            events.append(('Set',mset))
+            if mnd[0]['moonset']['time'] is not None:
+                mset = self.parse_time(mnd[0]['moonset']['time'])
+                events.append(('Set',mset))
         else:
             mset = None
         #   and check tomorrow
@@ -174,6 +179,6 @@ if __name__ == '__main__':
         pass
 
     if PROD == '1':
-        MoonServer(True, 911).run()
+        MoonServer(True, 3607).run()
     else:
-        MoonServer(False, 911, SECRETS_PATH).run()
+        MoonServer(False, 3607, SECRETS_PATH).run()
