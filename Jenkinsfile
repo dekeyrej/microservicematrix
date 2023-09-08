@@ -31,7 +31,7 @@ podTemplate(label: 'jenkins-agent', cloud: 'kubernetes', serviceAccount: 'jenkin
                         pip install -r requirements.txt
                         pip install -r requirements-pandas.txt
                         python3 -m pylint --fail-under 9.0 *.py
-                        git config --global --add safe.directory /home/jenkins/agent/workspace/CloudMicroServiceMatrix
+                        git config --global --add safe.directory /home/jenkins/agent/workspace/MicroServiceMatrix
                         python3 determine_tags.py
                     '''
                     stash(name: 'builds', includes: 'builds.txt')
