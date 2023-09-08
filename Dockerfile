@@ -1,6 +1,6 @@
 #Builder stage
 FROM python:slim AS builder
-ARG PANDAS
+ARG PANDAS=False
 RUN python -m venv /opt/venv
 ENV PATH="/opt/venv/bin:$PATH"
 COPY requirements*.txt ./

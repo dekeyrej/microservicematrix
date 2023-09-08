@@ -95,26 +95,28 @@ class MoonServer(ServerPage):
         #   so check today
         events = []
         if 'moonrise' in mnd[0]:
-            if mnd[0]['moonrise']['time'] is not None:
+            if mnd[0]['moonrise']['time'] is not None:  # change with met.no api V3
                 rise = self.parse_time(mnd[0]['moonrise']['time'])
                 events.append(('Rise',rise))
         else:
             rise = None
         if 'moonset' in mnd[0]:
-            if mnd[0]['moonset']['time'] is not None:
+            if mnd[0]['moonset']['time'] is not None:  # change with met.no api V3
                 mset = self.parse_time(mnd[0]['moonset']['time'])
                 events.append(('Set',mset))
         else:
             mset = None
         #   and check tomorrow
         if 'moonrise' in mnd[1]:
-            rise = self.parse_time(mnd[1]['moonrise']['time'])
-            events.append(('Rise',rise))
+            if mnd[1]['moonrise']['time'] is not None:  # change with met.no api V3
+                rise = self.parse_time(mnd[1]['moonrise']['time'])
+                events.append(('Rise',rise))
         else:
             rise = None  # was self.rise???
         if 'moonset' in mnd[1]:
-            mset = self.parse_time(mnd[1]['moonset']['time'])
-            events.append(('Set',mset))
+            if mnd[1]['moonset']['time'] is not None:  # change with met.no api V3
+                mset = self.parse_time(mnd[1]['moonset']['time'])
+                events.append(('Set',mset))
         else:
             mset = None
 
