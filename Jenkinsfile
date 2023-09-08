@@ -1,7 +1,7 @@
 podTemplate(label: 'jenkins-agent', cloud: 'kubernetes', serviceAccount: 'jenkins-admin',
   containers: [
-    containerTemplate(name: 'python3',  image: 'localhost:32000/python:latest',   ttyEnabled: true, command: 'cat'),
-    containerTemplate(name: 'buildkit', image: 'localhost:32000/buildkit:latest', ttyEnabled: true, privileged: true),
+    containerTemplate(name: 'python3',  image: 'localhost:32000/python:latest',   alwaysPullImage: true, ttyEnabled: true, command: 'cat'),
+    containerTemplate(name: 'buildkit', image: 'localhost:32000/buildkit:latest', alwaysPullImage: true, ttyEnabled: true, privileged: true),
   ],
   volumes: [
     secretVolume(mountPath: '/etc/.ssh', secretName: 'ssh-home')
