@@ -43,6 +43,11 @@ podTemplate(label: 'jenkins-agent', cloud: 'kubernetes', serviceAccount: 'jenkin
             container('buildkit') {
                 dir('/home/jenkins/agent/workspace/MicroServiceMatrix') {
                     unstash(name: 'builds')
+                    sh '''
+                        echo $tag $repository $namespace
+                        pwd
+                        ls -al
+                    '''
                     if (fileExists('builds.txt')) {
                         echo "File builds.txt found!"
                         sh '''
