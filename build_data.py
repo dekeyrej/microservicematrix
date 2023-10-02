@@ -1,16 +1,17 @@
 """ data structures to implement an efficient build mechanish """
-services = ['aqi', 'mycal', 'garmin', 'github', 'jenkins', 'mlb', 'moon', 'events', 'weather']
+services = ['aqi', 'events', 'garmin', 'github', 'jenkins', 'mlb', 'moon', 'mycal', 'nfl', 'weather']
 
 reverse_dependencies = {
     "aqi.py": "aqi",
     "requirements-pandas.txt": "aqi",
-    "mycal.py": "mycal",
+    "events.py": "events",
     "garmin.py": "garmin",
     "github.py": "github",
     "jenkins.py": "jenkins",
     "mlb.py": "mlb",
     "moon.py": "moon",
-    "events.py": "events",
+    "mycal.py": "mycal",
+    "nfl.py": "nfl",
     "Dockerfile": "all",
     "requirements.txt": "all",
     "weather.py": "weather"
