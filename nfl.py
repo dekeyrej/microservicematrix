@@ -1,4 +1,8 @@
 """ NFL server - reads data from ESPN scoreboard API """
+# docker build --build-arg=MICROSERVICE=nfl --build-arg=PANDAS=False -t 192.168.86.49:32000/nfl:registry .
+# docker push 192.168.86.49:32000/nfl:registry
+# kubectl rollout restart -n default deployment nfl
+
 # import json
 import arrow
 from pages.serverpage import ServerPage
@@ -17,6 +21,7 @@ class NFLServer(ServerPage):
         """ ... """
         now = arrow.now().to('US/Eastern')
         resp = self.fetch(self.url,'Fetching NFL games',now.format('MM/DD/YYYY hh:mm A ZZZ'))
+        ## JSONDecodeError or RequestsJSONDecodeError
 
         if resp:
             games = resp['events']
@@ -28,9 +33,24 @@ class NFLServer(ServerPage):
                 now.shift(seconds=+self.update_period).format('MM/DD/YYYY h:mm:ss A ZZZ')
             data['values'] = []
             game_count = len(games)
+            # dow = int(now.format('d'))
+            next_start = now.shift(weekday=1)
+            print(next_start)
             # pre_games = in_games = post_games = 0
-            for eid in range(game_count):
-                data['values'].append(self.read_event(games[eid]))
+            for game in games:
+                data['values'].append(self.read_event(game))
+                start_time = arrow.get(game['date']).to('US/Eastern')
+                status = game['competitions'][0]['status']['type']['state']
+                if status == 'in' or (status == 'pre' and start_time < now):  ### now have to account for postponed :-/
+                    # if self.output: print(f'   in active {id}')
+                    period = 59
+                elif status == 'pre':
+                    # if self.output: print(f'   in pre   {id}')
+                    if now <= start_time < next_start:
+                        # if self.output: print(f'      in next_start {id}')
+                        next_start = start_time
+
+            if period != 59: period = min((next_start - now).seconds, 15 * 60)
             print(f'In progress games: {self.active}')
             # print(json.dumps(data,indent=1))
             # print(f'{type(self).__name__} updated.')
