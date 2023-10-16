@@ -1,6 +1,7 @@
 __pycache__/
 Do_Not_Copy/
 .venv/
+.lenv/
 events.txt
 .env
 secrets.json

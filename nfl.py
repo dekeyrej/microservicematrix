@@ -3,7 +3,7 @@
 # docker push 192.168.86.49:32000/nfl:registry
 # kubectl rollout restart -n default deployment nfl
 
-# import json
+import json
 import arrow
 from pages.serverpage import ServerPage
 
@@ -16,11 +16,16 @@ class NFLServer(ServerPage):
         self.type = 'NFL'
         self.url = 'http://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard'
         self.active = 0
+        self.output = True
 
     def update(self):
         """ ... """
         now = arrow.now().to('US/Eastern')
-        resp = self.fetch(self.url,'Fetching NFL games',now.format('MM/DD/YYYY hh:mm A ZZZ'))
+        try:
+            resp = self.fetch(self.url,'Fetching NFL games',now.format('MM/DD/YYYY hh:mm A ZZZ'))
+        except json.decoder.JSONDecodeError:
+            print("Bad response")
+            resp = None
         ## JSONDecodeError or RequestsJSONDecodeError
 
         if resp:
@@ -43,14 +48,14 @@ class NFLServer(ServerPage):
                 status = game['competitions'][0]['status']['type']['state']
                 if status == 'in' or (status == 'pre' and start_time < now):  ### now have to account for postponed :-/
                     # if self.output: print(f'   in active {id}')
-                    period = 59
+                    self.update_period = 59
                 elif status == 'pre':
                     # if self.output: print(f'   in pre   {id}')
                     if now <= start_time < next_start:
                         # if self.output: print(f'      in next_start {id}')
                         next_start = start_time
 
-            if period != 59: period = min((next_start - now).seconds, 15 * 60)
+            if self.update_period != 59: self.update_period = min((next_start - now).seconds, 15 * 60)
             print(f'In progress games: {self.active}')
             # print(json.dumps(data,indent=1))
             # print(f'{type(self).__name__} updated.')

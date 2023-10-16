@@ -21,6 +21,7 @@ podTemplate(label: 'jenkins-agent', cloud: 'kubernetes', serviceAccount: 'jenkin
                 dir('/home/jenkins/agent/workspace/MicroServiceMatrix') {
                     sh '''
                         echo $tag $repository $namespace
+                        chmod a+x determine_tags.sh
                         chmod a+x build.sh
                         chmod a+x deploy.sh
                         chmod a+x cleanup.sh
@@ -29,10 +30,10 @@ podTemplate(label: 'jenkins-agent', cloud: 'kubernetes', serviceAccount: 'jenkin
                         . bin/activate
                         pip install pylint pylint-venv pytest
                         pip install -r requirements.txt
-                        pip install -r requirements-pandas.txt
                         python3 -m pylint --fail-under 9.0 *.py
+                        python3 -m compileall *.py
                         git config --global --add safe.directory /home/jenkins/agent/workspace/MicroServiceMatrix
-                        python3 determine_tags.py
+                        determine_tags.sh
                     '''
                     stash(name: 'builds', includes: 'builds.txt')
                     milestone(1)
@@ -55,8 +56,7 @@ podTemplate(label: 'jenkins-agent', cloud: 'kubernetes', serviceAccount: 'jenkin
                             then 
                                 for i in `cat builds.txt` 
                                 do
-                                    if [ $i = \'aqi\' ]; then pandas=True; else pandas=False; fi 
-                                    buildctl build --frontend dockerfile.v0 --local context=. --local dockerfile=. --opt build-arg:MICROSERVICE=${i} --opt build-arg:PANDAS=${pandas} --output type=image,name=${repository}/${i}:${tag},registry.insecure=true,push=true
+                                    buildctl build --frontend dockerfile.v0 --local context=. --local dockerfile=. --opt build-arg:MICROSERVICE=${i} --output type=image,name=${repository}/${i}:${tag},registry.insecure=true,push=true
                                 done 
                             fi
                         '''
@@ -67,21 +67,47 @@ podTemplate(label: 'jenkins-agent', cloud: 'kubernetes', serviceAccount: 'jenkin
         }
         stage('Deploy Image(s)') {
             container('python3') {
-                sh '''
-                    echo $tag $repository $namespace
-                    export PWD=`pwd`
-                    ${PWD}/deploy.sh
-                '''
+                dir('/home/jenkins/agent/workspace/MicroServiceMatrix') {
+                    sh '''
+                        echo $tag $repository $namespace
+                        pwd
+                        ls -al
+                    '''
+                    if (fileExists('builds.txt')) {
+                        echo "File builds.txt found!"
+                        sh '''
+                            if [ `stat -c %s builds.txt` -gt 0 ] 
+                            then
+                                for i in `cat builds.txt` 
+                                do 
+                                    kubectl rollout restart deployment ${i}
+                                    sleep 5
+                                done
+                            fi
+                        '''
+                    }
+                }
                 milestone(3)
             }
         }
         stage('Cleanup ReplicaSets') {
             container('python3') {
-                sh '''
-                    echo $tag $repository $namespace
-                    export PWD=`pwd`
-                    ${PWD}/cleanup.sh
-                '''
+                dir('/home/jenkins/agent/workspace/MicroServiceMatrix') {
+                    sh '''
+                        echo $tag $repository $namespace
+                        pwd
+                        ls -al
+                    '''
+                    if (fileExists('builds.txt')) {
+                        echo "File builds.txt found!"
+                        sh '''
+                            if [ `stat -c %s builds.txt` -gt 0 ] 
+                            then
+                                cleanup.sh
+                            fi
+                        '''
+                    }
+                }
                 milestone(4)
             }
         }

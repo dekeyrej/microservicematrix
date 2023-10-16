@@ -60,15 +60,15 @@ class MLBServer(ServerPage):
                 else:
                     next_valid = tnow.shift(days=+1).replace(hour=11,minute=30,second=0)
                     # 11:30 AM tomorrow
-                self.period = (next_valid - tnow).seconds
+                self.update_period = (next_valid - tnow).seconds
             elif in_games > 0:
                 next_valid = \
                     tnow.shift(seconds=+self.update_period).format('MM/DD/YYYY h:mm:ss A ZZZ')
-                self.period = 29
+                self.update_period = 29
             else:
                 # sleep until the start of the first game
                 next_valid = next_start_time
-                self.period = min((next_valid - tnow).seconds, 15*60)
+                self.update_period = min((next_valid - tnow).seconds, 15*60)
         #         print(next_sleep)
 #             self.update_rate = next_sleep # seconds between updates
             data['valid'] = next_valid.format('MM/DD/YYYY h:mm:ss A ZZZ')

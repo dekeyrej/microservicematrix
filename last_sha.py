@@ -3,21 +3,24 @@ Build-time utility do determine which microservice images need to be built/redep
 based on which files have been modified since the last successful jenkins build
 """
 import os
-import subprocess
+import json
 
 import requests
 from requests.exceptions import HTTPError
 
 import kube
-import build_data
-runt = int(os.environ['PROD'])
+try:
+    runt = int(os.environ['PROD'])
+except KeyError:
+    print("PROD not found in environment")
+    runt = 0
+
 if runt > 0:
     kks = kube.KubeSecrets(True)
 else:
     kks = kube.KubeSecrets(False)
 secrets = kks.read_secret("default", "matrix-secrets", "secrets.json", True) # for test and prod
-ALL = build_data.services
-reverse_dependencies = build_data.reverse_dependencies
+
 sess = requests.session()
 
 def fetch(rsess, url, name, auth=None, headers=None):
@@ -45,18 +48,20 @@ jport    = secrets['jenkins_port']
 jproject = secrets['jenkins_project']
 jserver_url = f"http://{jserver}:{jport}/job/{jproject}/lastSuccessfulBuild/api/json"
 jauth       = (secrets['jenkins_user'],secrets['jenkins_api_key'])
-print(f'{jserver_url}:{jauth}')
+# print(f'{jserver_url}:{jauth}')
 jresp = fetch(sess, jserver_url, 'Jenkins', auth=jauth)
-last_sha = 'ed1c4b1'
-try:
-    last_sha = jresp['changeSets'][0]['items'][0]['commitId'][0:7]
-except TypeError:
-    last_sha = 'ed1c4b1'
-except IndexError:
-    last_sha = 'ed1c4b1'
-except:
-    last_sha = 'ed1c4b1'
-print(f'Commit for lastest successful build: {last_sha}')
+actions = jresp['actions']
+for id, a in enumerate(actions):
+    _class = a.get("_class", "not")
+    # print(f"{id}: {_class}")
+    if _class == 'hudson.plugins.git.util.BuildData':
+        last_sha = a['buildsByBranchName']['refs/remotes/origin/main']['marked']['SHA1'][0:7]
+        # print(last_sha)
+
+print(f'Commit for last successful build: {last_sha}')
+with open('last_successful.sha', 'wt') as file:
+    file.write(last_sha)
+    file.close()
 
 # get the list of commits from GitHub
 owner    = secrets['github_owner']
@@ -68,43 +73,11 @@ gheaders = {'Authorization': f'token {my_token}',
 resp = fetch(sess, gurl, 'GitHub', headers=gheaders)
 
 if resp is not None:
-    resp_count = len(resp)
-    commits = []
-    out_files = []
-    print(f"Latest commit: {resp[0]['sha'][0:7]}")
-    for i in range(resp_count):
-        sha = resp[i]['sha'][0:7]
-        # git diff-tree {last_sha} {sha} --no-commit-id --name-only        ## dumps the unique files changed between the two commits
-        cmd = f"git diff-tree --no-commit-id --name-only -r {sha}"
-        if sha == last_sha:
-            break
-        else:
-            result = subprocess.run(cmd, shell=True, capture_output=True)
-            if result.returncode == 0:
-                files = result.stdout.decode('utf-8').split('\n')
-                out_files.extend(files)
-                print(f'Files changed in {sha}: {files}')
-            else:
-                files = []
-
-    file_list = list(set(out_files))[1:]
-    print(f'Unique files changed since {last_sha}: {str(file_list)}')
-
-    build_list = []
-    for f in file_list:
-        try:
-            if reverse_dependencies[f] == 'all':
-                print('Build all!')
-                build_list = ALL
-                break
-            build_list.append(reverse_dependencies[f])
-        except KeyError:
-            pass
-
-    bl = list(set(build_list))
-    print(bl)
-    with open('builds.txt', 'wt', encoding='utf-8') as file:
-        for b in bl:
-            print(f'{b}')
-            file.write(f'{b}\n')
+    latest_sha = resp[0]['sha'][0:7]
+    # print("latest - success")
+    print(f'Latest commit: {latest_sha}')
+    with open('latest.sha', 'wt') as file:
+        file.write(latest_sha)
         file.close()
+else:
+    print("latest - failed")
