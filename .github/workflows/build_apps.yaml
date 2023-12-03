@@ -13,7 +13,6 @@ jobs:
       - name: Read builds.json
         id: read-builds
         run: |
-          ls -al
           builds_file='builds.json'
           if [[ -f "$builds_file" ]]; then
             apps=$(cat "$builds_file")

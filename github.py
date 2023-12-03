@@ -11,12 +11,11 @@ class GithubServer(ServerPage):
         self.type = 'GitHub'
         owner = self.secrets['github_owner']
         repo = self.secrets['github_repo']
-        # repo = 'gha-sandbox'
         workflow_id = 'build_apps.yaml'
         my_token = self.secrets['github_api_key']
         self.clear_secrets()
         self.curl = f'https://api.github.com/repos/{owner}/{repo}/commits'
-        # self.lscurl = f'https://api.github.com/repos/{owner}/{repo}/actions/workflows/{workflow_id}/runs'
+        self.lscurl = f'https://api.github.com/repos/{owner}/{repo}/actions/workflows/{workflow_id}/runs'
         self.headers = {'Authorization': f'token {my_token}',
                         'Accept': 'application/vnd.github+json'}
 
@@ -31,9 +30,9 @@ class GithubServer(ServerPage):
         # with open('github_commits.json', 'wt') as file:
         #     file.write(json.dumps(cresp, indent=2))
         #     file.close()
-        # lscresp = self.fetch(self.lscurl,'Fetching GitHub Workflow Runs',\
-        #                   tnow.format('MM/DD/YYYY hh:mm A ZZZ'),\
-        #                   headers=self.headers)
+        lscresp = self.fetch(self.lscurl,'Fetching GitHub Workflow Runs',\
+                          tnow.format('MM/DD/YYYY hh:mm A ZZZ'),\
+                          headers=self.headers)
         # with open('github_workflow_runs.json', 'wt') as file:
         #     file.write(json.dumps(lscresp, indent=2))
         #     file.close()
@@ -47,7 +46,7 @@ class GithubServer(ServerPage):
                 format('MM/DD/YYYY h:mm:ss A ZZZ')
             data['values'] = {}
             data['values']['commit'] = cresp[0]['sha'][0:7]
-            # data['values']['last_successful_commit'] = self.find_last_successful_commit(lscresp)
+            data['values']['last_successful_commit'] = self.find_last_successful_commit(lscresp)
             data['values']['message'] = cresp[0]['commit']['message']
             commit_date = arrow.get(cresp[0]['commit']['author']['date'],in_format)
             data['values']['date'] = commit_date.to('US/Eastern').format(out_format)
@@ -56,11 +55,11 @@ class GithubServer(ServerPage):
             self.dba.write(data)
             print(f'{type(self).__name__} updated.')
 
-    # def find_last_successful_commit(self, resp):
-    #     for r in resp['workflow_runs']:
-    #         if r['conclusion'] == 'success':
-    #             return r['head_commit']['id'][0:7]
-    #     return '0000000'
+    def find_last_successful_commit(self, resp):
+        for r in resp['workflow_runs']:
+            if r['conclusion'] == 'success':
+                return r['head_commit']['id'][0:7]
+        return '0000000'
 
 if __name__ == '__main__':
     import os
