@@ -1,0 +1,43 @@
+name: matrix build
+on:
+  push:
+    branches: [ "main" ]
+jobs:
+  read-builds:
+    runs-on: ubuntu-latest
+    outputs:
+      apps: ${{ steps.read-builds.outputs.apps }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - id: read-builds
+        run: |
+          builds_file='builds.json'
+          if [[ -f "$builds_file" ]]; then
+            apps=$(cat "$builds_file")
+            echo "Apps to build: $apps"
+          else
+            echo "builds file not found"
+          fi
+          echo "::set-output name=apps::$apps"
+
+  build-apps:
+    needs: read-builds
+    runs-on: ubuntu-latest
+    strategy:
+      matrix: ${{fromJson(needs.read-builds.outputs.apps)}}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      - name: Build
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          build-args: "MICROSERVICE=${{matrix.app}}"
+          tags: "ghcr.io/dekeyrej/${{matrix.app}}:latest"
+      # - name: Echo matrix values
+      #   run: |
+      #     echo "Matrix values: ${{ matrix.app }}"

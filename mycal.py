@@ -4,6 +4,7 @@ import arrow
 
 from pages.serverpage import ServerPage
 
+
 class CalendarServer(ServerPage):
     """ Subclass of serverpage for reading calendar events """
     def __init__(self, prod, period, path: str=None):
@@ -33,7 +34,7 @@ class CalendarServer(ServerPage):
                 format('MM/DD/YYYY h:mm:ss A ZZZ')
             data['values'] = []
             for item in items:
-                data['values'].append((item["summary"],item["start"]["dateTime"],\
+                data['values'].append((item["summary"],item["start"]["dateTime"],
                                        item["end"]["dateTime"]))
             # print(json.dumps(data,indent=2))
             self.dba.write(data)

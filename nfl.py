@@ -1,5 +1,5 @@
 """ NFL server - reads data from ESPN scoreboard API """
-# docker build --build-arg=MICROSERVICE=nfl --build-arg=PANDAS=False -t 192.168.86.49:32000/nfl:registry .
+# docker build --build-arg=MICROSERVICE=nfl -t 192.168.86.49:32000/nfl:registry .
 # docker push 192.168.86.49:32000/nfl:registry
 # kubectl rollout restart -n default deployment nfl
 
@@ -16,7 +16,7 @@ class NFLServer(ServerPage):
         self.type = 'NFL'
         self.url = 'http://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard'
         self.active = 0
-        self.output = True
+        self.output = False
 
     def update(self):
         """ ... """

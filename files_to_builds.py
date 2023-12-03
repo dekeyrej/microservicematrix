@@ -2,6 +2,7 @@
 Build-time utility do determine which microservice images need to be built/redeplloyed
 based on which files have been modified since the last successful jenkins build
 """
+import json
 import os
 import build_data
 ALL = build_data.services
@@ -36,4 +37,13 @@ with open('builds.txt', 'wt', encoding='utf-8') as file:
     for b in bl:
         # print(f'{b}')
         file.write(f'{b}\n')
+    file.close()
+
+builds = {}
+builds['include'] = []
+for a in bl:
+    builds['include'].append({"app": a})
+print(json.dumps(builds))
+with open('builds.json', 'wt', encoding='utf-8') as file:
+    file.write(json.dumps(builds))
     file.close()

@@ -22,12 +22,12 @@ class AQIServer(ServerPage):
         self.daf = pd.DataFrame(self.aqidata, index = self.dfindex)
 
     def load_data(self):
+        """ Reads AQI pollutant data from a configmap. Alternatively import aqi_data.py  """
         cmap = self.ks.read_map('default', 'aqi-data')
         self.aqidata = json.loads(cmap.data['aqidata'])
         self.pollutants = json.loads(cmap.data['pollutants'])
         self.pollutant_measures = json.loads(cmap.data['pollutant_measures'])
         self.dfindex = json.loads(cmap.data['dfindex'])
-        
 
     def update(self):
         """ ... """
@@ -70,7 +70,7 @@ class AQIServer(ServerPage):
             # print(f'{type(self).__name__} updated.')
 
     def convert_reading(self, val: numtype, pol: str) -> numtype:
-        """ 
+        """
         Values delivered by OWM are all in micrograms per cubic meter.
         function (1) converts to ppm or ppb, and
                 (2) returns the correct significant digits
