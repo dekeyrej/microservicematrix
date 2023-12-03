@@ -1,5 +1,10 @@
+import json
+import os
+import subprocess
+
 import requests
 
+import build_data
 
 class LandL():
     def __init__(self):
@@ -13,7 +18,7 @@ class LandL():
                         'Accept': 'application/vnd.github+json'}
         self.rsess = requests.session()
 
-    def update(self):
+    def update_github(self):
         latest_sha, last_commit = self.get_latest_commit()
         with open('latest.sha', 'wt') as file:
             file.write(latest_sha)
@@ -23,6 +28,7 @@ class LandL():
             file.write(last_successful_sha)
             file.close()
         print(f'Latest commit: {latest_sha} @ {last_commit}. Last successful commit: {last_successful_sha} @ {last_success}')
+        return last_successful_sha, latest_sha
 
     def fetch(self, url, headers): 
         """ ... """
@@ -47,6 +53,44 @@ class LandL():
                 return r['head_commit']['id'][0:7], r['head_commit']['timestamp']
         return '0000000', 'never'
 
+    def get_modified_files(self, successful_sha, latest_sha):
+        cmd = f'git diff-tree {successful_sha} {latest_sha} --no-commit-id --name-only'
+        result = subprocess.run(cmd, shell=False, capture_output=True)
+        if result.returncode == 0:
+            files = result.stdout.decode('utf-8').split('\n')
+            # out_files.extend(files)
+            print(f'Files changed since {successful_sha}: {files}')
+        else:
+            files = []
+        return files
+
+    def get_builds(self, files):
+        build_list = []
+        for f in files:
+            try:
+                if build_data.reverse_dependencies[f] == 'all':
+                    print('Build all!')
+                    build_list = build_data.services
+                    break
+                build_list.append(build_data.reverse_dependencies[f])
+            except KeyError:
+                pass
+
+        bl = list(set(build_list))
+        bl.sort()
+        print(bl)
+
+        builds = {}
+        builds['include'] = []
+        for a in bl:
+            builds['include'].append({"app": a})
+        print(json.dumps(builds))
+        with open('builds.json', 'wt', encoding='utf-8') as file:
+            file.write(json.dumps(builds))
+            file.close()
+
 if __name__ == '__main__':
     ll = LandL()
-    ll.update()
+    success, latest = ll.update_github()
+    filelist = ll.get_modified_files(success, latest)
+    ll.get_builds(filelist)
