@@ -1,5 +1,4 @@
 import json
-import os
 import subprocess
 
 import requests
@@ -20,13 +19,7 @@ class LandL():
 
     def update_github(self):
         latest_sha, last_commit = self.get_latest_commit()
-        with open('latest.sha', 'wt') as file:
-            file.write(latest_sha)
-            file.close()
         last_successful_sha, last_success = self.get_last_successful_commit()
-        with open('last_successful.sha', 'wt') as file:
-            file.write(last_successful_sha)
-            file.close()
         print(f'Latest commit: {latest_sha} @ {last_commit}. Last successful commit: {last_successful_sha} @ {last_success}')
         return last_successful_sha, latest_sha
 
@@ -54,13 +47,11 @@ class LandL():
         return '0000000', 'never'
 
     def get_modified_files(self, successful_sha, latest_sha):
-        # cmd = f'/usr/bin/git diff-tree {successful_sha} {latest_sha} --no-commit-id --name-only'
         cmd = f'git diff-tree {successful_sha} {latest_sha} --no-commit-id --name-only'
         result = subprocess.run(cmd, shell=True, capture_output=True)
-        print(f'return code: {result.returncode}')
+        # print(f'return code: {result.returncode}')
         if result.returncode == 0:
             files = result.stdout.decode('utf-8').split('\n')
-            # out_files.extend(files)
             print(f'Files changed since {successful_sha}: {files}')
         else:
             files = []
@@ -80,7 +71,7 @@ class LandL():
 
         bl = list(set(build_list))
         bl.sort()
-        print(bl)
+        # print(bl)
 
         builds = {}
         builds['include'] = []
