@@ -18,7 +18,7 @@ spec:
     spec:
       containers:
         - name: garmin
-          image: localhost:32000/garmin:registry
+          image: ghcr.io/dekeyrej/garmin:latest
           imagePullPolicy: Always
           ports:
           - containerPort: 10255
@@ -30,4 +30,4 @@ spec:
           securityContext:
             privileged: false
       imagePullSecrets:
-        - name: regcred
+        - name: ghcr-login-secret

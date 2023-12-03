@@ -18,7 +18,7 @@ spec:
     spec:
       containers:
         - name: jenkins
-          image: localhost:32000/jenkins:registry
+          image: ghcr.io/dekeyrej/jenkins:latest
           imagePullPolicy: Always
           ports:
           - containerPort: 10255
@@ -30,4 +30,4 @@ spec:
           securityContext:
             privileged: false
       imagePullSecrets:
-        - name: regcred
+        - name: ghcr-login-secret

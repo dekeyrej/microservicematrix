@@ -27,27 +27,19 @@ class GithubServer(ServerPage):
         cresp = self.fetch(self.curl,'Fetching GitHub Commits',\
                           tnow.format('MM/DD/YYYY hh:mm A ZZZ'),\
                           headers=self.headers)
-        # with open('github_commits.json', 'wt') as file:
-        #     file.write(json.dumps(cresp, indent=2))
-        #     file.close()
         lscresp = self.fetch(self.lscurl,'Fetching GitHub Workflow Runs',\
                           tnow.format('MM/DD/YYYY hh:mm A ZZZ'),\
                           headers=self.headers)
-        # with open('github_workflow_runs.json', 'wt') as file:
-        #     file.write(json.dumps(lscresp, indent=2))
-        #     file.close()
-        # print(json.dumps(resp,indent=2))
-        # git diff-tree --no-commit-id --name-only -r {resp[0]['sha'][0:7]}
-        if cresp: # and lscresp:
+        if cresp and lscresp:
             data = {}
             data['type']   = 'GitHub'
             data['updated'] = tnow.to('US/Eastern').format('MM/DD/YYYY h:mm A ZZZ')
             data['valid'] = tnow.to('US/Eastern').shift(seconds=+self.update_period).\
                 format('MM/DD/YYYY h:mm:ss A ZZZ')
             data['values'] = {}
-            data['values']['commit'] = cresp[0]['sha'][0:7]
+            data['values']['latest_commit'] = cresp[0]['sha'][0:7]
             data['values']['last_successful_commit'] = self.find_last_successful_commit(lscresp)
-            data['values']['message'] = cresp[0]['commit']['message']
+            data['values']['commit_message'] = cresp[0]['commit']['message']
             commit_date = arrow.get(cresp[0]['commit']['author']['date'],in_format)
             data['values']['date'] = commit_date.to('US/Eastern').format(out_format)
 
