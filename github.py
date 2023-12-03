@@ -1,5 +1,5 @@
 ''' Looks for latest commit to github repository '''
-# import json
+import json
 import arrow
 
 from pages.serverpage import ServerPage
@@ -11,9 +11,12 @@ class GithubServer(ServerPage):
         self.type = 'GitHub'
         owner = self.secrets['github_owner']
         repo = self.secrets['github_repo']
+        # repo = 'gha-sandbox'
+        workflow_id = 'build_apps.yaml'
         my_token = self.secrets['github_api_key']
         self.clear_secrets()
-        self.url = f'https://api.github.com/repos/{owner}/{repo}/commits'
+        self.curl = f'https://api.github.com/repos/{owner}/{repo}/commits'
+        # self.lscurl = f'https://api.github.com/repos/{owner}/{repo}/actions/workflows/{workflow_id}/runs'
         self.headers = {'Authorization': f'token {my_token}',
                         'Accept': 'application/vnd.github+json'}
 
@@ -22,26 +25,42 @@ class GithubServer(ServerPage):
         in_format = 'YYYY-MM-DD[T]HH:mm:ssZ'
         out_format = 'YYYY-MM-DD hh:mm:ss A ZZZ'
         tnow = arrow.now().to('US/Eastern')
-        resp = self.fetch(self.url,'Fetching GitHub Commits',\
+        cresp = self.fetch(self.curl,'Fetching GitHub Commits',\
                           tnow.format('MM/DD/YYYY hh:mm A ZZZ'),\
                           headers=self.headers)
+        # with open('github_commits.json', 'wt') as file:
+        #     file.write(json.dumps(cresp, indent=2))
+        #     file.close()
+        # lscresp = self.fetch(self.lscurl,'Fetching GitHub Workflow Runs',\
+        #                   tnow.format('MM/DD/YYYY hh:mm A ZZZ'),\
+        #                   headers=self.headers)
+        # with open('github_workflow_runs.json', 'wt') as file:
+        #     file.write(json.dumps(lscresp, indent=2))
+        #     file.close()
         # print(json.dumps(resp,indent=2))
         # git diff-tree --no-commit-id --name-only -r {resp[0]['sha'][0:7]}
-        if resp is not None:
+        if cresp: # and lscresp:
             data = {}
             data['type']   = 'GitHub'
             data['updated'] = tnow.to('US/Eastern').format('MM/DD/YYYY h:mm A ZZZ')
             data['valid'] = tnow.to('US/Eastern').shift(seconds=+self.update_period).\
                 format('MM/DD/YYYY h:mm:ss A ZZZ')
             data['values'] = {}
-            data['values']['commit'] = resp[0]['sha'][0:7]
-            data['values']['message'] = resp[0]['commit']['message']
-            commit_date = arrow.get(resp[0]['commit']['author']['date'],in_format)
+            data['values']['commit'] = cresp[0]['sha'][0:7]
+            # data['values']['last_successful_commit'] = self.find_last_successful_commit(lscresp)
+            data['values']['message'] = cresp[0]['commit']['message']
+            commit_date = arrow.get(cresp[0]['commit']['author']['date'],in_format)
             data['values']['date'] = commit_date.to('US/Eastern').format(out_format)
 
-            # print(json.dumps(data,indent=2))
+            print(json.dumps(data,indent=2))
             self.dba.write(data)
             print(f'{type(self).__name__} updated.')
+
+    # def find_last_successful_commit(self, resp):
+    #     for r in resp['workflow_runs']:
+    #         if r['conclusion'] == 'success':
+    #             return r['head_commit']['id'][0:7]
+    #     return '0000000'
 
 if __name__ == '__main__':
     import os

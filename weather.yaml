@@ -18,7 +18,7 @@ spec:
     spec:
       containers:
         - name: weather
-          image: localhost:32000/weather:registry
+          image: ghcr.io/dekeyrej/weather:latest
           imagePullPolicy: Always
           ports:
           - containerPort: 10255
@@ -30,4 +30,4 @@ spec:
           securityContext:
             privileged: false
       imagePullSecrets:
-        - name: regcred
+        - name: ghcr-login-secret
