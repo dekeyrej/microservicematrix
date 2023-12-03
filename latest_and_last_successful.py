@@ -54,8 +54,10 @@ class LandL():
         return '0000000', 'never'
 
     def get_modified_files(self, successful_sha, latest_sha):
-        cmd = f'/usr/bin/git diff-tree {successful_sha} {latest_sha} --no-commit-id --name-only'
+        # cmd = f'/usr/bin/git diff-tree {successful_sha} {latest_sha} --no-commit-id --name-only'
+        cmd = f'git diff-tree {successful_sha} {latest_sha} --no-commit-id --name-only'
         result = subprocess.run(cmd, shell=True, capture_output=True)
+        print(f'return code: {result.returncode}')
         if result.returncode == 0:
             files = result.stdout.decode('utf-8').split('\n')
             # out_files.extend(files)

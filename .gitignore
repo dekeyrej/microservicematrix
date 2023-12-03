@@ -6,4 +6,5 @@ events.txt
 .env
 secrets.json
 secrets.json.test
-builds.txt
+secrets.dev.json
+builds.json
