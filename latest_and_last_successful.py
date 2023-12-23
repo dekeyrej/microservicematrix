@@ -71,6 +71,10 @@ class LandL():
 
         bl = list(set(build_list))
         bl.sort()
+        with open('builds.txt', 'wt', encoding='utf-8') as file:
+            for b in bl:
+                file.write(b + '\n')
+            file.close()
         # print(bl)
 
         builds = {}

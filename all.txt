@@ -1,9 +1,0 @@
-aqi
-mycal
-events
-garmin
-github
-jenkins
-mlb
-moon
-weather

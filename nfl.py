@@ -74,12 +74,14 @@ class NFLServer(ServerPage):
         game['homeabrv']   = home['team']['abbreviation']
         game['homeid']     = home['team']['id']
         game['homecolor']  = f"#{home['team']['color']}"
+        game['homelogo']   = home['team']['logo']
         game['homerecord'] = home['records'][0]['summary']
         game['homescore']  = home['score']
         away          = event['competitions'][0]['competitors'][1]
         game['awayabrv'] = away['team']['abbreviation']
         game['awayid']     = away['team']['id']
         game['awaycolor']= f"#{away['team']['color']}"
+        game['awaylogo']   = away['team']['logo']
         game['awayrecord'] = away['records'][0]['summary']
         game['awayscore']  = away['score']
         if game['state'] == 'in':
