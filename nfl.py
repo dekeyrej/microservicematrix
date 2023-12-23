@@ -67,8 +67,9 @@ class NFLServer(ServerPage):
     def read_event(self, event):
         """ ... """
         game = {}
-        game['id']    = event['id']
+        # game['id']    = event['id']
         game['date']  = arrow.get(event['date']).to('US/Eastern').format('ddd h:mm A')
+        game['fulldate']  = event['date']
         game['week']  = event['week']['number']
         game['state'] = event['competitions'][0]['status']['type']['state']   # 'pre', 'in', 'post'
         home          = event['competitions'][0]['competitors'][0]
