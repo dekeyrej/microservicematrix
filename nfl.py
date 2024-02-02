@@ -75,16 +75,25 @@ class NFLServer(ServerPage):
         home          = event['competitions'][0]['competitors'][0]
         game['homeabrv']   = home['team']['abbreviation']
         game['homeid']     = home['team']['id']
-        game['homecolor']  = f"#{home['team']['color']}"
+        # hcolor             = home['team'].get('color','FFFFFF')
+        # game['homecolor']  = f"#{home['team']['color']}"
+        game['homecolor']  = f"#{home['team'].get('color','FFFFFF')}"
         game['homelogo']   = home['team']['logo']
-        game['homerecord'] = home['records'][0]['summary']
+        if home.get('records',None):
+            game['homerecord'] = home['records'][0].get('summary','')
+        else:
+            game['homerecord'] = ''
         game['homescore']  = home['score']
         away          = event['competitions'][0]['competitors'][1]
         game['awayabrv'] = away['team']['abbreviation']
         game['awayid']     = away['team']['id']
-        game['awaycolor']= f"#{away['team']['color']}"
+        game['awaycolor']= f"#{away['team'].get('color','FFFFFF')}"
         game['awaylogo']   = away['team']['logo']
-        game['awayrecord'] = away['records'][0]['summary']
+        if away.get('records',None):
+            game['homawayrecorderecord'] = away['records'][0].get('summary','')
+        else:
+            game['awayrecord'] = ''
+        # game['awayrecord'] = away['records'][0].get('summary','')
         game['awayscore']  = away['score']
         if game['state'] == 'in':
             stat = event['competitions'][0]['status']
