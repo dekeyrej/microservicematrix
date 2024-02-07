@@ -90,7 +90,7 @@ class NFLServer(ServerPage):
         game['awaycolor']= f"#{away['team'].get('color','FFFFFF')}"
         game['awaylogo']   = away['team']['logo']
         if away.get('records',None):
-            game['homawayrecorderecord'] = away['records'][0].get('summary','')
+            game['awayrecord'] = away['records'][0].get('summary','')
         else:
             game['awayrecord'] = ''
         # game['awayrecord'] = away['records'][0].get('summary','')
