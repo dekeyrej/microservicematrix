@@ -11,10 +11,11 @@ class OWMServer(ServerPage):
     def __init__(self, prod, period, path: str=None):
         super().__init__(prod, period, path)
         self.type = 'Weather'
-        self.url = f'https://api.openweathermap.org/data/2.5/onecall?appid=' \
+        self.url = f'https://api.openweathermap.org/data/3.0/onecall?appid=' \
                    f'{self.secrets["owmkey"]}&lat={self.secrets["latitude"]}&' \
                    f'lon={self.secrets["longitude"]}' \
                    f'&exclude=minutely,alerts&units=imperial&lang=en'
+        print(self.url)
         self.clear_secrets()
         self.dirs = ['N','NNE','NE','ENE','E','ESE','SE','SSE',
                      'S','SSW','SW','WSW','W','WNW','NW','NNW']
