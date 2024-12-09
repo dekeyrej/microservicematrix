@@ -1,8 +1,1 @@
-{"include": [
-    {"app": "aqi"},
-    {"app": "weather"},
-    {"app": "events"},
-    {"app": "moon"},
-    {"app": "mycal"}
-    ]
-}
+{"include": [{"app": "aqi"}, {"app": "events"}, {"app": "moon"}, {"app": "mycal"}, {"app": "weather"}]}
