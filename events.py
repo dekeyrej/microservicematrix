@@ -12,18 +12,18 @@ class NextEvent(ServerPage):
 
     def update(self):
         tnow = arrow.now().to('US/Eastern')
-
-        data = {}
-        data['type'] = 'Events'
-        data['updated'] = tnow.format('MM/DD/YYYY h:mm A ZZZ')
-        data['valid'] = tnow.shift(seconds=+self.update_period).format('MM/DD/YYYY h:mm:ss A ZZZ')
-
         if self.prod:
-            # ks = KubeSecrets(True)
-            data['values'] = self.ks.read_secret("default", "matrix-events",
+            values = self.ks.read_secret("default", "matrix-events",
                                                  "events", data_is_json=True)
         else:
-            data['values'] = self.read_json_from_file(self.events_file_name)
+            values = self.read_json_from_file(self.events_file_name)
+
+        data = {
+            'type'   : 'Events',
+            'updated': tnow.format('MM/DD/YYYY h:mm A ZZZ'),
+            'valid'  : tnow.shift(seconds=+self.update_period).format('MM/DD/YYYY h:mm:ss A ZZZ'),
+            'values' : values
+        }
 
         print(f'{type(self).__name__} updated.')
         self.dba.write(data)

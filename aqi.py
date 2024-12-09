@@ -43,36 +43,35 @@ class AQIServer(ServerPage):
     def update(self):
         """ ... """
         tnow = arrow.now().to('US/Eastern')
-        jstuff = self.fetch(self.url,'Fetching Air Pollution',self.now_str(tnow,True))
+        jstuff = self.fetch(self.url, 'Fetching Air Pollution', self.now_str(tnow, True))
         if jstuff is not None:
-            # print(json.dumps(jstuff, indent=2))
-            data = {}
-            data['type'] = self.type
-            data['updated'] = self.now_str(tnow,False)
-            data['valid']   = self.now_str(tnow.shift(seconds=+self.update_period),True)
-            data['values'] = {}
-            dts = arrow.get(str(jstuff['list'][0]['dt']), 'X')
-            data['values']['dt'] = dts.to('US/Eastern').format('MM/DD/YYYY h:mm A ZZZ')
-            # loop through the readings
-            maxscore = 0
-            maxrow = 0
-            maxpol = ""
-            for pol in aqidata['pollutants'].keys():
-                raw = jstuff["list"][0]["components"][pol]
-                converted = self.convert_reading(raw, pol)
-                scaled, row = self.scaled_reading(converted, pol)
-                if scaled > maxscore:
-                    maxscore = scaled
-                    maxrow = row
-                    maxpol = pol
-                # print(f'{pol} - raw: {raw}, converted: {converted}, scaled: {scaled} on row {row}')
+            utc_measurement_time = arrow.get(str(jstuff['list'][0]['dt']), 'X')
+            
+            max_score = 0
+            max_row = 0
+            max_pollutant = ""
+            # loop through the pollutants and find the max score
+            for pollutant in aqidata['pollutants'].keys():
+                raw_value = jstuff["list"][0]["components"][pollutant]
+                converted_value = self.convert_reading(raw_value, pollutant)
+                scaled_value, row = self.scaled_reading(converted_value, pollutant)
+                if scaled_value > max_score:
+                    max_score = scaled_value
+                    max_row = row
+                    max_pollutant = pollutant
 
-            print(f'AQI: {maxscore} [{aqidata["aqi"]["adjectives"][maxrow]} - {aqidata["aqi"]["colors"][maxrow]}] '\
-                  f'with \'{aqidata["pollutants"][maxpol]["name"]}\' as the main factor.')
-            data['values']['aqi_score'] = maxscore
-            data['values']['aqi_adjective'] = aqidata["aqi"]["adjectives"][maxrow]
-            data['values']['color'] = aqidata["aqi"]["colors"][maxrow]
-            data['values']['main_pollutant'] = aqidata["pollutants"][maxpol]["name"]
+            data = {
+                'type': self.type,
+                'updated': self.now_str(tnow, False),
+                'valid': self.now_str(tnow.shift(seconds=self.update_period), True),
+                'values': {
+                    'date_time': utc_measurement_time.to('US/Eastern').format('MM/DD/YYYY h:mm A ZZZ'),
+                    'aqi_score': max_score,
+                    'aqi_adjective': aqidata["aqi"]["adjectives"][max_row],
+                    'color': aqidata["aqi"]["colors"][max_row],
+                    'main_pollutant': aqidata["pollutants"][max_pollutant]["name"]
+                }
+            }
 
             # write out the results
             self.dba.write(data)

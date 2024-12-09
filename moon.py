@@ -41,35 +41,37 @@ class MoonServer(ServerPage):
                 respcount += 1
 
         if respcount == 4:
-            data = {}
-            data['type'] = 'Moon'
-            data['updated'] = tnow.format('MM/DD/YYYY h:mm A ZZZ')
-            data['valid'] = tnow.shift(seconds=+updtp).format('MM/DD/YYYY h:mm:ss A ZZZ')
-            data['values'] = {}
+            sun_data = [
+                responses[i]['properties'] for i in range(2)
+            ]
 
-            sun_data = []
-            sun_data.append(responses[0]['properties'])
-            sun_data.append(responses[1]['properties'])
+            moon_data = [
+                responses[i]['properties'] for i in range(2,4)
+            ]
+            phase, illumstr = self.moon_condition(moon_data[0]['moonphase'])
 
-            moon_data = []
-            moon_data.append(responses[2]['properties'])
-            moon_data.append(responses[3]['properties'])
-
-            data['values']['phase'], data['values']['illumstr'] = self.moon_condition(moon_data)
-            # print(tstmp)
-            data['values']['sunevent']  = self.sun_event(sun_data, tstmp)
-            data['values']['moonevent'] = self.moon_event(moon_data)
+            data = {
+                'type': 'Moon',
+                'updated': tnow.format('MM/DD/YYYY h:mm A ZZZ'),
+                'valid': tnow.shift(seconds=+updtp).format('MM/DD/YYYY h:mm:ss A ZZZ'),
+                'values': {
+                    'phase': phase,
+                    'illumstr': illumstr,
+                    'sunevent': self.sun_event(sun_data, tstmp),
+                    'moonevent': self.moon_event(moon_data)
+                }
+            }
+            
             self.dba.write(data)
             # print(json.dumps(data['values'], indent=1))
             print(f'{type(self).__name__} updated.')
 
-    def moon_condition(self, mnd: Mapping) -> (int, float):
-        """ parse out the current moon condition """
-        # Reconstitute JSON data into the elements we need
-        # moonphase values seem to be in the range 0.0..359.99
-        # print(f"{mnd[0]['moonphase']} {int(float(mnd[0]['moonphase']) / 3.6 ) % 100} {float(mnd[0]['moonphase']) / 360}")
-        phase     =               int(float(mnd[0]['moonphase']) / 3.6 ) % 100  # => 0..99
-        illum     = self.age_to_illum(float(mnd[0]['moonphase']) / 360)        # => 0.0..1.0
+    def moon_condition(self, moonphase: float) -> tuple[int, float]:
+        """ convert moonphase to an integer phase (index of phase image) and an illumination %
+            moonphase values seem to be in the range 0.0..359.99
+        """
+        phase     =              int(moonphase / 3.6 ) % 100  # => 0..99
+        illum     = self.age_to_illum(moonphase / 360)        # => 0.0..1.0
         return phase, illum
 
     def sun_event(self, mnd: Mapping, tstmp) -> str:
@@ -90,49 +92,28 @@ class MoonServer(ServerPage):
         return event
 
     def moon_event(self, mnd: Mapping) -> str:
-        """ determine the next moon event (moonrise or moonset) """
-        # moonrise and/or moonset may not occur in the current day
-        #   so check today
+        """Determine the next moon event (moonrise or moonset)"""
         events = []
-        if 'moonrise' in mnd[0]:
-            if mnd[0]['moonrise']['time'] is not None:  # change with met.no api V3
-                rise = self.parse_time(mnd[0]['moonrise']['time'])
-                events.append(('Rise',rise))
-        else:
-            rise = None
-        if 'moonset' in mnd[0]:
-            if mnd[0]['moonset']['time'] is not None:  # change with met.no api V3
-                mset = self.parse_time(mnd[0]['moonset']['time'])
-                events.append(('Set',mset))
-        else:
-            mset = None
-        #   and check tomorrow
-        if 'moonrise' in mnd[1]:
-            if mnd[1]['moonrise']['time'] is not None:  # change with met.no api V3
-                rise = self.parse_time(mnd[1]['moonrise']['time'])
-                events.append(('Rise',rise))
-        else:
-            rise = None  # was self.rise???
-        if 'moonset' in mnd[1]:
-            if mnd[1]['moonset']['time'] is not None:  # change with met.no api V3
-                mset = self.parse_time(mnd[1]['moonset']['time'])
-                events.append(('Set',mset))
-        else:
-            mset = None
 
-        # is the moon risen or set? What event is 'next' - a set, or a rise?
-        # sort the events by time, see which one is next
-        events.sort(reverse=False, key=lambda e : e[1]) # e[1] is the event time
-        rfn = arrow.now().format('X')
-        for evt in events:
-            if evt[1] > rfn:
-                next_event = evt
+        for day in mnd[:2]:
+            if 'moonrise' in day and day['moonrise']['time'] is not None:
+                moon_rise = self.parse_time(day['moonrise']['time'])
+                events.append(('Rise', moon_rise))
+            if 'moonset' in day and day['moonset']['time'] is not None:
+                moon_set = self.parse_time(day['moonset']['time'])
+                events.append(('Set', moon_set))
+
+        # Sort the events by time and find the next event
+        events.sort(key=lambda e: e[1])
+        current_time = arrow.now().format('X')
+
+        for event_type, event_time in events:
+            if event_time > current_time:
+                next_event = (event_type, event_time)
                 break
-        if next_event[0] == 'Rise':
-            event = f"Moonrise: {self.ts2hhmm(next_event[1])}"
-        else:
-            event = f"Moonset:  {self.ts2hhmm(next_event[1])}"
-        return event
+
+        event_str = f"Moonrise: {self.ts2hhmm(next_event[1])}" if next_event[0] == 'Rise' else f"Moonset:  {self.ts2hhmm(next_event[1])}"
+        return event_str
 
     def age_to_illum(self, age: int) -> float:
         """ convert age (0..100) to a percent illumination """
@@ -142,7 +123,7 @@ class MoonServer(ServerPage):
             illum = (1 + math.cos((age - 0.5) * 2 * math.pi)) * 50
         return f'{illum:.1f}%'
 
-    def url_date_str(self) -> (str, str, str):
+    def url_date_str(self) -> tuple[str, str, str]:
         """ convert 'now' into three strings:
             today's date,
             tomorrow's date, and

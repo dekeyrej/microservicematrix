@@ -1,1 +1,8 @@
-{"include": [{"app": "nfl"}]}
+{"include": [
+    {"app": "aqi"},
+    {"app": "weather"},
+    {"app": "events"},
+    {"app": "moon"},
+    {"app": "mycal"}
+    ]
+}

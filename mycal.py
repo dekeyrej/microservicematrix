@@ -27,15 +27,13 @@ class CalendarServer(ServerPage):
         resp = self.fetch(self._url,'Fetching Calendar',tnow.format('MM/DD/YYYY hh:mm A ZZZ'))
         if resp is not None:
             items = resp['items']
-            data = {}
-            data['type']   = self.type
-            data['updated'] = tnow.to('US/Eastern').format('MM/DD/YYYY h:mm A ZZZ')
-            data['valid'] = tnow.to('US/Eastern').shift(seconds=+self.update_period).\
-                format('MM/DD/YYYY h:mm:ss A ZZZ')
-            data['values'] = []
-            for item in items:
-                data['values'].append((item["summary"],item["start"]["dateTime"],
-                                       item["end"]["dateTime"]))
+            data = {
+                'type': self.type,
+                'updated': tnow.format('MM/DD/YYYY h:mm A ZZZ'),
+                'valid': tnow.shift(seconds=self.update_period).format('MM/DD/YYYY h:mm:ss A ZZZ'),
+                'values': [(item["summary"], item["start"]["dateTime"], item["end"]["dateTime"]) for item in items]
+            }
+
             # print(json.dumps(data,indent=2))
             self.dba.write(data)
             print(f'{type(self).__name__} updated.')
