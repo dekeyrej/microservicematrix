@@ -36,14 +36,20 @@ class NFLServer(ServerPage):
             data['updated'] = now.format('MM/DD/YYYY h:mm A ZZZ')
             data['valid'] = \
                 now.shift(seconds=+self.update_period).format('MM/DD/YYYY h:mm:ss A ZZZ')
-            data['values'] = []
+            seasonid = int(resp['leagues'][0]['season']['type']['id'])
+            weekid = int(resp['week']['number'])
+            data['values'] = {
+                'seasontype': resp['leagues'][0]['season']['type']['name'],
+                'weekname': resp['leagues'][0]['calendar'][seasonid -1 ]['entries'][weekid - 1]['label'],
+                'events': []
+            }
             game_count = len(games)
             # dow = int(now.format('d'))
             next_start = now.shift(weekday=1)
             print(next_start)
             # pre_games = in_games = post_games = 0
             for game in games:
-                data['values'].append(self.read_event(game))
+                data['values']['events'].append(self.read_event(game))
                 start_time = arrow.get(game['date']).to('US/Eastern')
                 status = game['competitions'][0]['status']['type']['state']
                 if status == 'in' or (status == 'pre' and start_time < now):  ### now have to account for postponed :-/
@@ -57,10 +63,10 @@ class NFLServer(ServerPage):
 
             if self.update_period != 59: self.update_period = min((next_start - now).seconds, 15 * 60)
             print(f'In progress games: {self.active}')
-            # print(json.dumps(data,indent=1))
+            print(json.dumps(data,indent=1)) # uncomment for local testing
             # print(f'{type(self).__name__} updated.')
             # print('write data...')
-            self.dba.write(data)
+            # self.dba.write(data)  # comment out for local testing
             # print('data written?')
             # write data to the database
 
