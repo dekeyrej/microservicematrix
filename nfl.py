@@ -63,10 +63,10 @@ class NFLServer(ServerPage):
 
             if self.update_period != 59: self.update_period = min((next_start - now).seconds, 15 * 60)
             print(f'In progress games: {self.active}')
-            print(json.dumps(data,indent=1)) # uncomment for local testing
+            # print(json.dumps(data,indent=1)) # uncomment for local testing
             # print(f'{type(self).__name__} updated.')
             # print('write data...')
-            # self.dba.write(data)  # comment out for local testing
+            self.dba.write(data)  # comment out for local testing
             # print('data written?')
             # write data to the database
 
