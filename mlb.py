@@ -128,13 +128,17 @@ class MLBServer(ServerPage):
         if status == 'post':
             values['awayScore']    = competition['competitors'][1]['score']
             values['homeScore']    = competition['competitors'][0]['score']
+            values['awayHits']     = competition['competitors'][1]['hits']
+            values['homeHits']     = competition['competitors'][0]['hits']
+            values['awayErrors']   = competition['competitors'][1]['errors']
+            values['homeErrors']   = competition['competitors'][0]['errors']
         elif status == 'in':
             values['awayScore']    = competition['competitors'][1]['score']
             values['homeScore']    = competition['competitors'][0]['score']
-            values['awayHits']    = competition['competitors'][1]['hits']
-            values['homeHits']    = competition['competitors'][0]['hits']
-            values['awayErrors']    = competition['competitors'][1]['errors']
-            values['homeErrors']    = competition['competitors'][0]['errors']
+            values['awayHits']     = competition['competitors'][1]['hits']
+            values['homeHits']     = competition['competitors'][0]['hits']
+            values['awayErrors']   = competition['competitors'][1]['errors']
+            values['homeErrors']   = competition['competitors'][0]['errors']
             values['inning']       = competition['status']['period']
             values['inningState']  = competition['status']['type']['shortDetail'][0:3]
             if values['inningState'] in ['Top', 'Bot']:
