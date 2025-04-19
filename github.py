@@ -2,18 +2,17 @@
 import json
 import arrow
 
-from pages.serverpage import ServerPage
+from plain_pages.serverpage import ServerPage
 
 class GithubServer(ServerPage):
     """ Subclass of serverpage for reading Jenkins Build Status events """
-    def __init__(self, prod, period, path: str=None):
-        super().__init__(prod, period, path)
+    def __init__(self, prod, period):
+        super().__init__(prod, period)
         self.type = 'GitHub'
         owner = self.secrets['github_owner']
         repo = self.secrets['github_repo']
         workflow_id = 'build_apps.yaml'
         my_token = self.secrets['github_api_key']
-        self.clear_secrets()
         self.curl = f'https://api.github.com/repos/{owner}/{repo}/commits'
         self.lscurl = f'https://api.github.com/repos/{owner}/{repo}/actions/workflows/{workflow_id}/runs'
         self.headers = {'Authorization': f'token {my_token}',
@@ -68,4 +67,4 @@ if __name__ == '__main__':
     if PROD == '1':
         GithubServer(True, 599).run()
     else:
-        GithubServer(False, 599, SECRETS_PATH).run()
+        GithubServer(False, 599).run()

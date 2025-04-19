@@ -10,7 +10,7 @@ class LandL():
         owner = 'dekeyrej'
         repo = 'microservicematrix'
         workflow = 'build_apps.yaml'
-        token = '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'
+        token = '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'
         self.commits_url = f'https://api.github.com/repos/{owner}/{repo}/commits'
         self.workflow_url = f'https://api.github.com/repos/{owner}/{repo}/actions/workflows/{workflow}/runs'
         self.headers = {'Authorization': f'token {token}',
