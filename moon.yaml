@@ -29,5 +29,10 @@ spec:
             periodSeconds: 30
           securityContext:
             privileged: false
+          envFrom:
+            - configMapRef:
+                name: common-config
+            - configMapRef:
+                name: app-config
       imagePullSecrets:
         - name: ghcr-login-secret

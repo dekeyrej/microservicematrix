@@ -5,14 +5,14 @@
 
 import json
 import arrow
-from pages.serverpage import ServerPage
+from plain_pages.serverpage import ServerPage
 
 class NFLServer(ServerPage):
     """ ... """
-    def __init__(self, prod, period, path: str=None):
+    def __init__(self, prod, period):
         """ ... """
-        super().__init__(prod, period, path)
-        self.clear_secrets()
+        super().__init__(prod, period)
+        # self.clear_secrets()
         self.type = 'NFL'
         self.url = 'http://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard'
         self.active = 0
@@ -20,7 +20,7 @@ class NFLServer(ServerPage):
 
     def update(self):
         """ ... """
-        now = arrow.now().to('US/Eastern')
+        now = arrow.now().to(self.secrets['timezone'])
         try:
             resp = self.fetch(self.url,'Fetching NFL games',now.format('MM/DD/YYYY hh:mm A ZZZ'))
         except json.decoder.JSONDecodeError:
@@ -50,7 +50,7 @@ class NFLServer(ServerPage):
             # pre_games = in_games = post_games = 0
             for game in games:
                 data['values']['events'].append(self.read_event(game))
-                start_time = arrow.get(game['date']).to('US/Eastern')
+                start_time = arrow.get(game['date']).to(self.secrets['timezone'])
                 status = game['competitions'][0]['status']['type']['state']
                 if status == 'in' or (status == 'pre' and start_time < now):  ### now have to account for postponed :-/
                     # if self.output: print(f'   in active {id}')
@@ -74,7 +74,7 @@ class NFLServer(ServerPage):
         """ ... """
         game = {}
         # game['id']    = event['id']
-        game['date']  = arrow.get(event['date']).to('US/Eastern').format('ddd h:mm A')
+        game['date']  = arrow.get(event['date']).to(self.secrets['timezone']).format('ddd h:mm A')
         game['fulldate']  = event['date']
         game['week']  = event['week']['number']
         game['state'] = event['competitions'][0]['status']['type']['state']   # 'pre', 'in', 'post'
@@ -154,6 +154,6 @@ if __name__ == '__main__':
         SECRETS_PATH = 'secrets.json'
 
     if PROD == '0':
-        NFLServer(False, 59, SECRETS_PATH).run()
+        NFLServer(False, 59).run()
     else:
         NFLServer(True, 59).run()

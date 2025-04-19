@@ -6,20 +6,20 @@ from typing import Mapping
 import arrow
 # import json
 
-from pages.serverpage import ServerPage
+from plain_pages.serverpage import ServerPage
 
 class MLBServer(ServerPage):
     """ ... """
-    def __init__(self, prod, period, path: str=None):
+    def __init__(self, prod, period):
         """ ... """
-        super().__init__(prod, period, path)
-        self.clear_secrets()
+        super().__init__(prod, period)
+        # self.clear_secrets()
         self.type = 'MLB'
         self.url = 'http://site.api.espn.com/apis/site/v2/sports/baseball/mlb/scoreboard'
 
     def update(self):
         """ ... """
-        tnow = arrow.now().to('US/Eastern')
+        tnow = arrow.now().to(self.secrets['timezone'])
         resp = self.fetch(self.url,'Fetching MLB games',tnow.format('MM/DD/YYYY hh:mm A ZZZ'))
         if resp is not None:
             games = resp['events']
@@ -80,7 +80,7 @@ class MLBServer(ServerPage):
         values = {}
         # next_start_time = tnow.replace(hour=23,minute=59,second=59)
         values['id']         = game['id']
-        start_time = arrow.get(game['date'],'YYYY-MM-DD[T]HH:mmZ').to('US/Eastern')
+        start_time = arrow.get(game['date'],'YYYY-MM-DD[T]HH:mmZ').to(self.secrets['timezone'])
         # if start_time < next_start_time and start_time >= tnow:
         # if tnow <= start_time < next_start_time:
         #     next_start_time = start_time
@@ -181,4 +181,4 @@ if __name__ == '__main__':
     if PROD == '1':
         MLBServer(True, 29).run()
     else:
-        MLBServer(False, 29, SECRETS_PATH).run()
+        MLBServer(False, 29).run()

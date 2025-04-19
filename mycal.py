@@ -2,25 +2,25 @@
 # import json
 import arrow
 
-from pages.serverpage import ServerPage
+from plain_pages.serverpage import ServerPage
 
 
 class CalendarServer(ServerPage):
     """ Subclass of serverpage for reading calendar events """
-    def __init__(self, prod, period, path: str=None):
-        super().__init__(prod, period, path)
+    def __init__(self, prod, period):
+        super().__init__(prod, period)
         self.type = 'Calendar'
 #       calendar has to be public :-/
         self._base_calendar_url = f'https://www.googleapis.com/calendar/v3/calendars/' \
-            f'{self.secrets["google_calendar"]}/events?key={self.secrets["google_api_key"]}' \
+            f'{self.secrets["google_calendar_id"]}/events?key={self.secrets["google_api_key"]}' \
             f'&orderBy=starttime&singleEvents=true'
-        self.clear_secrets()
+        # self.clear_secrets()
         self._url = None
 
     def update(self):
         """ called by ServerPage.check() """
 #         t = datetime.datetime(2022,10,6,14,0,0)  ## jammed date/time for testing
-        tnow = arrow.now().to('US/Eastern')
+        tnow = arrow.now().to(self.secrets['timezone'])
         time_min = tnow.replace(hour=6, minute=0, second=0).format("YYYY-MM-DDTHH:mm:ssZZ")
         time_max = tnow.replace(hour=20, minute=0, second=0).format("YYYY-MM-DDTHH:mm:ssZZ")
         self._url = self._base_calendar_url + f"&timeMin={time_min}&timeMax={time_max}"
@@ -40,9 +40,9 @@ class CalendarServer(ServerPage):
 
 if __name__ == '__main__':
     import os
-    import dotenv
+    from dotenv import load_dotenv
 
-    dotenv.load_dotenv()
+    load_dotenv()
 
     try:
         PROD = os.environ["PROD"]
@@ -53,4 +53,4 @@ if __name__ == '__main__':
     if PROD == '1':
         CalendarServer(True, 877).run()
     else:
-        CalendarServer(False, 877, SECRETS_PATH).run()
+        CalendarServer(False, 877).run()

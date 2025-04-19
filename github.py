@@ -22,7 +22,7 @@ class GithubServer(ServerPage):
         """ called by ServerPage.check() """
         in_format = 'YYYY-MM-DD[T]HH:mm:ssZ'
         out_format = 'YYYY-MM-DD hh:mm:ss A ZZZ'
-        tnow = arrow.now().to('US/Eastern')
+        tnow = arrow.now().to(self.secrets['timezone'])
         cresp = self.fetch(self.curl,'Fetching GitHub Commits',\
                           tnow.format('MM/DD/YYYY hh:mm A ZZZ'),\
                           headers=self.headers)
@@ -32,15 +32,15 @@ class GithubServer(ServerPage):
         if cresp and lscresp:
             data = {}
             data['type']   = 'GitHub'
-            data['updated'] = tnow.to('US/Eastern').format('MM/DD/YYYY h:mm A ZZZ')
-            data['valid'] = tnow.to('US/Eastern').shift(seconds=+self.update_period).\
+            data['updated'] = tnow.to(self.secrets['timezone']).format('MM/DD/YYYY h:mm A ZZZ')
+            data['valid'] = tnow.to(self.secrets['timezone']).shift(seconds=+self.update_period).\
                 format('MM/DD/YYYY h:mm:ss A ZZZ')
             data['values'] = {}
             data['values']['latest_commit'] = cresp[0]['sha'][0:7]
             data['values']['last_successful_commit'] = self.find_last_successful_commit(lscresp)
             data['values']['commit_message'] = cresp[0]['commit']['message']
             commit_date = arrow.get(cresp[0]['commit']['author']['date'],in_format)
-            data['values']['date'] = commit_date.to('US/Eastern').format(out_format)
+            data['values']['date'] = commit_date.to(self.secrets['timezone']).format(out_format)
 
             print(json.dumps(data,indent=2))
             self.dba.write(data)

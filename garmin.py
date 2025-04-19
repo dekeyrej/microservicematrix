@@ -2,22 +2,22 @@
 import xml.etree.ElementTree as ET
 import arrow
 
-from pages.serverpage import ServerPage
+from plain_pages.serverpage import ServerPage
 
 class GarminServer(ServerPage):
     """ ... """
-    def __init__(self, prod, period, path: str=None):
-        super().__init__(prod, period, path)
+    def __init__(self, prod, period):
+        super().__init__(prod, period)
         self.type = 'Track'
         self.url = self.secrets['garmin_url']
-        self.clear_secrets()
+        # self.clear_secrets()
         self.last_track = self.lastest_track()
         self.dirs = ['N','NNE','NE','ENE','E','ESE','SE','SSE','S','SSW',
                      'SW','WSW','W','WNW','NW','NNW']
 
     def update(self):
         """ ... """
-        tnow = arrow.now().to('US/Eastern')
+        tnow = arrow.now().to(self.secrets['timezone'])
         resp = self.fetch_raw(self.url,"Fetching Ryan's Track",
                               tnow.format('MM/DD/YYYY hh:mm A ZZZ'))
         if resp is not None:
@@ -99,4 +99,4 @@ if __name__ == '__main__':
     if PROD == '1':
         GarminServer(True, 601).run()
     else:
-        GarminServer(False, 601, SECRETS_PATH).run()
+        GarminServer(False, 601).run()

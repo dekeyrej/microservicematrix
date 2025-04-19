@@ -3,7 +3,7 @@ import json
 
 import arrow
 
-from pages.serverpage import ServerPage
+from plain_pages.serverpage import ServerPage
 
 """
 From https://www.airnow.gov/sites/default/files/2020-05/aqi-technical-assistance-document-sept2018.pdf
@@ -32,17 +32,17 @@ aqidata = {
 
 class AQIServer(ServerPage):
     """ ... """
-    def __init__(self, prod: bool, period: int, path: str=None):
-        super().__init__(prod, period, path)
+    def __init__(self, prod: bool, period: int):
+        super().__init__(prod, period)
         self.type = 'AQI'
         self.url = f'https://api.openweathermap.org/data/2.5/air_pollution?appid=' \
                    f'{self.secrets["owmkey"]}&lat={self.secrets["latitude"]}&' \
                    f'lon={self.secrets["longitude"]}'
-        self.clear_secrets()
+        # self.clear_secrets()
 
     def update(self):
         """ ... """
-        tnow = arrow.now().to('US/Eastern')
+        tnow = arrow.now().to(self.secrets['timezone'])
         jstuff = self.fetch(self.url, 'Fetching Air Pollution', self.now_str(tnow, True))
         if jstuff is not None:
             utc_measurement_time = arrow.get(str(jstuff['list'][0]['dt']), 'X')
@@ -65,7 +65,7 @@ class AQIServer(ServerPage):
                 'updated': self.now_str(tnow, False),
                 'valid': self.now_str(tnow.shift(seconds=self.update_period), True),
                 'values': {
-                    'date_time': utc_measurement_time.to('US/Eastern').format('MM/DD/YYYY h:mm A ZZZ'),
+                    'date_time': utc_measurement_time.to(self.secrets['timezone']).format('MM/DD/YYYY h:mm A ZZZ'),
                     'aqi_score': max_score,
                     'aqi_adjective': aqidata["aqi"]["adjectives"][max_row],
                     'color': aqidata["aqi"]["colors"][max_row],
@@ -133,4 +133,4 @@ if __name__ == '__main__':
     if PROD == '1':
         AQIServer(True, 919).run()
     else:
-        AQIServer(False, 919, SECRETS_PATH).run()
+        AQIServer(False, 919).run()

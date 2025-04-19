@@ -4,18 +4,18 @@ from typing import Mapping
 import arrow
 import json
 
-from pages.serverpage import ServerPage
+from plain_pages.serverpage import ServerPage
 # from secretsecrets import encsecrets
 
 class MoonServer(ServerPage):
     """ subclass of ServerPage to fetch sun and moon data """
-    def __init__(self, prod, period, path: str=None):
-        super().__init__(prod, period, path)
+    def __init__(self, prod, period):
+        super().__init__(prod, period)
         self.headers = {'User-Agent': 'moon.py joedekeyrel@gmail.com'}
         self.type = 'Moon'
         self.loc_str = f'lat={self.secrets["latitude"]}&lon={self.secrets["longitude"]}'
         self.timezone = self.secrets['timezone'] # not currently used
-        self.clear_secrets()
+        # self.clear_secrets()
         self.twelve_hour = True
 
     def update(self):
@@ -24,7 +24,7 @@ class MoonServer(ServerPage):
         as of 9/1/2023, Norwegian Met updated its API to version 3.0
         """
         updtp = self.update_period
-        tnow = arrow.now().to('US/Eastern')
+        tnow = arrow.now().to(self.secrets['timezone'])
         today, tomorrow, tstmp = self.url_date_str()
         urls = []
         urls.append('https://api.met.no/weatherapi/sunrise/3.0/sun?' + self.loc_str + today)
@@ -164,4 +164,4 @@ if __name__ == '__main__':
     if PROD == '1':
         MoonServer(True, 3607).run()
     else:
-        MoonServer(False, 3607, SECRETS_PATH).run()
+        MoonServer(False, 3607).run()

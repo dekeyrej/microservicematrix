@@ -1,27 +1,27 @@
 """ ... """
 # import json
 from typing import Union
-from pages.serverpage import ServerPage
+from plain_pages.serverpage import ServerPage
 import arrow
 
 number = Union[float, int]
 
 class OWMServer(ServerPage):
     """ ... """
-    def __init__(self, prod, period, path: str=None):
-        super().__init__(prod, period, path)
+    def __init__(self, prod, period):
+        super().__init__(prod, period)
         self.type = 'Weather'
         self.url = f'https://api.openweathermap.org/data/3.0/onecall?appid=' \
                    f'{self.secrets["owmkey"]}&lat={self.secrets["latitude"]}&' \
                    f'lon={self.secrets["longitude"]}' \
                    f'&exclude=minutely,alerts&units=imperial&lang=en'
         print(self.url)
-        self.clear_secrets()
+        # self.clear_secrets()
         self.dirs = ['N','NNE','NE','ENE','E','ESE','SE','SSE',
                      'S','SSW','SW','WSW','W','WNW','NW','NNW']
 
     def update(self):
-        tnow = arrow.now().to('US/Eastern')
+        tnow = arrow.now().to(self.secrets['timezone'])
         jstuff = self.fetch(self.url, 'Fetching Weather', self.now_str(tnow, True))
         if jstuff is not None:
             data = {
@@ -96,4 +96,4 @@ if __name__ == '__main__':
     if PROD == '1':
         OWMServer(True, 907).run()
     else:
-        OWMServer(False, 907, SECRETS_PATH).run()
+        OWMServer(False, 907).run()
