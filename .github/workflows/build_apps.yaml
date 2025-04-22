@@ -25,6 +25,7 @@ jobs:
       - name: Determine modified files
         id: determine-apps
         run: |
+          export GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }}
           python utilities/latest_and_last_successful.py
           modified_files=$(git diff-tree --no-commit-id --name-only -r ${{ steps.determine-apps.outputs.latest_sha }} ${{ steps.determine-apps.outputs.last_successful_sha }})
           echo "Modified files: $modified_files"
