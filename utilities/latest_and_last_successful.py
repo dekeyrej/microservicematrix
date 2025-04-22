@@ -21,7 +21,7 @@ class LandL():
     def update_github(self):
         latest_sha, last_commit = self.get_latest_commit()
         last_successful_sha, last_success = self.get_last_successful_commit()
-        print(f'Latest commit: {latest_sha} @ {last_commit}. Last successful commit: {last_successful_sha} @ {last_success}')
+        # print(f'Latest commit: {latest_sha} @ {last_commit}. Last successful commit: {last_successful_sha} @ {last_success}')
         return last_successful_sha, latest_sha
 
     def fetch(self, url, headers): 
@@ -53,7 +53,7 @@ class LandL():
         # print(f'return code: {result.returncode}')
         if result.returncode == 0:
             files = result.stdout.decode('utf-8').split('\n')
-            print(f'Files changed since {successful_sha}: {files}')
+            # print(f'Files changed since {successful_sha}: {files}')
         else:
             files = []
         return files
@@ -63,7 +63,7 @@ class LandL():
         for f in files:
             try:
                 if build_data.reverse_dependencies[f] == 'all':
-                    print('Build all!')
+                    # print('Build all!')
                     build_list = build_data.services
                     break
                 build_list.append(build_data.reverse_dependencies[f])
@@ -79,10 +79,10 @@ class LandL():
         # print(bl)
 
         builds = {}
-        builds = {'include': [{"app": a} for a in bl]}
+        builds = {'include': [{'app': a} for a in bl]}
         # for a in bl:
         #     builds['include'].append({"app": a})
-        print(json.dumps(builds))
+        # print(json.dumps(builds))
         return bl
         # with open('builds.json', 'wt', encoding='utf-8') as file:
         #     file.write(json.dumps(builds))
@@ -95,4 +95,4 @@ if __name__ == '__main__':
     builds = ll.get_builds(filelist)
 
     # Output the builds as a GitHub Actions output variable
-    print(f"::set-output name=apps::{json.dumps(builds)}")
+    print(f'"MY_APPS={builds}"')
