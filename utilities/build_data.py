@@ -1,10 +1,9 @@
-""" data structures to implement an efficient build mechanish """
+""" data structures to implement an efficient build mechanism """
 services = ['aqi', 'events', 'garmin', 'github', 'jenkins', 'mlb',
             'moon', 'mycal', 'nfl', 'weather']
 
 reverse_dependencies = {
     "aqi.py": "aqi",
-    "requirements-pandas.txt": "aqi",
     "events.py": "events",
     "garmin.py": "garmin",
     "github.py": "github",

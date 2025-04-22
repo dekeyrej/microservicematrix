@@ -1,24 +1,24 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: jenkins
+  name: github
   namespace: default
   labels:
-    k8s-app: jenkins
+    k8s-app: github
 spec:
-  replicas: 1
+  replicas: 0
   selector:
     matchLabels:
-      k8s-app: jenkins
+      k8s-app: github
   template:
     metadata:
-      name: jenkins
+      name: github
       labels:
-        k8s-app: jenkins
+        k8s-app: github
     spec:
       containers:
-        - name: jenkins
-          image: ghcr.io/dekeyrej/jenkins:latest
+        - name: github
+          image: ghcr.io/dekeyrej/github:latest
           imagePullPolicy: Always
           ports:
           - containerPort: 10255
@@ -29,5 +29,12 @@ spec:
             periodSeconds: 30
           securityContext:
             privileged: false
+          envFrom:
+            - configMapRef:
+                name: common-config
+            - configMapRef:
+                name: app-config
+            - secretRef:
+                name: matrix-secret-environment
       imagePullSecrets:
         - name: ghcr-login-secret

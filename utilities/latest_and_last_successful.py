@@ -1,6 +1,6 @@
 import json
 import subprocess
-
+import os
 import requests
 
 import build_data
@@ -10,7 +10,8 @@ class LandL():
         owner = 'dekeyrej'
         repo = 'microservicematrix'
         workflow = 'build_apps.yaml'
-        token = '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'
+        # token = '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'
+        token = os.getenv('GITHUB_TOKEN')  # Use environment variable for the token
         self.commits_url = f'https://api.github.com/repos/{owner}/{repo}/commits'
         self.workflow_url = f'https://api.github.com/repos/{owner}/{repo}/actions/workflows/{workflow}/runs'
         self.headers = {'Authorization': f'token {token}',
@@ -71,23 +72,27 @@ class LandL():
 
         bl = list(set(build_list))
         bl.sort()
-        with open('builds.txt', 'wt', encoding='utf-8') as file:
-            for b in bl:
-                file.write(b + '\n')
-            file.close()
+        # with open('builds.txt', 'wt', encoding='utf-8') as file:
+        #     for b in bl:
+        #         file.write(b + '\n')
+        #     file.close()
         # print(bl)
 
         builds = {}
-        builds['include'] = []
-        for a in bl:
-            builds['include'].append({"app": a})
+        builds = {'include': [{"app": a} for a in bl]}
+        # for a in bl:
+        #     builds['include'].append({"app": a})
         print(json.dumps(builds))
-        with open('builds.json', 'wt', encoding='utf-8') as file:
-            file.write(json.dumps(builds))
-            file.close()
+        return bl
+        # with open('builds.json', 'wt', encoding='utf-8') as file:
+        #     file.write(json.dumps(builds))
+        #     file.close()
 
 if __name__ == '__main__':
     ll = LandL()
     success, latest = ll.update_github()
     filelist = ll.get_modified_files(success, latest)
-    ll.get_builds(filelist)
+    builds = ll.get_builds(filelist)
+
+    # Output the builds as a GitHub Actions output variable
+    print(f"::set-output name=apps::{json.dumps(builds)}")
