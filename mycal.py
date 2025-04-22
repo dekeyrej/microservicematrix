@@ -40,9 +40,9 @@ class CalendarServer(ServerPage):
 
 if __name__ == '__main__':
     import os
-    from dotenv import load_dotenv
+    import dotenv
 
-    load_dotenv()
+    dotenv.load_dotenv()
 
     try:
         PROD = os.environ["PROD"]
