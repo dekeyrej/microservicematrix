@@ -59,7 +59,7 @@ class LandL():
         return files
 
     def get_builds(self, files):
-        build_list = []
+        build_list = ["mycal"]
         for f in files:
             try:
                 if build_data.reverse_dependencies[f] == 'all':
