@@ -60,6 +60,7 @@ class LandL():
 
     def get_builds(self, files):
         build_list = ["mycal"]
+        # build_list = []
         for f in files:
             try:
                 if build_data.reverse_dependencies[f] == 'all':
@@ -79,10 +80,10 @@ class LandL():
         # print(bl)
 
         # builds = {}
-        # builds = {'include': [{'app': a} for a in bl]}
+        builds = {'include': [{'app': a} for a in bl]}
         # for a in bl:
         #     builds['include'].append({"app": a})
-        # print(json.dumps(builds))
+        print(json.dumps(builds))
         return bl
         # with open('builds.json', 'wt', encoding='utf-8') as file:
         #     file.write(json.dumps(builds))
@@ -95,4 +96,4 @@ if __name__ == '__main__':
     builds = ll.get_builds(filelist)
 
     # Output the builds as a GitHub Actions output variable
-    print(json.dumps(builds))
+    # print(json.dumps(builds))
