@@ -95,4 +95,4 @@ if __name__ == '__main__':
     builds = ll.get_builds(filelist)
 
     # Output the builds as a GitHub Actions output variable
-    print(f'{json.dumps(builds)}')
+    print(json.dumps(builds))

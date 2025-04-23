@@ -26,19 +26,20 @@ jobs:
         id: determine-apps
         run: |
           export GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }}
-          echo "MY_APPS="$(python utilities/latest_and_last_successful.py) >> $GITHUB_OUTPUT
+          apps=$(python utilities/latest_and_last_successful.py)
+          echo "apps=$apps" >> $GITHUB_ENV
 
       - name: show apps to build
         id: show-apps
         run: | 
-          echo "Apps to build: $MY_APPS"
+          echo "Apps to build: $apps"
 
   build-and-push:
     needs: determine-modified-files
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        app: $MY_APPS
+        app: ${{ fromJson(needs.determine-modified-files.outputs.apps) }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
