@@ -34,7 +34,7 @@ jobs:
       - name: show apps to build
         id: show-apps
         run: | 
-          if [ ${{ steps.determine-apps.outputs.apps }} == '[]' ]; then
+          if [ "${{ steps.determine-apps.outputs.apps }}" == "[]" ]; then
             echo "No apps to build"
             echo "do_work=false" >> $GITHUB_OUTPUT
           else
