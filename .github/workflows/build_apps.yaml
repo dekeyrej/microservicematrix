@@ -28,7 +28,7 @@ jobs:
           export GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }}
           apps=$(python utilities/latest_and_last_successful.py)
           echo "Apps to build: $apps"
-          echo "::set-output name=apps::$apps"
+          echo "apps::$apps" >> $GITHUB_OUTPUT
 
       - name: show apps to build
         id: show-apps
@@ -39,7 +39,8 @@ jobs:
     needs: determine-modified-files
     runs-on: ubuntu-latest
     strategy:
-      matrix: ${{fromJson(needs.determine-apps.outputs.apps)}}
+      matrix:
+        app: ${{ fromJson(needs.determine-apps.outputs.apps) }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
