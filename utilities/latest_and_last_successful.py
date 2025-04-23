@@ -10,7 +10,6 @@ class LandL():
         owner = 'dekeyrej'
         repo = 'microservicematrix'
         workflow = 'build_apps.yaml'
-        # token = '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'
         token = os.getenv('GITHUB_TOKEN')  # Use environment variable for the token
         self.commits_url = f'https://api.github.com/repos/{owner}/{repo}/commits'
         self.workflow_url = f'https://api.github.com/repos/{owner}/{repo}/actions/workflows/{workflow}/runs'
@@ -59,8 +58,8 @@ class LandL():
         return files
 
     def get_builds(self, files):
-        build_list = ["mycal"]
-        # build_list = []
+        # build_list = ["mycal"]
+        build_list = []
         for f in files:
             try:
                 if build_data.reverse_dependencies[f] == 'all':
