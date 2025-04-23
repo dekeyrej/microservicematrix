@@ -40,7 +40,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        app: ${{ fromJson(needs.determine-apps.outputs.apps) }}
+        app: ${{ fromJson(needs.determine-modified-files.outputs.apps) }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -64,7 +64,7 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: .
-          # platforms: linux/amd64,linux/arm64
+          platforms: linux/amd64,linux/arm64
           push: true
           build-args: MICROSERVICE=${{ matrix.app }}
           tags: ghcr.io/dekeyrej/${{ matrix.app }}:latest
