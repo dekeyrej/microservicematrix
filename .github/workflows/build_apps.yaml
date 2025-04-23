@@ -28,7 +28,7 @@ jobs:
           export GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }}
           apps=$(python utilities/latest_and_last_successful.py)
           echo "Apps to build: $apps"
-          echo "apps::$apps" >> $GITHUB_OUTPUT
+          echo "apps=$apps" >> $GITHUB_OUTPUT
 
       - name: show apps to build
         id: show-apps
