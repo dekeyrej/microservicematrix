@@ -10,6 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       apps: ${{ steps.determine-apps.outputs.apps }}
+      do_work: ${{ steps.show-apps.outputs.do_work }} 
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -33,7 +34,13 @@ jobs:
       - name: show apps to build
         id: show-apps
         run: | 
-          echo "Apps to build: ${{ steps.determine-apps.outputs.apps }}"
+          if [ ${{ steps.determine-apps.outputs.apps }} == '[]' ]; then
+            echo "No apps to build"
+            echo "do_work=false" >> $GITHUB_OUTPUT
+          else
+            echo "Apps to build: ${{ steps.determine-apps.outputs.apps }}"
+            echo "do_work=true" >> $GITHUB_OUTPUT
+          fi
 
   build-and-push:
     needs: determine-modified-files
@@ -41,6 +48,7 @@ jobs:
     strategy:
       matrix:
         app: ${{ fromJson(needs.determine-modified-files.outputs.apps) }}
+    if: ${{ needs.determine-modified-files.outputs.do_work == 'true' }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
