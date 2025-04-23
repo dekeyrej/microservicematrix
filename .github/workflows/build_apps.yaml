@@ -26,7 +26,7 @@ jobs:
         id: determine-apps
         run: |
           export GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }}
-          apps = $(python utilities/latest_and_last_successful.py)
+          apps=$(python utilities/latest_and_last_successful.py)
           echo "Apps to build: $apps"
 
       - name: show apps to build
