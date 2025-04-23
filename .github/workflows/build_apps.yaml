@@ -9,7 +9,7 @@ jobs:
   determine-modified-files:
     runs-on: ubuntu-latest
     outputs:
-      apps: ${{ env.apps_to_build }}
+      apps: ${{ steps.determine-apps.outputs.apps }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
