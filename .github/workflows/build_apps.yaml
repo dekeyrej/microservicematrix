@@ -28,11 +28,12 @@ jobs:
           export GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }}
           apps=$(python utilities/latest_and_last_successful.py)
           echo "Apps to build: $apps"
+          echo "::set-output name=apps::$apps"
 
       - name: show apps to build
         id: show-apps
         run: | 
-          echo "Apps to build: $apps"
+          echo "Apps to build: ${{ steps.determine-apps.outputs.apps }}"
 
   build-and-push:
     needs: determine-modified-files
@@ -62,6 +63,7 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: .
+          # platforms: linux/amd64,linux/arm64
           push: true
           build-args: MICROSERVICE=${{ matrix.app }}
           tags: ghcr.io/dekeyrej/${{ matrix.app }}:latest
