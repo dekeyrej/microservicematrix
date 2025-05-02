@@ -1,22 +1,20 @@
-""" reads events.txt and loads it into the database """
+""" reads events.json and loads it into the database """
+# from pprint import pprint
+import json
 import arrow
-from pages.serverpage import ServerPage
+from plain_pages.serverpage import ServerPage
 
 class NextEvent(ServerPage):
     """ ... """
-    def __init__(self, prod, period, path: str=None):
-        super().__init__(prod, period, path)
-        self.clear_secrets()
+    def __init__(self, prod, period):
+        super().__init__(prod, period)
         self.type = 'Events'
-        self.events_file_name = "events.txt"
 
     def update(self):
         tnow = arrow.now().to('US/Eastern')
-        if self.prod:
-            values = self.ks.read_secret("default", "matrix-events",
-                                                 "events", data_is_json=True)
-        else:
-            values = self.read_json_from_file(self.events_file_name)
+        with open('events.json', 'r') as f:
+            values = json.load(f)
+        # pprint(values, width=120)
 
         data = {
             'type'   : 'Events',
@@ -32,15 +30,13 @@ if __name__ == '__main__':
     import os
     import dotenv
 
-    dotenv.load_dotenv()
-
     try:
         PROD = os.environ["PROD"]
-        SECRETS_PATH = os.environ["SECRETS_PATH"]
     except KeyError:
         pass
 
     if PROD == '1':
         NextEvent(True, 3593).run()
     else:
-        NextEvent(False, 3593, SECRETS_PATH).run()
+        dotenv.load_dotenv()
+        NextEvent(False, 3593).run()

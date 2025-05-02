@@ -27,7 +27,16 @@ spec:
               port: 10255
             initialDelaySeconds: 15
             periodSeconds: 30
+          volumeMounts:
+          - mountPath: /code/events.json
+            name: events
+            subPath: events.json
           securityContext:
             privileged: false
+      volumeMounts:
+      - configMap:
+          name: matrix-events
+          items:
+            - key: events.json
       imagePullSecrets:
         - name: ghcr-login-secret
