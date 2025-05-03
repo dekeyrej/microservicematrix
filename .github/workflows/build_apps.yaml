@@ -48,7 +48,7 @@ jobs:
     strategy:
       matrix:
         app: ${{ fromJson(needs.determine-modified-files.outputs.apps) }}
-    if: ${{ needs.determine-modified-files.outputs.do_work == 'true' }}
+    # if: ${{ needs.determine-modified-files.outputs.do_work == 'true' }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v3

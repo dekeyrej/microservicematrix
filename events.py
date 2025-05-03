@@ -1,5 +1,4 @@
 """ reads events.json and loads it into the database """
-# from pprint import pprint
 import json
 import arrow
 from plain_pages.serverpage import ServerPage
@@ -14,7 +13,6 @@ class NextEvent(ServerPage):
         tnow = arrow.now().to('US/Eastern')
         with open('events.json', 'r') as f:
             values = json.load(f)
-        # pprint(values, width=120)
 
         data = {
             'type'   : 'Events',
