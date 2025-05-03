@@ -55,6 +55,7 @@ class LandL():
             files = result.stdout.decode('utf-8').split('\n')
             print(f'Files changed since {successful_sha}: {files}')
         else:
+            print(result.stdout.decode('utf-8').split('\n'))
             files = []
         return files
 
