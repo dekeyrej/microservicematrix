@@ -1,9 +1,9 @@
 name: Selective Build and Push
 
-on:
-  push:
-    branches:
-      - main
+on: workflow_dispatch
+  # push:
+  #   branches:
+  #     - main
 
 jobs:
   determine-modified-files:

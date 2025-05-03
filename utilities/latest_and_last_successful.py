@@ -20,7 +20,7 @@ class LandL():
     def update_github(self):
         latest_sha, last_commit = self.get_latest_commit()
         last_successful_sha, last_success = self.get_last_successful_commit()
-        print(f'Latest commit: {latest_sha} @ {last_commit}. Last successful commit: {last_successful_sha} @ {last_success}')
+        # print(f'Latest commit: {latest_sha} @ {last_commit}. Last successful commit: {last_successful_sha} @ {last_success}')
         return last_successful_sha, latest_sha
 
     def fetch(self, url, headers): 
@@ -50,12 +50,12 @@ class LandL():
     def get_modified_files(self, successful_sha, latest_sha):
         cmd = f'git diff-tree {successful_sha} {latest_sha} --no-commit-id --name-only'
         result = subprocess.run(cmd, shell=True, capture_output=True)
-        print(f'return code: {result.returncode}')
+        # print(f'return code: {result.returncode}')
         if result.returncode == 0:
             files = result.stdout.decode('utf-8').split('\n')
-            print(f'Files changed since {successful_sha}: {files}')
+            # print(f'Files changed since {successful_sha}: {files}')
         else:
-            print(result.stdout.decode('utf-8').split('\n'))
+            # print(result.stdout.decode('utf-8').split('\n'))
             files = []
         return files
 
@@ -97,5 +97,5 @@ if __name__ == '__main__':
     builds = ll.get_builds(filelist)
 
     # Output the builds as a GitHub Actions output variable
-    print(builds)
-    # print(json.dumps(builds))
+    # print(builds)
+    print(json.dumps(builds))
