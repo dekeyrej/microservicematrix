@@ -79,7 +79,7 @@ class LandL():
         # print(bl)
 
         # builds = {}
-        builds = {'include': [{'app': a} for a in bl]}
+        # builds = {'include': [{'app': a} for a in bl]}
         # for a in bl:
         #     builds['include'].append({"app": a})
         # print(json.dumps(builds))
