@@ -20,6 +20,13 @@ spec:
         - name: github
           image: ghcr.io/dekeyrej/github:latest
           imagePullPolicy: Always
+          resources:
+            requests:
+              cpu: 10m
+              memory: 128Mi
+            limits:
+              cpu: 100m
+              memory: 256Mi
           ports:
           - containerPort: 10255
           livenessProbe:

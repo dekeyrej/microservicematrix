@@ -20,6 +20,13 @@ spec:
         - name: events
           image: ghcr.io/dekeyrej/events:latest
           imagePullPolicy: Always
+          resources:
+            requests:
+              cpu: 10m
+              memory: 128Mi
+            limits:
+              cpu: 100m
+              memory: 256Mi
           ports:
           - containerPort: 10255
           livenessProbe:
@@ -33,10 +40,12 @@ spec:
             subPath: events.json
           securityContext:
             privileged: false
-      volumeMounts:
-      - configMap:
+          envFrom:
+            - configMapRef:
+                name: common-config
+      volumes:
+      - name: events
+        configMap:
           name: matrix-events
-          items:
-            - key: events.json
       imagePullSecrets:
         - name: ghcr-login-secret

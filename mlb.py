@@ -75,7 +75,7 @@ class MLBServer(ServerPage):
             print(f'{type(self).__name__} updated.')
             self.dba.write(data)
 
-    def load_game(self, game: Mapping) -> (Mapping, str):
+    def load_game(self, game: dict) -> tuple[dict, str]:
         """ ... """
         values = {}
         # next_start_time = tnow.replace(hour=23,minute=59,second=59)
