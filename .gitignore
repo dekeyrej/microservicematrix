@@ -1,11 +1,10 @@
 __pycache__/
-Do_Not_Copy/
-.venv/
-.lenv/
-events.txt
 .env
-secrets.json
-secrets.json.test
-secrets.dev.json
 builds.txt
 retired
+bin
+lib
+lib64
+include
+pyvenv.cfg
+acthere
