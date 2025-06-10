@@ -1,0 +1,21 @@
+{
+    "PROD": 0, 
+    "timezone": "America/New_York",
+    "db_host": "192.168.86.49",
+    "db_port": "5432",
+    "dbpass": "yourdbpassword",
+    "dbuser": "yourdbuser",
+    "dbname": "matrix",
+    "dbtable": "feed",
+    "rhost": "192.168.86.49",
+    "rpass": "",
+    "latitude": "40.00000",
+    "longitude": "-80.00000",
+    "garmin_url": "https://inreach.garmin.com/Feed/Share/somebodyyoudtrack",
+    "github_owner": "yourgithubuser",
+    "github_repo": "yourgithubrepository",
+    "google_calendar_id": "yourgooglegroupcalendar@group.calendar.google.com",
+    "owmkey": "openweathermapapikey",
+    "github_api_key": "githubapikey",
+    "google_api_key": "googleapikey"
+}

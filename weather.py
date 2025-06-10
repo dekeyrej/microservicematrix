@@ -8,20 +8,20 @@ number = Union[float, int]
 
 class OWMServer(ServerPage):
     """ ... """
-    def __init__(self, prod, period):
-        super().__init__(prod, period)
+    def __init__(self, prod, period, secretcfg, secretdef):
+        super().__init__(prod, period, secretcfg, secretdef)
         self.type = 'Weather'
         self.url = f'https://api.openweathermap.org/data/3.0/onecall?appid=' \
                    f'{self.secrets["owmkey"]}&lat={self.secrets["latitude"]}&' \
                    f'lon={self.secrets["longitude"]}' \
                    f'&exclude=minutely,alerts&units=imperial&lang=en'
         print(self.url)
-        # self.clear_secrets()
+        del self.secrets
         self.dirs = ['N','NNE','NE','ENE','E','ESE','SE','SSE',
                      'S','SSW','SW','WSW','W','WNW','NW','NNW']
 
     def update(self):
-        tnow = arrow.now().to(self.secrets['timezone'])
+        tnow = arrow.now().to(self.timezone)
         jstuff = self.fetch(self.url, 'Fetching Weather', self.now_str(tnow, True))
         if jstuff is not None:
             data = {
@@ -83,17 +83,19 @@ class OWMServer(ServerPage):
 
 if __name__ == '__main__':
     import os
-    import dotenv
-
-    dotenv.load_dotenv()
 
     try:
         PROD = os.environ["PROD"]
-        SECRETS_PATH = os.environ["SECRETS_PATH"]
     except KeyError:
         pass
 
     if PROD == '1':
-        OWMServer(True, 907).run()
+        import config as cfg
+        secretcfg = cfg.secretcfg
+        secretdef = cfg.secretdef
+        OWMServer(True, 907, cfg.secretcfg, cfg.secretdef).run()
     else:
-        OWMServer(False, 907).run()
+        import devconfig as cfg
+        secretcfg = cfg.secretcfg
+        secretdef = cfg.secretdef
+        OWMServer(False, 907, cfg.secretcfg, cfg.secretdef).run()

@@ -10,16 +10,15 @@ from plain_pages.serverpage import ServerPage
 
 class MLBServer(ServerPage):
     """ ... """
-    def __init__(self, prod, period):
-        """ ... """
-        super().__init__(prod, period)
-        # self.clear_secrets()
+    def __init__(self, prod, period, secretcfg, secretdef):
+        super().__init__(prod, period, secretcfg, secretdef)
+        del self.secrets
         self.type = 'MLB'
         self.url = 'http://site.api.espn.com/apis/site/v2/sports/baseball/mlb/scoreboard'
 
     def update(self):
         """ ... """
-        tnow = arrow.now().to(self.secrets['timezone'])
+        tnow = arrow.now().to(self.timezone)
         resp = self.fetch(self.url,'Fetching MLB games',tnow.format('MM/DD/YYYY hh:mm A ZZZ'))
         if resp is not None:
             games = resp['events']
@@ -80,7 +79,7 @@ class MLBServer(ServerPage):
         values = {}
         # next_start_time = tnow.replace(hour=23,minute=59,second=59)
         values['id']         = game['id']
-        start_time = arrow.get(game['date'],'YYYY-MM-DD[T]HH:mmZ').to(self.secrets['timezone'])
+        start_time = arrow.get(game['date'],'YYYY-MM-DD[T]HH:mmZ').to(self.timezone)
         # if start_time < next_start_time and start_time >= tnow:
         # if tnow <= start_time < next_start_time:
         #     next_start_time = start_time
@@ -168,17 +167,19 @@ class MLBServer(ServerPage):
 
 if __name__ == '__main__':
     import os
-    import dotenv
-
-    dotenv.load_dotenv()
 
     try:
         PROD = os.environ["PROD"]
-        SECRETS_PATH = os.environ["SECRETS_PATH"]
     except KeyError:
         pass
 
     if PROD == '1':
-        MLBServer(True, 29).run()
+        import config as cfg
+        secretcfg = cfg.secretcfg
+        secretdef = cfg.secretdef
+        MLBServer(True, 29, cfg.secretcfg, cfg.secretdef).run()
     else:
-        MLBServer(False, 29).run()
+        import devconfig as cfg
+        secretcfg = cfg.secretcfg
+        secretdef = cfg.secretdef
+        MLBServer(False, 29, cfg.secretcfg, cfg.secretdef).run()

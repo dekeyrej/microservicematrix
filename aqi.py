@@ -32,17 +32,18 @@ aqidata = {
 
 class AQIServer(ServerPage):
     """ ... """
-    def __init__(self, prod: bool, period: int):
-        super().__init__(prod, period)
+    def __init__(self, prod, period, secretcfg, secretdef):
+        super().__init__(prod, period, secretcfg, secretdef)
         self.type = 'AQI'
         self.url = f'https://api.openweathermap.org/data/2.5/air_pollution?appid=' \
                    f'{self.secrets["owmkey"]}&lat={self.secrets["latitude"]}&' \
                    f'lon={self.secrets["longitude"]}'
+        del self.secrets
         # self.clear_secrets()
 
     def update(self):
         """ ... """
-        tnow = arrow.now().to(self.secrets['timezone'])
+        tnow = arrow.now().to(self.timezone)
         jstuff = self.fetch(self.url, 'Fetching Air Pollution', self.now_str(tnow, True))
         if jstuff is not None:
             utc_measurement_time = arrow.get(str(jstuff['list'][0]['dt']), 'X')
@@ -65,7 +66,7 @@ class AQIServer(ServerPage):
                 'updated': self.now_str(tnow, False),
                 'valid': self.now_str(tnow.shift(seconds=self.update_period), True),
                 'values': {
-                    'date_time': utc_measurement_time.to(self.secrets['timezone']).format('MM/DD/YYYY h:mm A ZZZ'),
+                    'date_time': utc_measurement_time.to(self.timezone).format('MM/DD/YYYY h:mm A ZZZ'),
                     'aqi_score': max_score,
                     'aqi_adjective': aqidata["aqi"]["adjectives"][max_row],
                     'color': aqidata["aqi"]["colors"][max_row],
@@ -120,17 +121,20 @@ class AQIServer(ServerPage):
 
 if __name__ == '__main__':
     import os
-    import dotenv
-
-    dotenv.load_dotenv()
 
     try:
         PROD = os.environ["PROD"]
-        SECRETS_PATH = os.environ["SECRETS_PATH"]
     except KeyError:
         pass
 
     if PROD == '1':
-        AQIServer(True, 919).run()
+        import config as cfg
+        secretcfg = cfg.secretcfg
+        secretdef = cfg.secretdef
+        AQIServer(True, 919, cfg.secretcfg, cfg.secretdef).run()
     else:
-        AQIServer(False, 919).run()
+        import devconfig as cfg
+        secretcfg = cfg.secretcfg
+        secretdef = cfg.secretdef
+        AQIServer(False, 919, cfg.secretcfg, cfg.secretdef).run()
+

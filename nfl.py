@@ -9,10 +9,9 @@ from plain_pages.serverpage import ServerPage
 
 class NFLServer(ServerPage):
     """ ... """
-    def __init__(self, prod, period):
-        """ ... """
-        super().__init__(prod, period)
-        # self.clear_secrets()
+    def __init__(self, prod, period, secretcfg, secretdef):
+        super().__init__(prod, period, secretcfg, secretdef)
+        del self.secrets
         self.type = 'NFL'
         self.url = 'http://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard'
         self.active = 0
@@ -20,7 +19,7 @@ class NFLServer(ServerPage):
 
     def update(self):
         """ ... """
-        now = arrow.now().to(self.secrets['timezone'])
+        now = arrow.now().to(self.timezone)
         try:
             resp = self.fetch(self.url,'Fetching NFL games',now.format('MM/DD/YYYY hh:mm A ZZZ'))
         except json.decoder.JSONDecodeError:
@@ -50,7 +49,7 @@ class NFLServer(ServerPage):
             # pre_games = in_games = post_games = 0
             for game in games:
                 data['values']['events'].append(self.read_event(game))
-                start_time = arrow.get(game['date']).to(self.secrets['timezone'])
+                start_time = arrow.get(game['date']).to(self.timezone)
                 status = game['competitions'][0]['status']['type']['state']
                 if status == 'in' or (status == 'pre' and start_time < now):  ### now have to account for postponed :-/
                     # if self.output: print(f'   in active {id}')
@@ -74,7 +73,7 @@ class NFLServer(ServerPage):
         """ ... """
         game = {}
         # game['id']    = event['id']
-        game['date']  = arrow.get(event['date']).to(self.secrets['timezone']).format('ddd h:mm A')
+        game['date']  = arrow.get(event['date']).to(self.timezone).format('ddd h:mm A')
         game['fulldate']  = event['date']
         game['week']  = event['week']['number']
         game['state'] = event['competitions'][0]['status']['type']['state']   # 'pre', 'in', 'post'
@@ -142,18 +141,19 @@ class NFLServer(ServerPage):
 
 if __name__ == '__main__':
     import os
-    import dotenv
-
-    dotenv.load_dotenv()
 
     try:
         PROD = os.environ["PROD"]
-        SECRETS_PATH = os.environ["SECRETS_PATH"]
     except KeyError:
-        PROD = '0'
-        SECRETS_PATH = 'secrets.json'
+        pass
 
-    if PROD == '0':
-        NFLServer(False, 59).run()
+    if PROD == '1':
+        import config as cfg
+        secretcfg = cfg.secretcfg
+        secretdef = cfg.secretdef
+        NFLServer(True, 59, cfg.secretcfg, cfg.secretdef).run()
     else:
-        NFLServer(True, 59).run()
+        import devconfig as cfg
+        secretcfg = cfg.secretcfg
+        secretdef = cfg.secretdef
+        NFLServer(False, 59, cfg.secretcfg, cfg.secretdef).run()

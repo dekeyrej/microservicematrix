@@ -9,13 +9,12 @@ from plain_pages.serverpage import ServerPage
 
 class MoonServer(ServerPage):
     """ subclass of ServerPage to fetch sun and moon data """
-    def __init__(self, prod, period):
-        super().__init__(prod, period)
+    def __init__(self, prod, period, secretcfg, secretdef):
+        super().__init__(prod, period, secretcfg, secretdef)
         self.headers = {'User-Agent': 'moon.py joedekeyrel@gmail.com'}
         self.type = 'Moon'
         self.loc_str = f'lat={self.secrets["latitude"]}&lon={self.secrets["longitude"]}'
-        self.timezone = self.secrets['timezone'] # not currently used
-        # self.clear_secrets()
+        del self.secrets
         self.twelve_hour = True
 
     def update(self):
@@ -24,7 +23,7 @@ class MoonServer(ServerPage):
         as of 9/1/2023, Norwegian Met updated its API to version 3.0
         """
         updtp = self.update_period
-        tnow = arrow.now().to(self.secrets['timezone'])
+        tnow = arrow.now().to(self.timezone)
         today, tomorrow, tstmp = self.url_date_str()
         urls = []
         urls.append('https://api.met.no/weatherapi/sunrise/3.0/sun?' + self.loc_str + today)
@@ -129,7 +128,7 @@ class MoonServer(ServerPage):
             tomorrow's date, and
             a unix timestamp
         """
-        tnow = arrow.now().to('US/Eastern')
+        tnow = arrow.now().to(self.timezone)
         today = tnow.format('[&date=]YYYY-MM-DD[&offset=]ZZ')
         tomorrow = tnow.shift(days=+1).format('[&date=]YYYY-MM-DD[&offset=]ZZ')
         return today, tomorrow, tnow.format('X')
@@ -142,7 +141,7 @@ class MoonServer(ServerPage):
         """ converts a timestamp into an arrow and returns either a
             12-hr time, or a 24-hr time
         """
-        tnow = arrow.get(tstmp,'X').to('US/Eastern')
+        tnow = arrow.get(tstmp,'X').to(self.timezone)
         if self.twelve_hour:
             out = tnow.format('hh:mm A')
         else:
@@ -151,17 +150,19 @@ class MoonServer(ServerPage):
 
 if __name__ == '__main__':
     import os
-    import dotenv
-
-    dotenv.load_dotenv()
 
     try:
         PROD = os.environ["PROD"]
-        SECRETS_PATH = os.environ["SECRETS_PATH"]
     except KeyError:
         pass
 
     if PROD == '1':
-        MoonServer(True, 3607).run()
+        import config as cfg
+        secretcfg = cfg.secretcfg
+        secretdef = cfg.secretdef
+        MoonServer(True, 3607, cfg.secretcfg, cfg.secretdef).run()
     else:
-        MoonServer(False, 3607).run()
+        import devconfig as cfg
+        secretcfg = cfg.secretcfg
+        secretdef = cfg.secretdef
+        MoonServer(False, 3607, cfg.secretcfg, cfg.secretdef).run()

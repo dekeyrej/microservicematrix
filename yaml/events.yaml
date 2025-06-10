@@ -40,9 +40,6 @@ spec:
             subPath: events.json
           securityContext:
             privileged: false
-          envFrom:
-            - configMapRef:
-                name: common-config
       volumes:
       - name: events
         configMap:

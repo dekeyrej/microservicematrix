@@ -7,20 +7,20 @@ from plain_pages.serverpage import ServerPage
 
 class CalendarServer(ServerPage):
     """ Subclass of serverpage for reading calendar events """
-    def __init__(self, prod, period):
-        super().__init__(prod, period)
+    def __init__(self, prod, period, secretcfg, secretdef):
+        super().__init__(prod, period, secretcfg, secretdef)
         self.type = 'Calendar'
 #       calendar has to be public :-/
         self._base_calendar_url = f'https://www.googleapis.com/calendar/v3/calendars/' \
             f'{self.secrets["google_calendar_id"]}/events?key={self.secrets["google_api_key"]}' \
             f'&orderBy=starttime&singleEvents=true'
-        # self.clear_secrets()
+        del self.secrets
         self._url = None
 
     def update(self):
         """ called by ServerPage.check() """
 #         t = datetime.datetime(2022,10,6,14,0,0)  ## jammed date/time for testing
-        tnow = arrow.now().to(self.secrets['timezone'])
+        tnow = arrow.now().to(self.timezone)
         time_min = tnow.replace(hour=6, minute=0, second=0).format("YYYY-MM-DDTHH:mm:ssZZ")
         time_max = tnow.replace(hour=20, minute=0, second=0).format("YYYY-MM-DDTHH:mm:ssZZ")
         self._url = self._base_calendar_url + f"&timeMin={time_min}&timeMax={time_max}"
@@ -40,17 +40,19 @@ class CalendarServer(ServerPage):
 
 if __name__ == '__main__':
     import os
-    import dotenv
-
-    dotenv.load_dotenv()
 
     try:
         PROD = os.environ["PROD"]
-        SECRETS_PATH = os.environ["SECRETS_PATH"]
     except KeyError:
         pass
 
     if PROD == '1':
-        CalendarServer(True, 877).run()
+        import config as cfg
+        secretcfg = cfg.secretcfg
+        secretdef = cfg.secretdef
+        CalendarServer(True, 877, cfg.secretcfg, cfg.secretdef).run()
     else:
-        CalendarServer(False, 877).run()
+        import devconfig as cfg
+        secretcfg = cfg.secretcfg
+        secretdef = cfg.secretdef
+        CalendarServer(False, 877, cfg.secretcfg, cfg.secretdef).run()

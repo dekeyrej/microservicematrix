@@ -16,7 +16,6 @@ spec:
       labels:
         k8s-app: aqi
     spec:
-      
       containers:
         - name: aqi
           image: ghcr.io/dekeyrej/aqi:latest
@@ -37,12 +36,5 @@ spec:
             periodSeconds: 30
           securityContext:
             privileged: false
-          envFrom:
-            - configMapRef:
-                name: common-config
-            - configMapRef:
-                name: app-config
-            - secretRef:
-                name: matrix-secret-environment
       imagePullSecrets:
         - name: ghcr-login-secret

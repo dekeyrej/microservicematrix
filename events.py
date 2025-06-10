@@ -5,12 +5,13 @@ from plain_pages.serverpage import ServerPage
 
 class NextEvent(ServerPage):
     """ ... """
-    def __init__(self, prod, period):
-        super().__init__(prod, period)
+    def __init__(self, prod, period, secretcfg, secretdef):
+        super().__init__(prod, period, secretcfg, secretdef)
+        del self.secrets
         self.type = 'Events'
 
     def update(self):
-        tnow = arrow.now().to('US/Eastern')
+        tnow = arrow.now().to(self.timezone)
         with open('events.json', 'r') as f:
             values = json.load(f)
 
@@ -26,7 +27,6 @@ class NextEvent(ServerPage):
 
 if __name__ == '__main__':
     import os
-    import dotenv
 
     try:
         PROD = os.environ["PROD"]
@@ -34,7 +34,13 @@ if __name__ == '__main__':
         pass
 
     if PROD == '1':
-        NextEvent(True, 3593).run()
+        import config as cfg
+        secretcfg = cfg.secretcfg
+        secretdef = cfg.secretdef
+        NextEvent(True, 3593, cfg.secretcfg, cfg.secretdef).run()
     else:
-        dotenv.load_dotenv()
-        NextEvent(False, 3593).run()
+        import devconfig as cfg
+        secretcfg = cfg.secretcfg
+        secretdef = cfg.secretdef
+        NextEvent(False, 3593, cfg.secretcfg, cfg.secretdef).run()
+
