@@ -1,55 +1,81 @@
-# microservicematrix #
-Microservices Implementation of the matrix server
+# 🎛️ microservicematrix
 
-<b>Overall project intent</b>: Consume various local and internet data sources and display on a 128x64 pixel RGB LED matrix (quad sized tidbyt). Along the way, grow my skills in python, databases, containerization, docker, kubernetes, github and jenkins.
+**microservicematrix** is a modular suite of Python-based microservices that collect, normalize, and publish data from various internet and local sources—designed for a 128×64 RGB LED matrix (Tidbyt-style) but decoupled for flexible display targets.
 
-Microservice servers to feed a Software interface to the RGB Matrix is via the python bindings provided by https://github.com/hzeller/rpi-rgb-led-matrix. Bitmap fonts are from this repository as well.
+Data is written to a shared `Datasource`-backed database (Postgres, SQLite, [future] Redis) and update notifications are sent over Redis. Consumers like [matrixclient](https://github.com/dekeyrej/matrixclient) and [nodewebdisplay](https://github.com/dekeyrej/nodewebdisplay) render the content in real time or generate static BMPs for testing and archival.
 
-<b>Build note: Before you commit any changes, run 'determine_tags.py' which will update 'builds.txt' to tell Jenkins which microservices need to be rebuilt.</b>
+All services are containerized for Kubernetes deployment and are tightly integrated with:
 
-Implemented by 'Strangling' the kubematrix code base - 
-- Peeling off each of the 'servers'
-- Making modifications as required to run standalone
-- Creating a copy of the Dockerfile for each
-- Testing, and when successful
-- Commenting it out of the kubematrix monolith
+- 🔑 [`secretmanager`](https://github.com/dekeyrej/secretmanager) – secure, multi-source config management
+- 🧩 [`plain_pages`](https://github.com/dekeyrej/plain_pages) – uniform abstraction for service logic and configuration
+- 📦 [`dekeyrej-datasource`](https://github.com/dekeyrej/datasource) – simple multi-db persistence (available on [PyPI](https://pypi.org/project/dekeyrej-datasource))
 
-Allow the way, pulled several (3) packages of code out and published them to PyPI dekeyrej-datasource, -securedict, and -pages
+---
 
-Current project (this repository): Refactor the server-side into several independent microservice servers to fetch data from various public and private data sources, and stores the results in a database.  The microservices are containerized, and the containers and database are run in a local kubernetes cluster. **Secrets for servers pulled from kubernetes secret (prod), or local secrets.json (dev).**
-- Display size: 128 x 64 pixels, 24-bit color (4 x 64x32 pixel panels in series)
-- Microservices implemented.  **Air Quality**, Google Calendar, **Garmin tracker**, **GitHub commit watcher**, **Jenkins build watcher**, MLB, Moon/Sun data, 'Family' events, and Open Weather Map server (current, hourly, daily). All but (kubematrix) NFL/World Cup data sources are operational.
-- Supports writing/reading SQLite, MongoDB, and Postgres-like databases (SQLite, Postgres and CockroachDB tested).
-- (https://github.com/dekeyrej/matrixclient.git) Python/RGBmatrix database client implemented. All but NFL/WC data classes operational.
-- (https://github.com/dekeyrej/matrixclient.git) Command line argument to allow running with or without an RGB Matrix attached (for testing).
+## 📋 Service Overview
 
-Previous project: Refactor client/server to communicate via a database and run dataserver and database in a kubernetes cluster.
-- Display size: 128 x 64 pixels, 24-bit color (4 x 64x32 pixel panels in series)
-- Dataserver implemented.  All but NFL/World Cup data class operational.
-- supports writing/reading SQLite, MongoDB, and Postgres-like databases (Postgres and CockroachDB tested).
-- Python/RGBmatrix database client implemented. All but NFL/WC data classes operational.
-- Command line argument to allow running with or without an RGB Matrix attached (for testing).
+Each service is a subclass of [`ServerPage`](https://github.com/dekeyrej/plain_pages), and can run as a long-lived process or invoked in one-shot mode. Configuration is sourced via [`secretmanager`](https://github.com/dekeyrej/secretmanager) and managed using Kubernetes secrets and YAML deployments.
 
-Previous project: Refactor client/server http transport to websocket-based. Added some browser based views for remote viewing
-- Display size: 128 x 64 pixels, 24-bit color (4 x 64x32 pixel panels in series)
-- Websocket server implemented.  All but MLB data class operational.
-- Python/RGBmatrix websocket client implemented. All but MLB data class operational. Added command line argument to allow running with or without an RGB Matrix attached.
-- HTML/JavaScript websocket client implemented for World Cup.
+| Service | Source File | Description | Data Source | Interval |
+|---------|-------------|-------------|-------------|----------|
+| AQI     | `aqi.py`    | Air quality index for configured Lat/Long | OpenWeatherMap        | 15 min   |
+| Moon    | `moon.py`   | Moon phase, illumination %, sunrise/set, moonrise/set | MET Norway     | 1 hr     |
+| Weather | `weather.py`| Current conditions and forecast (hourly/daily) | OpenWeatherMap     | 15 min   |
+| MyCal   | `mycal.py`  | Personal calendar events (private feed) | Google Calendar      | 15 min   |
+| Events  | `events.py` | Recurring family events (birthdays, anniversaries) | Static JSON or Google | 24 hr    |
+| GitHub  | `github.py` | Repo activity, PR/build status         | GitHub API             | 30 min   |
+| MLB     | `mlb.py`    | Baseball scores and daily schedule     | ESPN MLB API           | Variable*|
+| NFL     | `nfl.py`    | Football scores and weekly schedule    | ESPN NFL API           | 5 min    |
+| Garmin  | `garmin.py` | Personal Locator Beacon tracking       | Garmin location feed   | 1 hr     |
 
-Previous version: Refactored mostly monolithic client with one external data server into a fully bifurcted client and dataserver.
-- Display size: 128 x 64 pixels, 24-bit color (4 x 64x32 pixel panels in series)
-- Local Data streams: Clock, 'Family' events
-- Remote data stream: Google Calendar events, OpenWeatherMap current + forecast + hourly weather, Moon/Sun events, NFL, World Cup 2022
+> **\*** _MLB polling logic:_  
+> At **11:30 AM EDT**, the service checks the day's schedule. It then:
+> - Sleeps until the first game starts  
+> - Polls every 30 seconds during games  
+> - Sleeps again after the final game ends
 
-Previous version: Mostly monolithic client with one external data server
-- Display size: 128 x 64 pixels, 24-bit color (4 x 64x32 pixel panels in series)
-- Local Data streams: MLB, Clock, Google Calendar events, OpenWeatherMap current + forecast + hourly weather, Moon/Sun events
-- Remote data stream: NFL (JSON-LD format takes quite a while to resolve)
+---
 
-Previous version: Fully monolithic display running on a Raspberry Pi 3A+
-- Display size: 128 x 64 pixels, 24-bit color (4 x 64x32 pixel panels in series)
-- Data streams: MLB, Clock, Google Calendar events, OpenWeatherMap current + forecast + hourly weather, Moon/Sun events (adapted from: Moon Phase Clock for Adafruit Matrix Portal - By Phillip Burgess)
+## 🚀 Quick Start (Dev)
 
-Initial version: Fully monolithic display written in Circuit Python and running on a ESP32S3 microcontroller
-- Display size: 64 x 32 pixels, 4-bit color
-- Data stream: daily Boston Red Sox game
+Each service will run politely from the commandline - writing to its configured database and pushing Redis updates (if desired).
+
+```bash
+git clone https://github.com/dekeyrej/microservicematrix
+cd microservicematrix
+# normal virtual environment tasks
+python moon.py
+```
+
+To build and push the container images you can either modify the github/workflows for your environment, or use `build.sh` and `builds.txt` in the utilities folders. `Build.sh` reads `builds.txt` (which is simply a list of the services to build) and builds an image and pushes it to the registry of your choice.
+
+Once pushed, the microservices can be deployed with:
+
+```bash
+kubectl apply -f yaml/
+```
+Secrets can be passed via secrets.json, .env, Kubernetes secrets, or AES-256 encrypted Kubernetes secrets Vault Transit decrypted - depending on your SecretManager configuration.
+
+### 🌐 Related Repositories
+-  – [Service abstraction layer and CLI-ready page system](https://github.com/dekeyrej/plain_pages/blob/main/plain_pages/serverpage.py)
+-  – [Lightweight multi-backend data access and persistence](https://github.com/dekeyrej/datasource)
+-  – [Unified API for secrets from env, file, or Kubernetes](https://github.com/dekeyrej/secretmanager)
+-  – [RGB LED matrix renderer (hardware and BMP mode)](https://github.com/dekeyrej/plain_pages/blob/main/plain_pages/displaypage.py)
+-  – [Frontend for live display via SSE/Redis](https://github.com/dekeyrej/nodewebdisplay)
+-  – [Homelab orchestration and provisioning roles/playbooks](https://github.com/dekeyrej/ansible)
+
+<details>
+<summary><strong>📜 Project Evolution</strong></summary>
+
+- Initial – Single-service Red Sox game display on ESP32 with CircuitPython
+
+- V1 – Monolithic Pi client with local and remote data streams
+
+- V2 – Split into client/server with basic data transport
+
+- V3 – WebSocket support and browser-based clients
+
+- V4 – Migration to database-centric transport with Docker & Kubernetes
+
+- Current – Modular Python microservices with CLI, Redis pub/sub, and multiple display targets
+</details>
