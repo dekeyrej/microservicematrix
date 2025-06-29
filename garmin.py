@@ -23,9 +23,9 @@ class GarminServer(ServerPage):
         if resp is not None:
             data = {}
             data['type'] = 'Track'
-            data['updated'] = tnow.format('MM/DD/YYYY h:mm A ZZZ')
+            data['updated'] = tnow.format('MM/DD/YYYY h:mm A ZZ')
             data['valid'] = \
-                tnow.shift(seconds=+self.update_period).format('MM/DD/YYYY h:mm:ss A ZZZ')
+                tnow.shift(seconds=+self.update_period).format('MM/DD/YYYY h:mm:ss A ZZ')
             data['values'] = {}
             # json_str = json.dumps(data)
             # source = xmltodict.parse(resp.content)

@@ -34,9 +34,9 @@ class GithubServer(ServerPage):
         if cresp and lscresp:
             data = {}
             data['type']   = 'GitHub'
-            data['updated'] = tnow.to(self.timezone).format('MM/DD/YYYY h:mm A ZZZ')
+            data['updated'] = tnow.to(self.timezone).format('MM/DD/YYYY h:mm A Z')
             data['valid'] = tnow.to(self.timezone).shift(seconds=+self.update_period).\
-                format('MM/DD/YYYY h:mm:ss A ZZZ')
+                format('MM/DD/YYYY h:mm:ss A Z')
             data['values'] = {}
             data['values']['latest_commit'] = cresp[0]['sha'][0:7]
             data['values']['last_successful_commit'] = self.find_last_successful_commit(lscresp)

@@ -17,8 +17,8 @@ class NextEvent(ServerPage):
 
         data = {
             'type'   : 'Events',
-            'updated': tnow.format('MM/DD/YYYY h:mm A ZZZ'),
-            'valid'  : tnow.shift(seconds=+self.update_period).format('MM/DD/YYYY h:mm:ss A ZZZ'),
+            'updated': tnow.format('MM/DD/YYYY h:mm A Z'),
+            'valid'  : tnow.shift(seconds=+self.update_period).format('MM/DD/YYYY h:mm:ss A Z'),
             'values' : values
         }
 

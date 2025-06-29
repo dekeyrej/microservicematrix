@@ -51,8 +51,8 @@ class MoonServer(ServerPage):
 
             data = {
                 'type': 'Moon',
-                'updated': tnow.format('MM/DD/YYYY h:mm A ZZZ'),
-                'valid': tnow.shift(seconds=+updtp).format('MM/DD/YYYY h:mm:ss A ZZZ'),
+                'updated': tnow.format('MM/DD/YYYY h:mm A Z'),
+                'valid': tnow.shift(seconds=+updtp).format('MM/DD/YYYY h:mm:ss A Z'),
                 'values': {
                     'phase': phase,
                     'illumstr': illumstr,

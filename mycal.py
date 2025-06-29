@@ -29,8 +29,8 @@ class CalendarServer(ServerPage):
             items = resp['items']
             data = {
                 'type': self.type,
-                'updated': tnow.format('MM/DD/YYYY h:mm A ZZZ'),
-                'valid': tnow.shift(seconds=self.update_period).format('MM/DD/YYYY h:mm:ss A ZZZ'),
+                'updated': tnow.format('MM/DD/YYYY h:mm A Z'),
+                'valid': tnow.shift(seconds=self.update_period).format('MM/DD/YYYY h:mm:ss A Z'),
                 'values': [(item["summary"], item["start"]["dateTime"], item["end"]["dateTime"]) for item in items]
             }
 

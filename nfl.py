@@ -32,9 +32,9 @@ class NFLServer(ServerPage):
             self.active = 0
             data = {}
             data['type'] = self.type
-            data['updated'] = now.format('MM/DD/YYYY h:mm A ZZZ')
+            data['updated'] = now.format('MM/DD/YYYY h:mm A Z')
             data['valid'] = \
-                now.shift(seconds=+self.update_period).format('MM/DD/YYYY h:mm:ss A ZZZ')
+                now.shift(seconds=+self.update_period).format('MM/DD/YYYY h:mm:ss A Z')
             seasonid = int(resp['leagues'][0]['season']['type']['id'])
             weekid = int(resp['week']['number'])
             data['values'] = {

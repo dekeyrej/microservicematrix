@@ -24,9 +24,9 @@ class MLBServer(ServerPage):
             games = resp['events']
             data = {}
             data['type'] = 'MLB'
-            data['updated'] = tnow.format('MM/DD/YYYY h:mm A ZZZ')
+            data['updated'] = tnow.format('MM/DD/YYYY h:mm A Z')
             data['valid'] = \
-                tnow.shift(seconds=+self.update_period).format('MM/DD/YYYY h:mm:ss A ZZZ')
+                tnow.shift(seconds=+self.update_period).format('MM/DD/YYYY h:mm:ss A Z')
             data['values'] = []
 
             game_count = len(games)
@@ -62,7 +62,7 @@ class MLBServer(ServerPage):
                 self.update_period = (next_valid - tnow).seconds
             elif in_games > 0:
                 next_valid = \
-                    tnow.shift(seconds=+self.update_period).format('MM/DD/YYYY h:mm:ss A ZZZ')
+                    tnow.shift(seconds=+self.update_period).format('MM/DD/YYYY h:mm:ss A Z')
                 self.update_period = 29
             else:
                 # sleep until the start of the first game
@@ -70,7 +70,7 @@ class MLBServer(ServerPage):
                 self.update_period = min((next_valid - tnow).seconds, 15*60)
         #         print(next_sleep)
 #             self.update_rate = next_sleep # seconds between updates
-            data['valid'] = next_valid.format('MM/DD/YYYY h:mm:ss A ZZZ')
+            data['valid'] = next_valid.format('MM/DD/YYYY h:mm:ss A Z')
             print(f'{type(self).__name__} updated.')
             self.dba.write(data)
 
