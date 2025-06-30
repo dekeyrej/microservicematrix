@@ -1,5 +1,9 @@
 # 🎛️ microservicematrix
 
+![MIT License](https://img.shields.io/github/license/dekeyrej/microservicematrix)
+![Last Commit](https://img.shields.io/github/last-commit/dekeyrej/microservicematrix)
+![Repo Size](https://img.shields.io/github/repo-size/dekeyrej/microservicematrix)
+
 **microservicematrix** is a modular suite of Python-based microservices that collect, normalize, and publish data from various internet and local sources—designed for a 128×64 RGB LED matrix (Tidbyt-style) but decoupled for flexible display targets.
 
 Data is written to a shared `Datasource`-backed database (Postgres, SQLite, [future] Redis) and update notifications are sent over Redis. Consumers like [matrixclient](https://github.com/dekeyrej/matrixclient) and [nodewebdisplay](https://github.com/dekeyrej/nodewebdisplay) render the content in real time or generate static BMPs for testing and archival.
