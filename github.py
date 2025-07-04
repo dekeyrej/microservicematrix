@@ -63,12 +63,8 @@ if __name__ == '__main__':
         pass
 
     if PROD == '1':
-        import config as cfg
-        secretcfg = cfg.secretcfg
-        secretdef = cfg.secretdef
-        GithubServer(True, 599, cfg.secretcfg, cfg.secretdef).run()
+        from config import secretcfg, secretdef
+        GithubServer(True, 599, secretcfg, secretdef).run()
     else:
-        import devconfig as cfg
-        secretcfg = cfg.secretcfg
-        secretdef = cfg.secretdef
-        GithubServer(False, 599, cfg.secretcfg, cfg.secretdef).run()
+        from devconfig import secretcfg, secretdef
+        GithubServer(False, 599, secretcfg, secretdef).run()

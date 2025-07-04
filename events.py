@@ -34,13 +34,9 @@ if __name__ == '__main__':
         pass
 
     if PROD == '1':
-        import config as cfg
-        secretcfg = cfg.secretcfg
-        secretdef = cfg.secretdef
-        NextEvent(True, 3593, cfg.secretcfg, cfg.secretdef).run()
+        from config import secretcfg, secretdef
+        NextEvent(True, 3593, secretcfg, secretdef).run()
     else:
-        import devconfig as cfg
-        secretcfg = cfg.secretcfg
-        secretdef = cfg.secretdef
-        NextEvent(False, 3593, cfg.secretcfg, cfg.secretdef).run()
+        from devconfig import secretcfg, secretdef
+        NextEvent(False, 3593, secretcfg, secretdef).run()
 

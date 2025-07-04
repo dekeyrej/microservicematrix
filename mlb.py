@@ -174,12 +174,8 @@ if __name__ == '__main__':
         pass
 
     if PROD == '1':
-        import config as cfg
-        secretcfg = cfg.secretcfg
-        secretdef = cfg.secretdef
-        MLBServer(True, 29, cfg.secretcfg, cfg.secretdef).run()
+        from config import secretcfg, secretdef
+        MLBServer(True, 29, secretcfg, secretdef).run()
     else:
-        import devconfig as cfg
-        secretcfg = cfg.secretcfg
-        secretdef = cfg.secretdef
-        MLBServer(False, 29, cfg.secretcfg, cfg.secretdef).run()
+        from devconfig import secretcfg, secretdef
+        MLBServer(False, 29, secretcfg, secretdef).run()

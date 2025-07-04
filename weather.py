@@ -90,12 +90,8 @@ if __name__ == '__main__':
         pass
 
     if PROD == '1':
-        import config as cfg
-        secretcfg = cfg.secretcfg
-        secretdef = cfg.secretdef
-        OWMServer(True, 907, cfg.secretcfg, cfg.secretdef).run()
+        from config import secretcfg, secretdef
+        OWMServer(True, 907, secretcfg, secretdef).run()
     else:
-        import devconfig as cfg
-        secretcfg = cfg.secretcfg
-        secretdef = cfg.secretdef
-        OWMServer(False, 907, cfg.secretcfg, cfg.secretdef).run()
+        from devconfig import secretcfg, secretdef
+        OWMServer(False, 907, secretcfg, secretdef).run()

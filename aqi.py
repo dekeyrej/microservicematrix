@@ -128,13 +128,9 @@ if __name__ == '__main__':
         pass
 
     if PROD == '1':
-        import config as cfg
-        secretcfg = cfg.secretcfg
-        secretdef = cfg.secretdef
-        AQIServer(True, 919, cfg.secretcfg, cfg.secretdef).run()
+        from config import secretcfg, secretdef
+        AQIServer(True, 919, secretcfg, secretdef).run()
     else:
-        import devconfig as cfg
-        secretcfg = cfg.secretcfg
-        secretdef = cfg.secretdef
-        AQIServer(False, 919, cfg.secretcfg, cfg.secretdef).run()
+        from devconfig import secretcfg, secretdef
+        AQIServer(False, 919, secretcfg, secretdef).run()
 

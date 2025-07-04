@@ -47,12 +47,8 @@ if __name__ == '__main__':
         pass
 
     if PROD == '1':
-        import config as cfg
-        secretcfg = cfg.secretcfg
-        secretdef = cfg.secretdef
-        CalendarServer(True, 877, cfg.secretcfg, cfg.secretdef).run()
+        from config import secretcfg, secretdef
+        CalendarServer(True, 877, secretcfg, secretdef).run()
     else:
-        import devconfig as cfg
-        secretcfg = cfg.secretcfg
-        secretdef = cfg.secretdef
-        CalendarServer(False, 877, cfg.secretcfg, cfg.secretdef).run()
+        from devconfig import secretcfg, secretdef
+        CalendarServer(False, 877, secretcfg, secretdef).run()

@@ -1,12 +1,15 @@
 {
     "PROD": 0, 
     "timezone": "America/New_York",
-    "db_host": "192.168.86.49",
-    "db_port": "5432",
-    "dbpass": "yourdbpassword",
-    "dbuser": "yourdbuser",
-    "dbname": "matrix",
-    "dbtable": "feed",
+    "db_type" : "postgres",
+    "db_params": {
+                    "host": "postgres",
+                    "port": "5432",
+                    "user": "username", 
+                    "pass": "password",
+                    "db_name": "matrix",
+                    "tbl_name": "feed"
+                },
     "rhost": "192.168.86.49",
     "rpass": "",
     "latitude": "40.00000",

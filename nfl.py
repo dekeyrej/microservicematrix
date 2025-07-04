@@ -148,12 +148,10 @@ if __name__ == '__main__':
         pass
 
     if PROD == '1':
-        import config as cfg
-        secretcfg = cfg.secretcfg
-        secretdef = cfg.secretdef
-        NFLServer(True, 59, cfg.secretcfg, cfg.secretdef).run()
+        from config import secretcfg, secretdef
+        NFLServer(True, 59, secretcfg, secretdef).run()
     else:
-        import devconfig as cfg
-        secretcfg = cfg.secretcfg
-        secretdef = cfg.secretdef
-        NFLServer(False, 59, cfg.secretcfg, cfg.secretdef).run()
+        from devconfig import secretcfg, secretdef
+        NFLServer(False, 59, secretcfg, secretdef).run()
+
+    

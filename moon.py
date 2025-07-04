@@ -157,12 +157,8 @@ if __name__ == '__main__':
         pass
 
     if PROD == '1':
-        import config as cfg
-        secretcfg = cfg.secretcfg
-        secretdef = cfg.secretdef
-        MoonServer(True, 3607, cfg.secretcfg, cfg.secretdef).run()
+        from config import secretcfg, secretdef
+        MoonServer(True, 3607, secretcfg, secretdef).run()
     else:
-        import devconfig as cfg
-        secretcfg = cfg.secretcfg
-        secretdef = cfg.secretdef
-        MoonServer(False, 3607, cfg.secretcfg, cfg.secretdef).run()
+        from devconfig import secretcfg, secretdef
+        MoonServer(False, 3607, secretcfg, secretdef).run()
