@@ -1,12 +1,15 @@
 """ reads events.json and loads it into the database """
 import json
 import arrow
-from plain_pages.serverpage import ServerPage
+import logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
-class NextEvent(ServerPage):
+from microservice import MicroService
+
+class NextEvent(MicroService):
     """ ... """
-    def __init__(self, prod, period, secretcfg, secretdef):
-        super().__init__(prod, period, secretcfg, secretdef)
+    def __init__(self, period, secretcfg, secretdef):
+        super().__init__(period, secretcfg, secretdef)
         del self.secrets
         self.type = 'Events'
 
@@ -17,26 +20,25 @@ class NextEvent(ServerPage):
 
         data = {
             'type'   : 'Events',
-            'updated': tnow.format('MM/DD/YYYY h:mm A Z'),
-            'valid'  : tnow.shift(seconds=+self.update_period).format('MM/DD/YYYY h:mm:ss A Z'),
+            'updated': self.now_str(tnow, False),
+            'valid'  : self.now_str(tnow.shift(seconds=self.update_period), True),
             'values' : values
         }
 
-        print(f'{type(self).__name__} updated.')
-        self.dba.write(data)
+        logging.info(f'{type(self).__name__} updated.')
+        self.r.publish('update', json.dumps(data))
 
 if __name__ == '__main__':
     import os
-
-    try:
-        PROD = os.environ["PROD"]
-    except KeyError:
-        pass
-
-    if PROD == '1':
+    
+    period = int(os.environ.get("PERIOD", '600'))
+    prod = os.environ.get("PROD", '0')
+    if prod == '1':
         from config import secretcfg, secretdef
-        NextEvent(True, 3593, secretcfg, secretdef).run()
     else:
         from devconfig import secretcfg, secretdef
-        NextEvent(False, 3593, secretcfg, secretdef).run()
+
+    logging.debug(f"Starting Events Server with period: {period},\nsecrets type: {secretcfg}, and\nsecret definition: {secretdef}")
+
+    NextEvent(period, secretcfg, secretdef).run()
 

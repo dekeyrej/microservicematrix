@@ -4,14 +4,17 @@
 # kubectl rollout restart -n default deployment mlb
 from typing import Mapping
 import arrow
-# import json
+import json
+import logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
-from plain_pages.serverpage import ServerPage
+from microservice import MicroService
 
-class MLBServer(ServerPage):
+class MLBServer(MicroService):
     """ ... """
-    def __init__(self, prod, period, secretcfg, secretdef):
-        super().__init__(prod, period, secretcfg, secretdef)
+    def __init__(self, period, secretcfg, secretdef):
+        super().__init__(period, secretcfg, secretdef)
+        logging.info(self.secrets)
         del self.secrets
         self.type = 'MLB'
         self.url = 'http://site.api.espn.com/apis/site/v2/sports/baseball/mlb/scoreboard'
@@ -22,12 +25,12 @@ class MLBServer(ServerPage):
         resp = self.fetch(self.url,'Fetching MLB games',tnow.format('MM/DD/YYYY hh:mm A ZZZ'))
         if resp is not None:
             games = resp['events']
-            data = {}
-            data['type'] = 'MLB'
-            data['updated'] = tnow.format('MM/DD/YYYY h:mm A Z')
-            data['valid'] = \
-                tnow.shift(seconds=+self.update_period).format('MM/DD/YYYY h:mm:ss A Z')
-            data['values'] = []
+            data = {
+                'type': self.type,
+                'updated': self.now_str(tnow, False),
+                'valid': self.now_str(tnow.shift(seconds=self.update_period), True),
+                'values': []
+            }
 
             game_count = len(games)
             pre_games = in_games = post_games = 0
@@ -71,8 +74,8 @@ class MLBServer(ServerPage):
         #         print(next_sleep)
 #             self.update_rate = next_sleep # seconds between updates
             data['valid'] = next_valid.format('MM/DD/YYYY h:mm:ss A Z')
-            print(f'{type(self).__name__} updated.')
-            self.dba.write(data)
+            logging.info(f'{type(self).__name__} updated.')
+            self.r.publish('update', json.dumps(data))
 
     def load_game(self, game: dict) -> tuple[dict, str]:
         """ ... """
@@ -83,7 +86,7 @@ class MLBServer(ServerPage):
         # if start_time < next_start_time and start_time >= tnow:
         # if tnow <= start_time < next_start_time:
         #     next_start_time = start_time
-        values['startTime']  = start_time.format('MM/DD/YYYY h:mm A ZZZ')
+        values['startTime']  = start_time.format('MM/DD/YYYY h:mm A Z')
         values['seasonType'] = game['season']['slug']
         comp                 = game['competitions'][0]
         values.update(self.away_values(comp))
@@ -168,14 +171,12 @@ class MLBServer(ServerPage):
 if __name__ == '__main__':
     import os
 
-    try:
-        PROD = os.environ["PROD"]
-    except KeyError:
-        pass
-
-    if PROD == '1':
+    period = int(os.environ.get("PERIOD", '600'))
+    prod = os.environ.get("PROD", '0')
+    if prod == '1':
         from config import secretcfg, secretdef
-        MLBServer(True, 29, secretcfg, secretdef).run()
     else:
         from devconfig import secretcfg, secretdef
-        MLBServer(False, 29, secretcfg, secretdef).run()
+
+    logging.debug(f"Starting Events Server with period: {period},\nsecrets type: {secretcfg}, and\nsecret definition: {secretdef}")
+    MLBServer(period, secretcfg, secretdef).run()

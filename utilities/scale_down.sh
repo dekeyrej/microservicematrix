@@ -1,0 +1,1 @@
+for i in aqi events github mlb moon mycal nfl weather; do kubectl scale -n default deployment $i --replicas=0; done

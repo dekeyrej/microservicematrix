@@ -1,14 +1,16 @@
 """ Reads (google) calendar events for today """
-# import json
+import json
 import arrow
 
-from plain_pages.serverpage import ServerPage
+import logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
+from microservice import MicroService
 
-class CalendarServer(ServerPage):
+class CalendarServer(MicroService):
     """ Subclass of serverpage for reading calendar events """
-    def __init__(self, prod, period, secretcfg, secretdef):
-        super().__init__(prod, period, secretcfg, secretdef)
+    def __init__(self, period, secretcfg, secretdef):
+        super().__init__(period, secretcfg, secretdef)
         self.type = 'Calendar'
 #       calendar has to be public :-/
         self._base_calendar_url = f'https://www.googleapis.com/calendar/v3/calendars/' \
@@ -33,22 +35,23 @@ class CalendarServer(ServerPage):
                 'valid': tnow.shift(seconds=self.update_period).format('MM/DD/YYYY h:mm:ss A Z'),
                 'values': [(item["summary"], item["start"]["dateTime"], item["end"]["dateTime"]) for item in items]
             }
-
-            # print(json.dumps(data,indent=2))
-            self.dba.write(data)
-            print(f'{type(self).__name__} updated.')
+            if len(data['values']) == 0:
+                data['values'].append(('No events'))
+            logging.info(json.dumps(data,indent=2))
+            self.r.publish('update', json.dumps(data))
+            logging.debug(json.dumps(data, indent=2))
+            logging.info(f'{type(self).__name__} updated.')
 
 if __name__ == '__main__':
     import os
 
-    try:
-        PROD = os.environ["PROD"]
-    except KeyError:
-        pass
-
-    if PROD == '1':
+    period = int(os.environ.get("PERIOD", '600'))
+    prod = os.environ.get("PROD", '0')
+    if prod == '1':
         from config import secretcfg, secretdef
-        CalendarServer(True, 877, secretcfg, secretdef).run()
     else:
         from devconfig import secretcfg, secretdef
-        CalendarServer(False, 877, secretcfg, secretdef).run()
+
+    logging.debug(f"Starting Events Server with period: {period},\nsecrets type: {secretcfg}, and\nsecret definition: {secretdef}")
+
+    CalendarServer(period, secretcfg, secretdef).run()

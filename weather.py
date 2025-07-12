@@ -1,21 +1,21 @@
 """ ... """
-# import json
-from typing import Union
-from plain_pages.serverpage import ServerPage
+import json
 import arrow
+import logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
-number = Union[float, int]
+from microservice import MicroService
 
-class OWMServer(ServerPage):
+class OWMServer(MicroService):
     """ ... """
-    def __init__(self, prod, period, secretcfg, secretdef):
-        super().__init__(prod, period, secretcfg, secretdef)
+    def __init__(self, period, secretcfg, secretdef):
+        super().__init__(period, secretcfg, secretdef)
         self.type = 'Weather'
         self.url = f'https://api.openweathermap.org/data/3.0/onecall?appid=' \
                    f'{self.secrets["owmkey"]}&lat={self.secrets["latitude"]}&' \
                    f'lon={self.secrets["longitude"]}' \
                    f'&exclude=minutely,alerts&units=imperial&lang=en'
-        print(self.url)
+        logging.debug(self.url)
         del self.secrets
         self.dirs = ['N','NNE','NE','ENE','E','ESE','SE','SSE',
                      'S','SSW','SW','WSW','W','WNW','NW','NNW']
@@ -63,8 +63,8 @@ class OWMServer(ServerPage):
                     ]
                 }
             }
-            self.dba.write(data)
-            print(f'{type(self).__name__} updated.')
+            self.r.publish('update', json.dumps(data))
+            logging.info(f'{type(self).__name__} updated.')
 
 
     def to_nwid(self, icon: str, wid: int) -> int:
@@ -77,21 +77,20 @@ class OWMServer(ServerPage):
             nwid = wid + 60000
         return nwid
 
-    def deg_to_dir(self, deg: number) -> str:
+    def deg_to_dir(self, deg) -> str:
         """ ... """
         return self.dirs[round(deg/22.5) % 16]
 
 if __name__ == '__main__':
     import os
 
-    try:
-        PROD = os.environ["PROD"]
-    except KeyError:
-        pass
-
-    if PROD == '1':
+    period = int(os.environ.get("PERIOD", '600'))
+    prod = os.environ.get("PROD", '0')
+    if prod == '1':
         from config import secretcfg, secretdef
-        OWMServer(True, 907, secretcfg, secretdef).run()
     else:
         from devconfig import secretcfg, secretdef
-        OWMServer(False, 907, secretcfg, secretdef).run()
+
+    logging.debug(f"Starting Events Server with period: {period},\nsecrets type: {secretcfg}, and\nsecret definition: {secretdef}")
+
+    OWMServer(period, secretcfg, secretdef).run()

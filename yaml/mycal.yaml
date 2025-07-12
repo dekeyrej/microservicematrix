@@ -18,8 +18,11 @@ spec:
     spec:
       containers:
         - name: mycal
-          image: ghcr.io/dekeyrej/mycal:latest
+          image: ghcr.io/dekeyrej/mycal:dev
           imagePullPolicy: Always
+          env:
+          - name: PERIOD
+            value: "877"
           resources:
             requests:
               cpu: 10m

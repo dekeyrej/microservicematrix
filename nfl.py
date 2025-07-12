@@ -5,12 +5,15 @@
 
 import json
 import arrow
-from plain_pages.serverpage import ServerPage
+import logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
-class NFLServer(ServerPage):
+from microservice import MicroService
+
+class NFLServer(MicroService):
     """ ... """
-    def __init__(self, prod, period, secretcfg, secretdef):
-        super().__init__(prod, period, secretcfg, secretdef)
+    def __init__(self, period, secretcfg, secretdef):
+        super().__init__(period, secretcfg, secretdef)
         del self.secrets
         self.type = 'NFL'
         self.url = 'http://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard'
@@ -23,29 +26,30 @@ class NFLServer(ServerPage):
         try:
             resp = self.fetch(self.url,'Fetching NFL games',now.format('MM/DD/YYYY hh:mm A ZZZ'))
         except json.decoder.JSONDecodeError:
-            print("Bad response")
+            logging.error("Bad response")
             resp = None
         ## JSONDecodeError or RequestsJSONDecodeError
 
         if resp:
             games = resp['events']
-            self.active = 0
-            data = {}
-            data['type'] = self.type
-            data['updated'] = now.format('MM/DD/YYYY h:mm A Z')
-            data['valid'] = \
-                now.shift(seconds=+self.update_period).format('MM/DD/YYYY h:mm:ss A Z')
             seasonid = int(resp['leagues'][0]['season']['type']['id'])
             weekid = int(resp['week']['number'])
-            data['values'] = {
-                'seasontype': resp['leagues'][0]['season']['type']['name'],
-                'weekname': resp['leagues'][0]['calendar'][seasonid -1 ]['entries'][weekid - 1]['label'],
-                'events': []
+            tnow = arrow.now().to(self.timezone)
+            self.active = 0
+            data = {
+                'type': self.type,
+                'updated': self.now_str(tnow, False),
+                'valid': self.now_str(tnow.shift(seconds=self.update_period), True),
+                'values': {
+                    'seasontype': resp['leagues'][0]['season']['type']['name'],
+                    'weekname': resp['leagues'][0]['calendar'][seasonid -1 ]['entries'][weekid - 1]['label'],
+                    'events': []
+                }
             }
             game_count = len(games)
             # dow = int(now.format('d'))
             next_start = now.shift(weekday=1)
-            print(next_start)
+            logging.info(f'Next start: {next_start}')
             # pre_games = in_games = post_games = 0
             for game in games:
                 data['values']['events'].append(self.read_event(game))
@@ -61,11 +65,11 @@ class NFLServer(ServerPage):
                         next_start = start_time
 
             if self.update_period != 59: self.update_period = min((next_start - now).seconds, 15 * 60)
-            print(f'In progress games: {self.active}')
+            logging.debug(f'In progress games: {self.active}')
             # print(json.dumps(data,indent=1)) # uncomment for local testing
             # print(f'{type(self).__name__} updated.')
             # print('write data...')
-            self.dba.write(data)  # comment out for local testing
+            self.r.publish('update', json.dumps(data))  # comment out for local testing
             # print('data written?')
             # write data to the database
 
@@ -130,28 +134,26 @@ class NFLServer(ServerPage):
                     # print(away)
                     game['possession'] = game['awayabrv']
                     # print(f"{game['awayabrv']} has the ball...")
-                print(f"{game['possession']} has the ball.")
+                logging.debug(f"{game['possession']} has the ball.")
                 game['position']       = situ.get('possessionText',"")
                 game['downandyardage'] = situ.get('shortDownDistanceText',"")
                 game['lastplay']       = situ['lastPlay']['type'].get('text',"")
             except:
                 # game['possession'] = ""
-                print("exception in situ")
+                logging.error("exception in situ")
         return game
 
 if __name__ == '__main__':
     import os
 
-    try:
-        PROD = os.environ["PROD"]
-    except KeyError:
-        pass
-
-    if PROD == '1':
+    period = int(os.environ.get("PERIOD", '600'))
+    prod = os.environ.get("PROD", '0')
+    if prod == '1':
         from config import secretcfg, secretdef
-        NFLServer(True, 59, secretcfg, secretdef).run()
     else:
         from devconfig import secretcfg, secretdef
-        NFLServer(False, 59, secretcfg, secretdef).run()
 
+    logging.debug(f"Starting Events Server with period: {period},\nsecrets type: {secretcfg}, and\nsecret definition: {secretdef}")
+
+    NFLServer(period, secretcfg, secretdef).run()
     

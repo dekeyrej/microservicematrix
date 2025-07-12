@@ -1,40 +1,46 @@
 """ ... """
+import json
 import xml.etree.ElementTree as ET
 import arrow
+import logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
-from plain_pages.serverpage import ServerPage
+from microservice import MicroService
 
-class GarminServer(ServerPage):
+class GarminServer(MicroService):
     """ ... """
-    def __init__(self, prod, period):
-        super().__init__(prod, period)
+    def __init__(self, period, secretcfg, secretdef):
+        super().__init__(period, secretcfg, secretdef)
         self.type = 'Track'
         self.url = self.secrets['garmin_url']
-        # self.clear_secrets()
-        self.last_track = self.lastest_track()
+        del self.secrets
+        # self.last_track = self.lastest_track()
         self.dirs = ['N','NNE','NE','ENE','E','ESE','SE','SSE','S','SSW',
                      'SW','WSW','W','WNW','NW','NNW']
 
     def update(self):
         """ ... """
-        tnow = arrow.now().to(self.secrets['timezone'])
+        tnow = arrow.now().to(self.timezone)
         resp = self.fetch_raw(self.url,"Fetching Ryan's Track",
                               tnow.format('MM/DD/YYYY hh:mm A ZZZ'))
         if resp is not None:
-            data = {}
-            data['type'] = 'Track'
-            data['updated'] = tnow.format('MM/DD/YYYY h:mm A ZZ')
-            data['valid'] = \
-                tnow.shift(seconds=+self.update_period).format('MM/DD/YYYY h:mm:ss A ZZ')
-            data['values'] = {}
+            data = {
+                'type'   : 'Track',
+                'updated': self.now_str(tnow, False),
+                'valid'  : self.now_str(tnow.shift(seconds=self.update_period), True),
+                'values' : {}
+            }
             # json_str = json.dumps(data)
             # source = xmltodict.parse(resp.content)
     # track_data = source['kml']['Document']['Folder']['Placemark'][0]['ExtendedData']['Data']
             track_data = self.xml2dict(resp.content)
-            # print(track_data)
+            if len(track_data) < 14:
+                logging.error(f'Not enough data in track: {len(track_data)}')
+                return
+            logging.debug(json.dumps(track_data, indent=2))
             # track_time = arrow.get(track_data[ 2]['value'],'M/D/YYYY h:mm:ss A')
             # print(arrow.now().to('US/Eastern').format('M/D/YYYY h:mm:ss A'))
-            print(f'{type(self).__name__} updated.')
+            logging.info(f'{type(self).__name__} updated.')
             # if track_time > self.last_track:
             #     self.last_track = track_time
             # fields = [2,3,8,9,11,12,13] # [time, name, lat, long, vel, course, gps]
@@ -47,8 +53,9 @@ class GarminServer(ServerPage):
             data['values'][track_data[12]['@name']] = \
                 self.course(track_data[12]['value']) # Course degrees converted to compass pts
             data['values'][track_data[13]['@name']] = track_data[13]['value'] # Valid GPS Fix?
-            # print(json.dumps(data, indent=2))
-            self.dba.write(data)
+            logging.debug(json.dumps(data,indent=2))
+            self.r.publish('update', json.dumps(data))
+            logging.info(f'{type(self).__name__} updated.')
             # also dump the track to the tracks database
             ## this may not be portable for CockroachDB ##
             # self.dba["tracks"]["ryan"].insert_one(data['track'])
@@ -65,14 +72,14 @@ class GarminServer(ServerPage):
         """ converts degrees to 'compass points' """
         return self.dirs[round(deg/22.5) % 16]
 
-    def lastest_track(self) -> arrow:
-        """ query to return the latest track from tracks database """
-        result = self.dba.read('Track')
-        if result is not None:
-            timestr = arrow.get(result['values']['Time'],'M/D/YYYY h:mm:ss A')
-        else:
-            timestr = arrow.now()
-        return timestr
+    # def lastest_track(self) -> arrow:
+    #     """ query to return the latest track from tracks database """
+    #     result = self.dba.read('Track')
+    #     if result is not None:
+    #         timestr = arrow.get(result['values']['Time'],'M/D/YYYY h:mm:ss A')
+    #     else:
+    #         timestr = arrow.now()
+    #     return timestr
 
     def xml2dict(self,data):
         """ strips values from Garmin inReach kml data and returns them in an array """
@@ -86,17 +93,14 @@ class GarminServer(ServerPage):
 
 if __name__ == '__main__':
     import os
-    import dotenv
 
-    dotenv.load_dotenv()
-
-    try:
-        PROD = os.environ["PROD"]
-        SECRETS_PATH = os.environ["SECRETS_PATH"]
-    except KeyError:
-        pass
-
-    if PROD == '1':
-        GarminServer(True, 601).run()
+    period = int(os.environ.get("PERIOD", '600'))
+    prod = os.environ.get("PROD", '0')
+    if prod == '1':
+        from config import secretcfg, secretdef
     else:
-        GarminServer(False, 601).run()
+        from devconfig import secretcfg, secretdef
+
+    logging.debug(f"Starting Events Server with period: {period},\nsecrets type: {secretcfg}, and\nsecret definition: {secretdef}")
+    # GarminServer(period).run()
+    GarminServer(period, secretcfg, secretdef).run()
