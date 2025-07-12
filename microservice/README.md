@@ -1,12 +1,12 @@
-# dekeyrej-microservice
+# microservice
 
 **Minimalist base class for microservice servers.**
 
-`dekeyrej-microservice` is a lightweight Python package that provides a superclass `MicroService`—designed to orchestrate real-time data collection and visual display in homelab environments. It’s built for clarity, composability, and just enough abstraction to stay out of your way.
+`microservice` is a lightweight Python package that provides a superclass `MicroService`—designed to orchestrate real-time data collection and visual display in homelab environments. It’s built for clarity, composability, and just enough abstraction to stay out of your way.
 
-## ✨ Why dekeyrej-microservice?
+## ✨ Why microservice?
 
-This project grew out of a desire to keep things simple—but not simplistic. In a homelab where services talk over Redis, update displays via RGB matrices, and pull secrets from Vault or Kubernetes, `dekeyrej-microservice` offers a clean interface for:
+This project grew out of a desire to keep things simple—but not simplistic. In a homelab where services talk over Redis, update displays via RGB matrices, and pull secrets from Vault or Kubernetes, `microservice` offers a clean interface for:
 
 - Scheduling periodic updates
 - Fetching and publishing data
@@ -30,12 +30,6 @@ The `examples/moon_clock/` directory (coming soon) includes:
 - `MoonServer`: Fetches sun/moon data from MET Norway’s API and publishes it
 - `MoonDisplay`: Renders current time, moon phase, and next moonrise/set on an RGB matrix
 - `clientdisplay.py`: Drives the LED panel and handles display cycling, pause/play, and override logic via Redis -->
-
-## 📦 Installation
-
-```bash
-pip install dekeyrej-microservice
-```
 
 ## 🛠️ Usage
 
