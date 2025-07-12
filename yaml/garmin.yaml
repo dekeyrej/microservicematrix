@@ -18,8 +18,11 @@ spec:
     spec:
       containers:
         - name: garmin
-          image: ghcr.io/dekeyrej/garmin:latest
+          image: ghcr.io/dekeyrej/garmin:dev
           imagePullPolicy: Always
+          env:
+          - name: PERIOD
+            value: "601"
           resources:
             requests:
               cpu: 10m

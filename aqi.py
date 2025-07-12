@@ -1,9 +1,11 @@
 """ ... """
 import json
+import logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 import arrow
 
-from plain_pages.serverpage import ServerPage
+from microservice import MicroService
 
 """
 From https://www.airnow.gov/sites/default/files/2020-05/aqi-technical-assistance-document-sept2018.pdf
@@ -30,16 +32,15 @@ aqidata = {
 }
 
 
-class AQIServer(ServerPage):
+class AQIServer(MicroService):
     """ ... """
-    def __init__(self, prod, period, secretcfg, secretdef):
-        super().__init__(prod, period, secretcfg, secretdef)
+    def __init__(self, period, secretcfg, secretdef):
+        super().__init__(period, secretcfg, secretdef)     # this reads the secrets and connects to redis
         self.type = 'AQI'
         self.url = f'https://api.openweathermap.org/data/2.5/air_pollution?appid=' \
                    f'{self.secrets["owmkey"]}&lat={self.secrets["latitude"]}&' \
                    f'lon={self.secrets["longitude"]}'
         del self.secrets
-        # self.clear_secrets()
 
     def update(self):
         """ ... """
@@ -73,10 +74,7 @@ class AQIServer(ServerPage):
                     'main_pollutant': aqidata["pollutants"][max_pollutant]["name"]
                 }
             }
-
-            # write out the results
-            self.dba.write(data)
-            # print(f'{type(self).__name__} updated.')
+            self.r.publish('update', json.dumps(data))  # publish the data to the redis channel
 
     def convert_reading(self, val: float|int, pol: str) -> float|int:
         """
@@ -122,15 +120,13 @@ class AQIServer(ServerPage):
 if __name__ == '__main__':
     import os
 
-    try:
-        PROD = os.environ["PROD"]
-    except KeyError:
-        pass
-
-    if PROD == '1':
+    period = int(os.environ.get("PERIOD", '600'))
+    prod = os.environ.get("PROD", '0')
+    if prod == '1':
         from config import secretcfg, secretdef
-        AQIServer(True, 919, secretcfg, secretdef).run()
     else:
         from devconfig import secretcfg, secretdef
-        AQIServer(False, 919, secretcfg, secretdef).run()
 
+    logging.debug(f"Starting AQI Server with period: {period},\nsecrets type: {secretcfg}, and\nsecret definition: {secretdef}")
+
+    AQIServer(period, secretcfg, secretdef).run()

@@ -16,6 +16,7 @@ ENV PATH="/opt/venv/bin:$PATH" \
     PROD=1 \
     PYTHONUNBUFFERED=1 
 WORKDIR /code
+COPY microservice/ /code/
 COPY config.py .
 COPY $MICROSERVICE.py .
 EXPOSE 10255

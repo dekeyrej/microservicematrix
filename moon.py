@@ -3,14 +3,16 @@ import math
 from typing import Mapping
 import arrow
 import json
+import logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
-from plain_pages.serverpage import ServerPage
+from microservice import MicroService
 # from secretsecrets import encsecrets
 
-class MoonServer(ServerPage):
+class MoonServer(MicroService):
     """ subclass of ServerPage to fetch sun and moon data """
-    def __init__(self, prod, period, secretcfg, secretdef):
-        super().__init__(prod, period, secretcfg, secretdef)
+    def __init__(self, period, secretcfg, secretdef):
+        super().__init__(period, secretcfg, secretdef)
         self.headers = {'User-Agent': 'moon.py joedekeyrel@gmail.com'}
         self.type = 'Moon'
         self.loc_str = f'lat={self.secrets["latitude"]}&lon={self.secrets["longitude"]}'
@@ -22,7 +24,7 @@ class MoonServer(ServerPage):
         fetch web data and update database 
         as of 9/1/2023, Norwegian Met updated its API to version 3.0
         """
-        updtp = self.update_period
+        # updtp = self.update_period
         tnow = arrow.now().to(self.timezone)
         today, tomorrow, tstmp = self.url_date_str()
         urls = []
@@ -35,7 +37,7 @@ class MoonServer(ServerPage):
         for i in range(4):
             resp = self.fetch(urls[i],'Fetching Moon/Sun',tnow.format('MM/DD/YYYY hh:mm A ZZZ'), headers=self.headers)
             if resp is not None: 
-                # print(f'response from url:{urls[i]} is [{resp}]')
+                logging.debug(f'response from url:{urls[i]} is [{resp}]')
                 responses.append(resp)
                 respcount += 1
 
@@ -51,8 +53,8 @@ class MoonServer(ServerPage):
 
             data = {
                 'type': 'Moon',
-                'updated': tnow.format('MM/DD/YYYY h:mm A Z'),
-                'valid': tnow.shift(seconds=+updtp).format('MM/DD/YYYY h:mm:ss A Z'),
+                'updated': self.now_str(tnow, False),
+                'valid': self.now_str(tnow.shift(seconds=self.update_period), True),
                 'values': {
                     'phase': phase,
                     'illumstr': illumstr,
@@ -61,9 +63,9 @@ class MoonServer(ServerPage):
                 }
             }
             
-            self.dba.write(data)
-            # print(json.dumps(data['values'], indent=1))
-            print(f'{type(self).__name__} updated.')
+            self.r.publish('update', json.dumps(data))
+            logging.debug(json.dumps(data['values'], indent=1))
+            logging.info(f'{type(self).__name__} updated.')
 
     def moon_condition(self, moonphase: float) -> tuple[int, float]:
         """ convert moonphase to an integer phase (index of phase image) and an illumination %
@@ -151,14 +153,13 @@ class MoonServer(ServerPage):
 if __name__ == '__main__':
     import os
 
-    try:
-        PROD = os.environ["PROD"]
-    except KeyError:
-        pass
-
-    if PROD == '1':
-        from config import secretcfg, secretdef
-        MoonServer(True, 3607, secretcfg, secretdef).run()
+    period = int(os.environ.get("PERIOD", '600'))
+    prod = os.environ.get("PROD", '0')
+    if prod == '1':
+        from config    import secretcfg, secretdef
     else:
         from devconfig import secretcfg, secretdef
-        MoonServer(False, 3607, secretcfg, secretdef).run()
+
+    logging.debug(f"Starting Moon Server with period: {period},\nsecrets type: {secretcfg}, and\nsecret definition: {secretdef}")
+
+    MoonServer(period, secretcfg, secretdef).run()

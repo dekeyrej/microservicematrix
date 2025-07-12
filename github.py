@@ -2,13 +2,16 @@
 import json
 import arrow
 
-from plain_pages.serverpage import ServerPage
+import logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
-class GithubServer(ServerPage):
+from microservice import MicroService
+
+class GithubServer(MicroService):
     """ Subclass of serverpage for reading Jenkins Build Status events """
-    def __init__(self, prod, period, secretcfg, secretdef):
-        super().__init__(prod, period, secretcfg, secretdef)
-        
+    def __init__(self, period, secretcfg, secretdef):
+        super().__init__(period, secretcfg, secretdef)
+
         self.type = 'GitHub'
         owner = self.secrets['github_owner']
         repo = self.secrets['github_repo']
@@ -32,21 +35,22 @@ class GithubServer(ServerPage):
                           tnow.format('MM/DD/YYYY hh:mm A ZZZ'),\
                           headers=self.headers)
         if cresp and lscresp:
-            data = {}
-            data['type']   = 'GitHub'
-            data['updated'] = tnow.to(self.timezone).format('MM/DD/YYYY h:mm A Z')
-            data['valid'] = tnow.to(self.timezone).shift(seconds=+self.update_period).\
-                format('MM/DD/YYYY h:mm:ss A Z')
-            data['values'] = {}
-            data['values']['latest_commit'] = cresp[0]['sha'][0:7]
-            data['values']['last_successful_commit'] = self.find_last_successful_commit(lscresp)
-            data['values']['commit_message'] = cresp[0]['commit']['message']
-            commit_date = arrow.get(cresp[0]['commit']['author']['date'],in_format)
-            data['values']['date'] = commit_date.to(self.timezone).format(out_format)
+            data = {
+                'type': self.type,
+                'updated': self.now_str(tnow, False),
+                'valid': self.now_str(tnow.shift(seconds=self.update_period), True),
+                'values': {
+                    'latest_commit': cresp[0]['sha'][0:7],
+                    'last_successful_commit': self.find_last_successful_commit(lscresp),
+                    'commit_message': cresp[0]['commit']['message'],
+                    'date': arrow.get(cresp[0]['commit']['author']['date'], in_format).to(self.timezone).format(out_format)
+                }
+            }
+            # data['values']['date'] = commit_date.to(self.timezone).format(out_format)
 
-            print(json.dumps(data,indent=2))
-            self.dba.write(data)
-            print(f'{type(self).__name__} updated.')
+            logging.info(json.dumps(data,indent=2))
+            self.r.publish('update', json.dumps(data))
+            logging.info(f'{type(self).__name__} updated.')
 
     def find_last_successful_commit(self, resp):
         for r in resp['workflow_runs']:
@@ -57,14 +61,13 @@ class GithubServer(ServerPage):
 if __name__ == '__main__':
     import os
 
-    try:
-        PROD = os.environ["PROD"]
-    except KeyError:
-        pass
-
-    if PROD == '1':
+    period = int(os.environ.get("PERIOD", '600'))
+    prod = os.environ.get("PROD", '0')
+    if prod == '1':
         from config import secretcfg, secretdef
-        GithubServer(True, 599, secretcfg, secretdef).run()
     else:
         from devconfig import secretcfg, secretdef
-        GithubServer(False, 599, secretcfg, secretdef).run()
+
+    logging.debug(f"Starting GitHub Server with period: {period},\nsecrets type: {secretcfg}, and\nsecret definition: {secretdef}")
+
+    GithubServer(period, secretcfg, secretdef).run()

@@ -18,8 +18,11 @@ spec:
     spec:
       containers:
         - name: events
-          image: ghcr.io/dekeyrej/events:latest
+          image: ghcr.io/dekeyrej/events:dev
           imagePullPolicy: Always
+          env:
+          - name: PERIOD
+            value: "3593"
           resources:
             requests:
               cpu: 10m

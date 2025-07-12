@@ -1,0 +1,8 @@
+aqi
+events
+github
+mlb
+moon
+mycal
+nfl
+weather

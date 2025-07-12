@@ -18,8 +18,11 @@ spec:
     spec:
       containers:
         - name: weather
-          image: ghcr.io/dekeyrej/weather:latest
+          image: ghcr.io/dekeyrej/weather:dev
           imagePullPolicy: Always
+          env:
+          - name: PERIOD
+            value: "907"
           resources:
             requests:
               cpu: 10m

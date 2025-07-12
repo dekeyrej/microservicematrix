@@ -2,11 +2,7 @@ __pycache__/
 .env
 builds.txt
 retired/
-bin/
-lib/
-lib64
-include/
-pyvenv.cfg
+venv/
 acthere
 urls.txt
 test_data/

@@ -18,8 +18,11 @@ spec:
     spec:
       containers:
         - name: github
-          image: ghcr.io/dekeyrej/github:latest
+          image: ghcr.io/dekeyrej/github:dev
           imagePullPolicy: Always
+          env:
+          - name: PERIOD
+            value: "599"
           resources:
             requests:
               cpu: 10m

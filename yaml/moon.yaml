@@ -18,8 +18,11 @@ spec:
     spec:
       containers:
         - name: moon
-          image: ghcr.io/dekeyrej/moon:latest
+          image: ghcr.io/dekeyrej/moon:dev
           imagePullPolicy: Always
+          env:
+          - name: PERIOD
+            value: "3607"
           resources:
             requests:
               cpu: 10m
