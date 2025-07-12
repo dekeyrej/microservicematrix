@@ -1,6 +1,6 @@
 # 🧩 Microservice Overview
 
-Each service is a subclass of [ServerPage](https://github.com/dekeyrej/plain_pages), writing state to a [Datasource](https://github.com/dekeyrej/datasource)-backed database and broadcasting notification events over Redis.
+Each service is a subclass of [MicroService](microservice/microservice.py), publishing `update` events via Redis `Pub/Sub`.
 
 They can run continuously (recommended) or be instantiated in single-shot mode for isolated updates. Secrets and configuration are managed via [SecretManager](https://github.com/dekeyrej/secretmanager), with deployment defined in Kubernetes YAMLs.
 
@@ -28,10 +28,10 @@ The MLB microservice follows a dynamic update cycle:
 - **Post-game** – sleeps until 11:30 AM the next day
 
 ### 🧭 Related Repositories
--  – Page abstraction for structured microservices and displays
--  – Python abstraction for SQLite, and Postgres (and future MongoDB?)
 -  – Flexible configuration reader for secrets and environment management
 -  – This repo: multi-source data broadcaster for smart displays
+-  – State-storer records broadcast updates
+-  – API Server which feeds the Display renderer and Frontend  Webdisplay 
 -  – Display renderer for RGB matrices and static BMP output
 -  – Frontend WebDisplay for rendering data in real time
 -  – Infrastructure automation for provisioning, deploying, and maintaining the stack

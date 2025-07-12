@@ -6,19 +6,18 @@
 
 **microservicematrix** is a modular suite of Python-based microservices that collect, normalize, and publish data from various internet and local sources—designed for a 128×64 RGB LED matrix (Tidbyt-style) but decoupled for flexible display targets.
 
-Data is written to a shared `Datasource`-backed database (Postgres, SQLite, [future] Redis) and update notifications are sent over Redis. Consumers like [matrixclient](https://github.com/dekeyrej/matrixclient) and [nodewebdisplay](https://github.com/dekeyrej/nodewebdisplay) render the content in real time or generate static BMPs for testing and archival.
+Extracted data is transformed and then published as `update` events via Redis `Pub/Sub`. Consumers like [matrixclient](https://github.com/dekeyrej/matrixclient) and [nodewebdisplay](https://github.com/dekeyrej/nodewebdisplay) render the content in real time or generate static BMPs for testing and archival.
 
 All services are containerized for Kubernetes deployment and are tightly integrated with:
 
-- 🔑 [`secretmanager`](https://github.com/dekeyrej/secretmanager) – secure, multi-source config management
-- 🧩 [`plain_pages`](https://github.com/dekeyrej/plain_pages) – uniform abstraction for service logic and configuration
-- 📦 [`dekeyrej-datasource`](https://github.com/dekeyrej/datasource) – simple multi-db persistence (available on [PyPI](https://pypi.org/project/dekeyrej-datasource))
+- 🔑 [`secretmanager`](https://github.com/dekeyrej/secretmanager) – secure, multi-source config management (available on [PyPI](https://pypi.org/project/dekeyrej-secretmanager))
+- 🧩 [`MicroService`](microservice/README.md) – uniform abstraction for service logic and configuration
 
 ---
 
 ## 📋 Service Overview
 
-Each service is a subclass of [`ServerPage`](https://github.com/dekeyrej/plain_pages), and can run as a long-lived process or invoked in one-shot mode. Configuration is sourced via [`secretmanager`](https://github.com/dekeyrej/secretmanager) and managed using Kubernetes secrets and YAML deployments.
+Each service is a subclass of [`MicroService`](microservice/microservice.py), and can run as a long-lived process or invoked in one-shot mode. Configuration is sourced via [`secretmanager`](https://github.com/dekeyrej/secretmanager) and managed using Kubernetes secrets and YAML deployments.
 
 | Service | Source File | Description | Data Source | Interval |
 |---------|-------------|-------------|-------------|----------|
