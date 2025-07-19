@@ -1,4 +1,6 @@
 import json
+import logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 import subprocess
 import os
 import requests
@@ -20,7 +22,7 @@ class LandL():
     def update_github(self):
         latest_sha, last_commit = self.get_latest_commit()
         last_successful_sha, last_success = self.get_last_successful_commit()
-        # print(f'Latest commit: {latest_sha} @ {last_commit}. Last successful commit: {last_successful_sha} @ {last_success}')
+        logging.info(f'Latest commit: {latest_sha} @ {last_commit}. Last successful commit: {last_successful_sha} @ {last_success}')
         return last_successful_sha, latest_sha
 
     def fetch(self, url, headers): 
@@ -38,24 +40,24 @@ class LandL():
     def get_latest_commit(self):
         resp = self.fetch(self.commits_url, self.headers)
         # print(resp)
-        return resp[0]['sha'][0:7], resp[0]['commit']['author']['date']
+        return resp[0]['sha'], resp[0]['commit']['author']['date']
 
     def get_last_successful_commit(self):
         resp = self.fetch(self.workflow_url, self.headers)
         for r in resp['workflow_runs']:
             if r['conclusion'] == 'success':
-                return r['head_commit']['id'][0:7], r['head_commit']['timestamp']
+                return r['head_commit']['id'], r['head_commit']['timestamp']
         return '0000000', 'never'
 
     def get_modified_files(self, successful_sha, latest_sha):
         cmd = f'git diff-tree {successful_sha} {latest_sha} --no-commit-id --name-only'
         result = subprocess.run(cmd, shell=True, capture_output=True)
-        # print(f'return code: {result.returncode}')
+        logging.info(f'return code: {result.returncode}')
         if result.returncode == 0:
             files = result.stdout.decode('utf-8').split('\n')
-            # print(f'Files changed since {successful_sha}: {files}')
+            logging.info(f'Files changed since {successful_sha}: {files}')
         else:
-            # print(result.stdout.decode('utf-8').split('\n'))
+            logging.info(result.stdout.decode('utf-8').split('\n'))
             files = []
         return files
 
@@ -63,12 +65,14 @@ class LandL():
         # build_list = ["mycal"]
         build_list = []
         for f in files:
+            f = f.strip()
+            base = os.path.basename(f)
             try:
-                if build_data.reverse_dependencies[f] == 'all':
+                if build_data.reverse_dependencies[base] == 'all':
                     # print('Build all!')
                     build_list = build_data.services
                     break
-                build_list.append(build_data.reverse_dependencies[f])
+                build_list.append(build_data.reverse_dependencies[base])
             except KeyError:
                 pass
 
@@ -78,24 +82,30 @@ class LandL():
         #     for b in bl:
         #         file.write(b + '\n')
         #     file.close()
-        # print(bl)
+        logging.info(bl)
 
         # builds = {}
         # builds = {'include': [{'app': a} for a in bl]}
         # for a in bl:
         #     builds['include'].append({"app": a})
-        # print(json.dumps(builds))
+        # logging.info(json.dumps(builds))
         return bl
         # with open('builds.json', 'wt', encoding='utf-8') as file:
         #     file.write(json.dumps(builds))
         #     file.close()
 
 if __name__ == '__main__':
+    import os
+
+    if os.getenv("DEBUG_FORCE_APPS") == 'true':
+        print(json.dumps(build_data.services))
+        exit(0)
     ll = LandL()
     success, latest = ll.update_github()
     filelist = ll.get_modified_files(success, latest)
     builds = ll.get_builds(filelist)
+    print(f'Files changed since {success}: {filelist}')
 
     # Output the builds as a GitHub Actions output variable
-    # print(builds)
+    print(builds)
     print(json.dumps(builds))
