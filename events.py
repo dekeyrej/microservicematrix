@@ -28,6 +28,8 @@ class NextEvent(MicroService):
         logging.info(f'{type(self).__name__} updated.')
         self.r.publish('update', json.dumps(data))
 
+### test change ###
+
 if __name__ == '__main__':
     import os
     

@@ -28,8 +28,9 @@ jobs:
 
       - name: Determine modified files
         id: determine-apps
+        env:
+          DEBUG_FORCE_APPS: "false"
         run: |
-          export DEBUG_FORCE_APPS=true
           export GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }}
           apps=$(python utilities/latest_and_last_successful.py)
           echo "Apps to build: $apps"

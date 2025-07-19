@@ -22,7 +22,7 @@ class LandL():
     def update_github(self):
         latest_sha, last_commit = self.get_latest_commit()
         last_successful_sha, last_success = self.get_last_successful_commit()
-        logging.info(f'Latest commit: {latest_sha} @ {last_commit}. Last successful commit: {last_successful_sha} @ {last_success}')
+        logging.debug(f'Latest commit: {latest_sha} @ {last_commit}. Last successful commit: {last_successful_sha} @ {last_success}')
         return last_successful_sha, latest_sha
 
     def fetch(self, url, headers): 
@@ -52,12 +52,12 @@ class LandL():
     def get_modified_files(self, successful_sha, latest_sha):
         cmd = f'git diff-tree {successful_sha} {latest_sha} --no-commit-id --name-only'
         result = subprocess.run(cmd, shell=True, capture_output=True)
-        logging.info(f'return code: {result.returncode}')
+        logging.debug(f'return code: {result.returncode}')
         if result.returncode == 0:
             files = result.stdout.decode('utf-8').split('\n')
-            logging.info(f'Files changed since {successful_sha}: {files}')
+            logging.debug(f'Files changed since {successful_sha}: {files}')
         else:
-            logging.info(result.stdout.decode('utf-8').split('\n'))
+            logging.debug(result.stdout.decode('utf-8').split('\n'))
             files = []
         return files
 
@@ -82,13 +82,13 @@ class LandL():
         #     for b in bl:
         #         file.write(b + '\n')
         #     file.close()
-        logging.info(bl)
+        logging.debug(bl)
 
         # builds = {}
         # builds = {'include': [{'app': a} for a in bl]}
         # for a in bl:
         #     builds['include'].append({"app": a})
-        # logging.info(json.dumps(builds))
+        # logging.debug(json.dumps(builds))
         return bl
         # with open('builds.json', 'wt', encoding='utf-8') as file:
         #     file.write(json.dumps(builds))
@@ -104,8 +104,8 @@ if __name__ == '__main__':
     success, latest = ll.update_github()
     filelist = ll.get_modified_files(success, latest)
     builds = ll.get_builds(filelist)
-    print(f'Files changed since {success}: {filelist}')
+    # print(f'Files changed since {success}: {filelist}')
 
     # Output the builds as a GitHub Actions output variable
-    print(builds)
+    # print(builds)
     print(json.dumps(builds))
