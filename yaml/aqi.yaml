@@ -18,7 +18,7 @@ spec:
     spec:
       containers:
         - name: aqi
-          image: ghcr.io/dekeyrej/aqi:dev
+          image: ghcr.io/dekeyrej/aqi:latest
           imagePullPolicy: Always
           env:
           - name: PERIOD

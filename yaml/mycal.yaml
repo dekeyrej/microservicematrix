@@ -18,7 +18,7 @@ spec:
     spec:
       containers:
         - name: mycal
-          image: ghcr.io/dekeyrej/mycal:dev
+          image: ghcr.io/dekeyrej/mycal:latest
           imagePullPolicy: Always
           env:
           - name: PERIOD

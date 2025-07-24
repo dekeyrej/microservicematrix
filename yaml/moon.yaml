@@ -18,7 +18,7 @@ spec:
     spec:
       containers:
         - name: moon
-          image: ghcr.io/dekeyrej/moon:dev
+          image: ghcr.io/dekeyrej/moon:latest
           imagePullPolicy: Always
           env:
           - name: PERIOD

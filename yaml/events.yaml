@@ -18,7 +18,7 @@ spec:
     spec:
       containers:
         - name: events
-          image: ghcr.io/dekeyrej/events:dev
+          image: ghcr.io/dekeyrej/events:latest
           imagePullPolicy: Always
           env:
           - name: PERIOD
