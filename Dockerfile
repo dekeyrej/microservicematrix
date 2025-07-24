@@ -13,7 +13,6 @@ FROM python:3.12-slim
 ARG MICROSERVICE
 COPY --from=builder /opt/venv /opt/venv
 ENV PATH="/opt/venv/bin:$PATH" \
-    PROD=1 \
     PYTHONUNBUFFERED=1 
 WORKDIR /code
 COPY microservice/ /code/
