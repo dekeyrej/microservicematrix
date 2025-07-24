@@ -21,6 +21,8 @@ spec:
           image: ghcr.io/dekeyrej/github:latest
           imagePullPolicy: Always
           env:
+          - name: PROD
+            value: "1"
           - name: PERIOD
             value: "599"
           resources:
