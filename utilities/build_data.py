@@ -4,6 +4,7 @@ services = ['aqi', 'events', 'garmin', 'github', 'mlb',
 
 reverse_dependencies = {
     "aqi.py": "aqi",
+    "ca.crt": "all",
     "events.py": "events",
     "garmin.py": "garmin",
     "github.py": "github",
