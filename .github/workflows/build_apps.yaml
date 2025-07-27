@@ -1,7 +1,9 @@
 name: Selective Build and Push
 
-on: 
-  workflow_dispatch
+on:
+  workflow_dispatch:
+  repository_dispatch:
+    types: [trigger-build, rebuild-all]
   # push:
   #   branches:
   #     - main
@@ -29,7 +31,7 @@ jobs:
       - name: Determine modified files
         id: determine-apps
         env:
-          DEBUG_FORCE_APPS: "false"
+          DEBUG_FORCE_APPS: DEBUG_FORCE_APPS: ${{ github.event.client_payload.DEBUG_FORCE_APPS || 'false' }}
         run: |
           export GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }}
           apps=$(python utilities/latest_and_last_successful.py)
