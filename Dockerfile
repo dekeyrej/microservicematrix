@@ -1,5 +1,5 @@
 #Builder stage
-FROM python:3.12-slim AS builder
+FROM python:slim AS builder
 RUN python -m venv /opt/venv
 ENV PATH="/opt/venv/bin:$PATH"
 COPY requirements.txt .
@@ -9,7 +9,7 @@ COPY utilities/check_and_append_cacert.py .
 COPY utilities/ca.crt .
 RUN python check_and_append_cacert.py
 #Operational stage
-FROM python:3.12-slim
+FROM python:slim
 ARG MICROSERVICE
 COPY --from=builder /opt/venv /opt/venv
 ENV PATH="/opt/venv/bin:$PATH" \
