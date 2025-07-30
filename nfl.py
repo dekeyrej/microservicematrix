@@ -32,7 +32,7 @@ class NFLServer(MicroService):
 
         if resp:
             games = resp['events']
-            seasonid = int(resp['leagues'][0]['season']['type']['id'])
+            seasonid = int(resp['season']['type'])
             weekid = int(resp['week']['number'])
             tnow = arrow.now().to(self.timezone)
             self.active = 0
@@ -41,8 +41,9 @@ class NFLServer(MicroService):
                 'updated': self.now_str(tnow, False),
                 'valid': self.now_str(tnow.shift(seconds=self.update_period), True),
                 'values': {
-                    'seasontype': resp['leagues'][0]['season']['type']['name'],
-                    'weekname': resp['leagues'][0]['calendar'][seasonid -1 ]['entries'][weekid - 1]['label'],
+                    'seasontype': resp['leagues'][0]['calendar'][seasonid -1 ]['label'],
+                    'weekname':   resp['leagues'][0]['calendar'][seasonid -1 ]['entries'][weekid - 1]['label'],
+                    'weekdates':  resp['leagues'][0]['calendar'][seasonid -1 ]['entries'][weekid - 1]['detail'],
                     'events': []
                 }
             }
