@@ -13,5 +13,5 @@ secretdef = {
     "namespace": "default", 
     "secret_name": "matrix-secrets",
     "read_type": "SECRET",
-    "secret_key": "secrets.json"
+    "read_key": "secrets.json"
 }
