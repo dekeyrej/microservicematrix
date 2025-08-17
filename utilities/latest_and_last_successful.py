@@ -50,7 +50,8 @@ class LandL():
         return '0000000', 'never'
 
     def get_modified_files(self, successful_sha, latest_sha):
-        cmd = f'git diff-tree {successful_sha} {latest_sha} --no-commit-id --name-only'
+        # cmd = f'git diff-tree {successful_sha} {latest_sha} --no-commit-id --name-only'
+        cmd = f'git diff {successful_sha} {latest_sha} --name-only'
         result = subprocess.run(cmd, shell=True, capture_output=True)
         logging.debug(f'return code: {result.returncode}')
         if result.returncode == 0:
@@ -59,14 +60,17 @@ class LandL():
         else:
             logging.debug(result.stdout.decode('utf-8').split('\n'))
             files = []
+        logging.debug(f'Files changed since {successful_sha}: {files}')
         return files
 
     def get_builds(self, files):
         # build_list = ["mycal"]
         build_list = []
         for f in files:
+            logging.debug(f"Checking file: {f}")
             f = f.strip()
             base = os.path.basename(f)
+            logging.debug(f"Checking file: {base}")
             try:
                 if build_data.reverse_dependencies[base] == 'all':
                     # print('Build all!')
