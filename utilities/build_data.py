@@ -4,7 +4,7 @@ services = ['aqi', 'events', 'garmin', 'github', 'mlb',
 
 reverse_dependencies = {
     "aqi.py": "aqi",
-    "utilities/ca.crt": "all",
+    "ca.crt": "all",
     "events.py": "events",
     "garmin.py": "garmin",
     "github.py": "github",
@@ -15,5 +15,5 @@ reverse_dependencies = {
     "Dockerfile": "all",
     "requirements.txt": "all",
     "weather.py": "weather",
-    "microservice/microservice.py": "all"
+    "microservice.py": "all"
 }

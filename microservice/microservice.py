@@ -14,7 +14,7 @@ from   requests.exceptions import HTTPError #, ConnectionError
 from   requests.adapters   import HTTPAdapter, Retry
 from   redis               import Redis
 
-from   secretmanager       import SecretManager     # for reading secrets from Vault, K8s, or environment variables
+from   secretmanager       import SecretManager      # for reading secrets from Vault, K8s, or environment variables
 
 class MicroService:
     """ ... """
