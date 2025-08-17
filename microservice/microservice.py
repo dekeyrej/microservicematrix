@@ -38,10 +38,7 @@ class MicroService:
         """ Read secrets from a file, Vault, Kubernetes, or environment variables. """
         sm = SecretManager(secretcfg, log_level='INFO')
         try:
-            if secretcfg.get("SOURCE") in ['FILE', 'ENVIRONMENT']:   ## probably makes sense to pass sm through for all sources
-                read_result = sm.execute(secretcfg.get("SOURCE"), "READ", secretdef)
-            else:
-                read_result = sm.execute(secretcfg.get("SOURCE"), "READ", sm, secretdef)
+            read_result = sm.execute(secretcfg.get("SOURCE"), "READ", sm, secretdef)
             if read_result.get("status") == "success":
                 logger.info("Secrets retrieved successfully.")
             else:

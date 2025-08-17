@@ -14,5 +14,6 @@ reverse_dependencies = {
     "nfl.py": "nfl",
     "Dockerfile": "all",
     "requirements.txt": "all",
-    "weather.py": "weather"
+    "weather.py": "weather",
+    "microservice.py": "all"
 }
