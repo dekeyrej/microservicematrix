@@ -13,11 +13,10 @@ FROM python:slim
 ARG MICROSERVICE
 COPY --from=builder /opt/venv /opt/venv
 ENV PATH="/opt/venv/bin:$PATH" \
-    PROD=1 \
     PYTHONUNBUFFERED=1 
 WORKDIR /code
 COPY microservice/ /code/
-COPY config.py .
+# COPY config.py .
 COPY $MICROSERVICE.py .
 EXPOSE 10255
 ENV APP=$MICROSERVICE.py

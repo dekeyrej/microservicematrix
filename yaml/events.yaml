@@ -21,10 +21,8 @@ spec:
           image: ghcr.io/dekeyrej/events:latest
           imagePullPolicy: Always
           env:
-          - name: PROD
-            value: "1"
-          - name: PERIOD
-            value: "3593"
+            - name: PERIOD
+              value: "3593"
           resources:
             requests:
               cpu: 10m
@@ -33,21 +31,33 @@ spec:
               cpu: 100m
               memory: 256Mi
           ports:
-          - containerPort: 10255
+            - containerPort: 10255
           livenessProbe:
             tcpSocket:
               port: 10255
             initialDelaySeconds: 15
             periodSeconds: 30
           volumeMounts:
-          - mountPath: /code/events.json
-            name: events
-            subPath: events.json
+            - name: secretcfg-volume
+              mountPath: /code/secretcfg.json
+              subPath: secretcfg.json
+            - name: secretdef-volume
+              mountPath: /code/secretdef.json
+              subPath: secretdef.json
+            - mountPath: /code/events.json
+              name: events
+              subPath: events.json
           securityContext:
             privileged: false
       volumes:
-      - name: events
-        configMap:
-          name: matrix-events
+        - name: secretcfg-volume
+          configMap:
+            name: secretcfg
+        - name: secretdef-volume
+          configMap:
+            name: secretdef
+        - name: events
+          configMap:
+            name: matrix-events
       imagePullSecrets:
         - name: ghcr-login-secret

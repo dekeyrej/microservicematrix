@@ -34,13 +34,13 @@ if __name__ == '__main__':
     import os
     
     period = int(os.environ.get("PERIOD", '600'))
-    prod = os.environ.get("PROD", '0')
-    if prod == '1':
-        from config import secretcfg, secretdef
-    else:
-        from devconfig import secretcfg, secretdef
+
+    with open("secretcfg.json") as f:
+        secretcfg = json.load(f)
+
+    with open("secretdef.json") as f:
+        secretdef = json.load(f)
 
     logging.debug(f"Starting Events Server with period: {period},\nsecrets type: {secretcfg}, and\nsecret definition: {secretdef}")
 
     NextEvent(period, secretcfg, secretdef).run()
-

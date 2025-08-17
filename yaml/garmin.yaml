@@ -21,10 +21,8 @@ spec:
           image: ghcr.io/dekeyrej/garmin:latest
           imagePullPolicy: Always
           env:
-          - name: PROD
-            value: "1"
-          - name: PERIOD
-            value: "601"
+            - name: PERIOD
+              value: "601"
           resources:
             requests:
               cpu: 10m
@@ -33,13 +31,27 @@ spec:
               cpu: 100m
               memory: 256Mi
           ports:
-          - containerPort: 10255
+            - containerPort: 10255
           livenessProbe:
             tcpSocket:
               port: 10255
             initialDelaySeconds: 15
             periodSeconds: 30
+          volumeMounts:
+            - name: secretcfg-volume
+              mountPath: /code/secretcfg.json
+              subPath: secretcfg.json
+            - name: secretdef-volume
+              mountPath: /code/secretdef.json
+              subPath: secretdef.json
           securityContext:
             privileged: false
+      volumes:
+        - name: secretcfg-volume
+          configMap:
+            name: secretcfg
+        - name: secretdef-volume
+          configMap:
+            name: secretdef
       imagePullSecrets:
         - name: ghcr-login-secret

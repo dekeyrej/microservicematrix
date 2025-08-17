@@ -1,6 +1,8 @@
 """ ... """
 import json
 import logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
 import os
 import time
 
@@ -35,27 +37,21 @@ class MicroService:
     def read_secrets(self, secretcfg: dict, secretdef: dict):
         """ Read secrets from a file, Vault, Kubernetes, or environment variables. """
         sm = SecretManager(secretcfg, log_level='INFO')
-        if secretcfg.get("SOURCE") == "FILE":
-            # Read secrets from a file
-            secrets = sm.read_secrets(secretdef.get("file_name"), secretdef.get("file_type"))
-        elif secretcfg.get("SOURCE") == "ENVIRONMENT":
-            # Read secrets from environment variables
-            secrets = sm.read_secrets(secretdef.get("environment_definition"), secretdef.get("env_file"), 
-                                      secretdef.get("definition_type"))
-        elif secretcfg.get("SOURCE") == "KUBERNETES":
-            # Read secrets from Kubernetes
-            secrets = sm.read_secrets(secretdef.get("secret_name"), secretdef.get("namespace"),
-                                  secretdef.get("read_type"))
-        elif secretcfg.get("SOURCE") == "KUBEVAULT":
-            
-               secrets = sm.read_secrets(secretdef.get("secret_name"), secretdef.get("namespace"), 
-                                  secretdef.get("read_type"), secretdef.get("secret_key"), 
-                                  secretdef.get("transit_key"))
-        else:
-            logging.error(f"Unknown secret source: {secretcfg.get('SOURCE')}")
-            return None
+        try:
+            if secretcfg.get("SOURCE") in ['FILE', 'ENVIRONMENT']:   ## probably makes sense to pass sm through for all sources
+                read_result = sm.execute(secretcfg.get("SOURCE"), "READ", secretdef)
+            else:
+                read_result = sm.execute(secretcfg.get("SOURCE"), "READ", sm, secretdef)
+            if read_result.get("status") == "success":
+                logger.info("Secrets retrieved successfully.")
+            else:
+                logger.error(f"Failed to retrieve secrets: {read_result.get('error', 'Unknown error')}")
+            # logger.info(f"Secrets:\n{json.dumps(read_result.get('data', {}), indent=4)}")
+        except Exception as e:
+            logger.error(f"An error occurred: {e}")
+        result = sm.execute(secretcfg.get("SOURCE"), "LOGOUT", sm)
         del sm  # Clean up the SecretManager instance
-        return secrets
+        return read_result.get('data', {})
 
     def connect_redis(self, redis_url: str):
         r = Redis.from_url(redis_url, decode_responses=True)
