@@ -14,7 +14,6 @@ class MLBServer(MicroService):
     """ ... """
     def __init__(self, period, secretcfg, secretdef):
         super().__init__(period, secretcfg, secretdef)
-        logging.info(self.secrets)
         del self.secrets
         self.type = 'MLB'
         self.url = 'http://site.api.espn.com/apis/site/v2/sports/baseball/mlb/scoreboard'
