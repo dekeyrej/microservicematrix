@@ -100,7 +100,8 @@ class MLBServer(MicroService):
         values['homeAbbreviation'] = competition['competitors'][0]['team']['abbreviation']
         try:
             values['homeColor']        = competition['competitors'][0]['team']['color']
-            values['homeRecord']       = competition['competitors'][0]['records'][0]['summary']
+            # values['homeRecord']       = competition['competitors'][0]['records'][0]['summary']
+            values['homeRecord']       = competition['competitors'][0]['record']
         except KeyError:
             values['homeColor']        = '000000'
             values['homeRecord']       = ''
@@ -114,7 +115,8 @@ class MLBServer(MicroService):
         values['awayAbbreviation'] = competition['competitors'][1]['team']['abbreviation']
         try:
             values['awayColor']        = competition['competitors'][1]['team']['color']
-            values['awayRecord']       = competition['competitors'][1]['records'][0]['summary']
+            # values['awayRecord']       = competition['competitors'][1]['records'][0]['summary']
+            values['awayRecord']       = competition['competitors'][1]['record']
         except KeyError:
             values['awayColor']        = '000000'
             values['awayRecord']       = ''
