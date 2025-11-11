@@ -2,7 +2,7 @@ arrow==1.3.0
 cachetools==5.5.2
 certifi==2025.8.3
 charset-normalizer==3.4.3
-dekeyrej-secretmanager==1.1.1
+dekeyrej-secretmanager==1.1.5
 durationpy==0.10
 google-auth==2.40.3
 hvac==2.3.0
